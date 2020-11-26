@@ -2,15 +2,19 @@
 
 namespace App\controller;
 
+use App\model\AuthModel;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 
 class AuthController extends Controller
 {
+    private $authModel;
+
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
+        $this->authModel = new AuthModel($container);
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
