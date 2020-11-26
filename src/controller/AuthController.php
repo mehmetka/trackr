@@ -19,4 +19,17 @@ class AuthController extends Controller
         return $this->view->render($response, 'login.mustache', $data);
     }
 
+    public function login(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $params = $request->getParsedBody();
+
+        $this->authModel->login($params['username'], $params['password']);
+
+        $resource = [
+            "message" => "Success!"
+        ];
+
+        return $response->withRedirect($this->container->router->pathFor('home'), 302);
+    }
+
 }
