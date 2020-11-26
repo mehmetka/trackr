@@ -1,0 +1,9 @@
+/vendor/
+/cache/
+/backups/
+/logs/
+/smarty-app/
+.DS_Store
+/.idea/
+/conf/
+composer.lock
