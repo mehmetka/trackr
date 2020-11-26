@@ -13,4 +13,6 @@ $app->group('', function () {
 
     $this->get('/',HomeController::class . ':index')->setName('home');
 
+    $this->get('/logout', \App\controller\AuthController::class . ':logout');
+
 })->add(new Middleware\Authentication($container));
