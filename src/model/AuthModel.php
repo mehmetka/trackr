@@ -33,7 +33,7 @@ class AuthModel
         }
 
         if(!$stm->rowCount()){
-            throw CustomException::clientError(404, 'Credentials are incorrect!', 'Credentials are incorrect!');
+            throw CustomException::clientError(401, 'Credentials are incorrect!', 'Credentials are incorrect!');
         }
 
         session_regenerate_id(true);
