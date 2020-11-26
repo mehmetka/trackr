@@ -3,7 +3,7 @@
 namespace App\model;
 
 use Psr\Container\ContainerInterface;
-use App\CustomException;
+use App\exception\CustomException;
 
 class AuthModel
 {
