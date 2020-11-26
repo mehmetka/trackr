@@ -1,0 +1,18 @@
+<?php
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use Slim\App;
+
+session_name('trackr');
+ini_set( 'session.cookie_httponly', 1 );
+session_start();
+
+$settings['settings'] = parse_ini_file(__DIR__ . '/../conf/conf.ini', true);
+
+$app = new App($settings);
+
+$container = $app->getContainer();
+
+require __DIR__ . "/container.php";
+require __DIR__ . "/routes.php";
