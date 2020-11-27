@@ -20,6 +20,7 @@ $app->group('', function () {
     $this->get('/my-books', BookController::class . ':myBooks');
     $this->get('/books/finished', BookController::class . ':finishedBooks');
     $this->post('/books/{bookId:[0-9]+}/progress', BookController::class . ':addProgress');
+    $this->post('/authors', BookController::class . ':createAuthor');
 
     $this->get('/logout', AuthController::class . ':logout');
 

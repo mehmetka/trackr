@@ -105,4 +105,26 @@ class BookController extends Controller
 
         return $this->response(200, $resource);
     }
+
+    public function createAuthor(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $params = $request->getParsedBody();
+
+        if (strpos($params['author'], ',') !== false) {
+            $authors = explode(',', $params['author']);
+
+            foreach ($authors as $author) {
+                $this->bookModel->createAuthor(trim($author));
+            }
+
+        } else {
+            $this->bookModel->createAuthor(trim($params['author']));
+        }
+
+        $resource = [
+            "message" => "Created successfully: " . htmlentities($params['author'])
+        ];
+
+        return $this->response(200, $resource);
+    }
 }

@@ -540,4 +540,19 @@ class BookModel
 
         return true;
     }
+
+    public function createAuthor($author)
+    {
+        $sql = 'INSERT INTO author (author) 
+                VALUES(:author)';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':author', $author, \PDO::PARAM_STR);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return $this->dbConnection->lastInsertId();
+    }
 }
