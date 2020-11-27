@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {{> head }}
+    <link rel="stylesheet" href="/css/jquery-ui.css">
+</head>
+<body class="vertical  dark">
+<div class="wrapper">
+    {{> navbar }}
+    {{> menu }}
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header">
+                            <strong class="card-title">Create New Path</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="input-group input-group-lg">
+                                    <div class="form-group col-md-6">
+                                        <label for="multi-select2">List Name</label>
+                                        <input id="pathName" placeholder="List Name" type="text"
+                                               class="form-control enterButtonKeyPress"></div>
+
+                                    <div class="form-group col-md-6">
+                                        <label for="multi-select2">List Finish</label>
+                                        <input type="text" id="pathFinish" placeholder="List Finish"
+                                               class="form-control enterButtonKeyPress">
+                                    </div>
+
+                                    <div class="form-group col-md-12">
+                                        <button id="btnAddNewPath" class="btn btn-primary mb-2">Add</button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- / .card -->
+
+                    <!-- simple table -->
+                    <div class="card shadow mb-4">
+                        <div class="card shadow">
+                            <div class="card-body">
+                                <h5 class="card-title">Book Paths</h5>
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Path Name</th>
+                                        <th>Start</th>
+                                        <th>Finish</th>
+                                        <th>Day Count</th>
+                                        <th>Remaining Page</th>
+                                        <th>Daily Amount</th>
+                                        <th>Today Processed</th>
+                                        <th>Progress</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {{#bookPaths}}
+                                        <tr>
+                                            <td>{{path_name}}</td>
+                                            <td>{{start}}</td>
+                                            <td>{{finish}}</td>
+                                            <td>{{day_diff}}</td>
+                                            <td>{{remaining_page}}</td>
+                                            <td>{{daily_amount}}</td>
+                                            <td>{{today_processed}}</td>
+                                            <td>
+                                                <div class="progress">
+                                                    <div class="progress-bar bg-success" role="progressbar"
+                                                         style="width: {{ratio}}%" aria-valuenow="{{ratio}}"
+                                                         aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {{#remaining_day_warning}}
+                                                    <button class="btn btn-sm btn-danger btnExtendFinishDate"
+                                                            data-id="{{id}}">Add 10 More Days
+                                                    </button>
+                                                {{/remaining_day_warning}}
+                                                <a class="btn btn-sm btn-dark" href="/books/{{path_id}}">List</a>
+                                            </td>
+                                        </tr>
+                                    {{/bookPaths}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div> <!-- simple table -->
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
+{{> include}}
+<script src="/js/jquery-ui.js"></script>
+<script>
+    $(document).ready(function () {
+
+        $("#pathFinish").datepicker({dateFormat: "yy-mm-dd"}).val()
+
+        $("#btnAddNewPath").on('click', function (e) {
+
+            var pathName = $('#pathName').val();
+            var finishDate = $('#pathFinish').val();
+
+            $.ajax({
+                type: "POST",
+                data: "pathName=" + pathName + "&pathFinish=" + finishDate,
+                url: "/paths",
+                success: function () {
+                    alert("success");
+                    location.reload();
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+
+        });
+
+        $(".btnExtendFinishDate").on('click', function (e) {
+
+            var id = $(this).data("id");
+
+            $.ajax({
+                type: "POST",
+                url: "/paths/" + id + "/extend",
+                success: function (data, status, xhr) {
+                    alert(xhr.responseJSON.message);
+                    location.reload();
+                },
+                error: function (data, status, xhr) {
+                    alert(data.responseJSON.message);
+                }
+            });
+        });
+
+    });
+</script>
+</body>
+</html>
