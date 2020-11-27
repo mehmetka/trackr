@@ -92,4 +92,17 @@ class BookController extends Controller
 
         return $this->view->render($response, 'finished.mustache', $data);
     }
+
+    public function addProgress(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $params = $request->getParsedBody();
+
+        $this->bookModel->insertProgressRecord($args['bookId'], $params['pathId'], $params['amount']);
+
+        $resource = [
+            "message" => "Success!"
+        ];
+
+        return $this->response(200, $resource);
+    }
 }
