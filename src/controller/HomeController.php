@@ -15,11 +15,7 @@ class HomeController extends Controller
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $data = [
-            'activeHome' => 'active'
-        ];
-
-        return $this->view->render($response, 'home.mustache', $data);
+        return $response->withRedirect($this->container->router->pathFor('paths'), 302);
     }
 
 }
