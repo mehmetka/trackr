@@ -17,6 +17,22 @@ class BookController extends Controller
         $this->bookModel = new BookModel($container);
     }
 
+    public function booksPathInside(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $authors = $this->bookModel->getAuthorsKeyValue();
+        $subject = $this->bookModel->getSubjectsKeyValue();
+        $books = $this->bookModel->getBooksPathInside($args['pathId']);
+
+        $data = [
+            'subjects' => $subject,
+            'authors' => $authors,
+            'books' => $books,
+            'activeBookPaths' => 'active'
+        ];
+
+        return $this->view->render($response, 'books.mustache', $data);
+    }
+
     public function paths(ServerRequestInterface $request, ResponseInterface $response)
     {
         $averageData = $this->bookModel->readingAverage();

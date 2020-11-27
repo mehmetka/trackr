@@ -425,4 +425,73 @@ class BookModel
 
         return $books;
     }
+
+    public function getBooksPathInside($pathId)
+    {
+        $sql = "SELECT b.title, b.id, b.page_count, b.status AS book_status, pb.status AS path_status, pb.path_id, CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ') FROM book_authors ba INNER JOIN author a ON ba.author_id = a.id WHERE ba.book_id = b.id)) AS author
+                FROM books b
+                INNER JOIN path_books pb ON b.id = pb.book_id
+                WHERE pb.path_id = :path_id AND pb.status <= 1
+                ORDER BY pb.status DESC";
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':path_id', $pathId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        $list = [];
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+
+            $readAmount = $this->getReadAmount($row['id'], $row['path_id']);
+            $readAmount = $readAmount ? $readAmount : 0;
+
+            $pageCount = $row['page_count'];
+            $diff = $pageCount - $readAmount;
+
+            if ($pageCount != 0 && $diff <= 0) {
+                $this->insertNewReadRecord($row['path_id'], $row['id']);
+                $this->setBookPathStatus($row['path_id'], $row['id'], self::DONE);
+                $this->setBookStatus($row['id'], self::DONE);
+
+                continue;
+            }
+
+            if ($row['path_status'] == 0) {
+                $row['remove_from_path'] = true;
+            }
+
+            $row['remaining'] = $readAmount;
+            $row['divId'] = "div-{$row['id']}-" . uniqid();
+            $row['status_label'] = 'bg-secondary-dark';
+
+            if ($readAmount) {
+                $row['status_label'] = 'bg-warning-dark';
+                array_unshift($list, $row);
+            } else {
+                $list[] = $row;
+            }
+        }
+
+        return $list;
+    }
+
+    public function setBookStatus($bookId, $status)
+    {
+        $sql = 'UPDATE books
+                SET status=:status
+                WHERE id=:id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':id', $bookId, \PDO::PARAM_INT);
+        $stm->bindParam(':status', $status, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
 }
