@@ -64,4 +64,16 @@ class BookController extends Controller
 
         return $this->view->render($response, 'my-books.mustache', $data);
     }
+
+    public function finishedBooks(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $books = $this->bookModel->finishedBooks();
+
+        $data = [
+            'books' => $books,
+            'activeFinished' => 'active'
+        ];
+
+        return $this->view->render($response, 'finished.mustache', $data);
+    }
 }

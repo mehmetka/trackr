@@ -401,4 +401,28 @@ class BookModel
 
         return $list;
     }
+
+    public function finishedBooks()
+    {
+        $sql = "SELECT bf.id, bf.book_id, b.title, b.page_count, b.status, bf.start_date, bf.finish_date, 
+                        CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ') FROM book_authors ba INNER JOIN author a ON ba.author_id = a.id WHERE ba.book_id = b.id)) AS author
+                FROM books_finished bf
+                LEFT JOIN books b ON bf.book_id = b.id";
+        $stm = $this->dbConnection->prepare($sql);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        $books = [];
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $row['status_label'] = 'badge-info';
+            $row['status_label_text'] = 'done';
+
+            $books[] = $row;
+        }
+
+        return $books;
+    }
 }
