@@ -10,10 +10,34 @@ class BookModel
 {
     /** @var \PDO $dbConnection */
     private $dbConnection;
+    private $pathStatusLabels;
+    const NOT_STARTED = 0;
+    const READING = 1;
+    const DONE = 2;
+    const LIST_OUT = 3;
+
 
     public function __construct(ContainerInterface $container)
     {
         $this->dbConnection = $container->get('db');
+        $this->pathStatusLabels = [
+            0 => [
+                'STATUS_LABEL' => 'badge-secondary',
+                'STATUS_LABEL_TEXT' => 'Not Started'
+            ],
+            1 => [
+                'STATUS_LABEL' => 'badge-warning',
+                'STATUS_LABEL_TEXT' => 'Reading'
+            ],
+            2 => [
+                'STATUS_LABEL' => 'badge-success',
+                'STATUS_LABEL_TEXT' => 'Done'
+            ],
+            3 => [
+                'STATUS_LABEL' => 'badge-danger',
+                'STATUS_LABEL_TEXT' => 'List Out'
+            ]
+        ];
     }
 
     public function getStartOfReadings()
@@ -487,6 +511,28 @@ class BookModel
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':id', $bookId, \PDO::PARAM_INT);
         $stm->bindParam(':status', $status, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function insertProgressRecord($bookId, $pathId, $amount)
+    {
+        $now = time();
+
+        $this->setBookPathStatus($pathId, $bookId, self::READING);
+
+        $sql = 'INSERT INTO book_trackings (book_id, path_id, record_date, amount)
+                VALUES(:book_id,:path_id,:record_date,:amount)';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
+        $stm->bindParam(':path_id', $pathId, \PDO::PARAM_INT);
+        $stm->bindParam(':record_date', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':amount', $amount, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
