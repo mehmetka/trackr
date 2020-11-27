@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {{> head }}
+</head>
+<body class="vertical  dark">
+<div class="wrapper">
+    {{> navbar }}
+    {{> menu }}
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+
+                    <div class="card shadow mb-4">
+                        <div class="card shadow">
+                            <div class="card-body">
+                                <h5 class="card-title">Add Author</h5>
+                                <input id="author" placeholder="Add new author" type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- simple table -->
+                    <div class="card shadow mb-4">
+                        <div class="card shadow">
+                            <div class="card-body">
+                                <h5 class="card-title">All Books</h5>
+                                <table class="table table-striped table-bordered" id="booksDatatable" width="100%">
+                                    <thead>
+                                    <tr>
+                                        <th>Author</th>
+                                        <th>Title</th>
+                                        <th>Page</th>
+                                        {{^add_to_library}}
+                                            <th>Added Date</th>
+                                        {{/add_to_library}}
+                                        <th>Add a Path</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {{#books}}
+                                        <tr>
+                                            <td style="width:30%">{{author}}</td>
+                                            <td style="width:30%">
+                                                {{title}}
+                                                {{#add_to_library}}
+                                                    <button type="button" class="btn btn-primary btn-sm float-right btnAddToLibrary"
+                                                            data-id="{{id}}">Add
+                                                    </button>
+                                                {{/add_to_library}}
+                                            </td>
+                                            <td style="width:4%">{{page_count}}</td>
+                                            <td style="width:8%">
+                                                {{^add_to_library}}
+                                                    {{added_date}}
+                                                {{/add_to_library}}
+                                            </td>
+                                            <td style="width:7%">
+                                                <div class="btn-group">
+                                                    <button type="button" class="btn btn-danger btn-sm dropdown-toggle"
+                                                            data-toggle="dropdown"
+                                                            aria-haspopup="true" aria-expanded="false">
+                                                        Paths
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        {{#paths}}
+                                                            <a class="dropdown-item btnAddBookToPath"
+                                                               data-id="{{path_id}}"
+                                                               data-book="{{id}}">{{path_name}}</a>
+                                                        {{/paths}}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style="width:8%">
+                                                <button type="button" class="btn btn-danger btn-sm btnResetBook"
+                                                        data-id="{{id}}">Reset
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {{/books}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div> <!-- simple table -->
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
+{{> include}}
+{{> add-book }}
+<script>
+    $(document).ready(function () {
+
+        var initBooks = function () {
+            bindingsBooks();
+        };
+
+        var bindingsBooks = function () {
+
+            $(".btnAddBookToPath").on('click', function (e) {
+
+                var pathId = $(this).data("id");
+                var bookId = $(this).data("book");
+
+                $.ajax({
+                    type: "POST",
+                    data: "bookId=" + bookId,
+                    url: "/paths/" + pathId + "/books",
+                    success: function (data, status, xhr) {
+                        alert(xhr.responseJSON.message);
+                    },
+                    error: function (data, status, xhr) {
+                        alert(data.responseJSON.message);
+                    }
+                });
+            });
+
+            $(".btnAddToLibrary").on('click', function (e) {
+
+                var id = $(this).data("id");
+
+                $.ajax({
+                    type: "PUT",
+                    url: "/books/" + id + "/add-to-library",
+                    success: function (data, status, xhr) {
+                        alert(xhr.responseJSON.message);
+                        location.reload();
+                    },
+                    error: function (data, status, xhr) {
+                        alert(data.responseJSON.message);
+                    }
+                });
+            });
+
+            $(".btnResetBook").on('click', function (e) {
+
+                var id = $(this).data("id");
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "/books/" + id,
+                    success: function (data, status, xhr) {
+                        alert(xhr.responseJSON.message);
+                        location.reload();
+                    },
+                    error: function (data, status, xhr) {
+                        alert(data.responseJSON.message);
+                    }
+                });
+            });
+
+            $('#author').bind('keypress', function (e) {
+                if (e.keyCode == 13) {
+                    var author = $('#author').val();
+
+                    $.ajax({
+                        type: "POST",
+                        data: "author=" + author,
+                        url: "/authors",
+                        success: function (data, status, xhr) {
+                            alert(xhr.responseJSON.message);
+                            location.reload();
+                        },
+                        error: function (data, status, xhr) {
+                            alert(data.responseJSON.message);
+                        }
+                    });
+
+                }
+            });
+
+        };
+
+        initBooks();
+
+    });
+</script>
+</body>
+</html>
