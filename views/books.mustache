@@ -115,7 +115,7 @@
                 $.ajax({
                     type: "POST",
                     data: "amount=" + amount + "&pathId=" + pathId,
-                    url: "/books/progress/" + id,
+                    url: "/books/" + id + "/progress",
                     success: function (data, status, xhr) {
                         alert(xhr.responseJSON.message);
                         location.reload();
