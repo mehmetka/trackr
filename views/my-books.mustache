@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {{> head }}
+</head>
+<body class="vertical  dark">
+<div class="wrapper">
+    {{> navbar }}
+    {{> menu }}
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+
+                    <div class="card shadow mb-4">
+                        <div class="card shadow">
+                            <div class="card-body">
+                                <h5 class="card-title">Add Author</h5>
+                                <input id="author" placeholder="Add new author" type="text" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- simple table -->
+                    <div class="card shadow mb-4">
+                        <div class="card shadow">
+                            <div class="card-body">
+                                <h5 class="card-title">My Books</h5>
+                                <table class="table table-striped table-bordered" id="booksDatatable" width="100%">
+                                    <thead>
+                                    <tr>
+                                        <th>Author</th>
+                                        <th>Title</th>
+                                        <th>Page</th>
+                                        <th>Added</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {{#books}}
+                                        <tr>
+                                            <td>{{author}}</td>
+                                            <td>{{title}}</td>
+                                            <td>{{page_count}}</td>
+                                            <td>{{added_date}}</td>
+                                        </tr>
+                                    {{/books}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div> <!-- simple table -->
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
+{{> include}}
+<script>
+    $(document).ready(function () {
+        var initBooks = function () {
+            bindingsBooks();
+        };
+
+        var bindingsBooks = function () {
+
+            $('#author').bind('keypress', function (e) {
+                if (e.keyCode == 13) {
+                    var author = $('#author').val();
+
+                    $.ajax({
+                        type: "POST",
+                        data: "author=" + author,
+                        url: "/authors",
+                        success: function (data, status, xhr) {
+                            alert(xhr.responseJSON.message);
+                            location.reload();
+                        },
+                        error: function (data, status, xhr) {
+                            alert(data.responseJSON.message);
+                        }
+                    });
+                }
+            });
+
+        };
+
+        initBooks();
+    });
+</script>
+</body>
+</html>
