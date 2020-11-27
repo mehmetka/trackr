@@ -48,4 +48,20 @@ class BookController extends Controller
 
         return $this->view->render($response, 'all-books.mustache', $data);
     }
+
+    public function myBooks(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $authors = $this->bookModel->getAuthorsKeyValue();
+        $subject = $this->bookModel->getSubjectsKeyValue();
+        $books = $this->bookModel->getMyBooks();
+
+        $data = [
+            'subjects' => $subject,
+            'authors' => $authors,
+            'books' => $books,
+            'activeMyBooks' => 'active'
+        ];
+
+        return $this->view->render($response, 'my-books.mustache', $data);
+    }
 }

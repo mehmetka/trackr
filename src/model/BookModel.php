@@ -373,4 +373,32 @@ class BookModel
 
         return $paths;
     }
+
+    public function getMyBooks()
+    {
+        $sql = "SELECT b.id,
+                       CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ')
+                               FROM book_authors ba
+                                        INNER JOIN author a ON ba.author_id = a.id
+                               WHERE ba.book_id = b.id)) AS author,
+                       b.title, b.page_count, b.own, b.added_date
+                FROM books b
+                WHERE b.own = 1";
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        $list = [];
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $row['added_date'] = date("Y-m-d", $row['added_date']);
+            $row['remaining'] = 0;
+            $list[] = $row;
+        }
+
+        return $list;
+    }
 }
