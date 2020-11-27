@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {{> head }}
+</head>
+<body class="vertical  dark">
+<div class="wrapper">
+    {{> navbar }}
+    {{> menu }}
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+
+                    <div class="card shadow mb-4">
+                        <div class="card shadow">
+                            <div class="card-body">
+                                <h5 class="card-title">Add New Author</h5>
+                                <div class="input-group input-group-lg">
+                                    <input id="author" placeholder="Add new author" type="text" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="card-title">Books</h5>
+                    <div class="card-columns">
+                        {{#books}}
+                            <div id="{{divId}}" class="card">
+                                <div class="card-header {{status_label}}">
+                                    Read: {{remaining}}/{{page_count}}
+                                </div>
+                                <div class="card-body">
+                                    <blockquote class="blockquote mb-0">
+                                        {{title}} - {{author}}
+                                        <footer>
+                                            <br>
+
+                                            <div class="input-group mb-3 actionCard">
+                                                <input id="{{id}}" type="number"
+                                                       class="form-control inputAmount"
+                                                       placeholder="Read amount">
+                                                <span class="input-group-append"><button
+                                                        class="btn btn-secondary btnAddAmount" type="button"
+                                                        data-id="{{id}}" data-path="{{path_id}}">+</button>
+                                                            </span>
+                                            </div>
+
+                                            {{#remove_from_path}}
+                                                <div>
+                                                    <button class="btn btn-light btnRemoveFromPath"
+                                                            type="button" data-id="{{id}}"
+                                                            data-div="{{divId}}"
+                                                            data-path="{{path_id}}">Remove
+                                                    </button>
+                                                </div>
+                                            {{/remove_from_path}}
+                                        </footer>
+                                    </blockquote>
+                                </div>
+                            </div>
+                        {{/books}}
+                    </div>
+
+                    <!-- simple table -->
+                    <div class="card shadow mb-4">
+                        <div class="card shadow">
+                            <div class="card-body">
+
+                            </div>
+                        </div>
+                    </div> <!-- simple table -->
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
+{{> include}}
+{{> add-book }}
+<script>
+    $(document).ready(function () {
+        var initBooks = function () {
+
+            bindingsBooks();
+        };
+
+        var bindingsBooks = function () {
+
+            $('#author').bind('keypress', function (e) {
+                if (e.keyCode == 13) {
+                    var author = $('#author').val();
+
+                    $.ajax({
+                        type: "POST",
+                        data: "author=" + author,
+                        url: "/authors",
+                        success: function (data, status, xhr) {
+                            alert(xhr.responseJSON.message);
+                            location.reload();
+                        },
+                        error: function (data, status, xhr) {
+                            alert(data.responseJSON.message);
+                        }
+                    });
+
+                }
+            });
+
+            $(".btnAddAmount").on('click', function (e) {
+
+                var id = $(this).data("id");
+                var amount = $('#' + id).val();
+                var pathId = $(this).data("path");
+
+                $.ajax({
+                    type: "POST",
+                    data: "amount=" + amount + "&pathId=" + pathId,
+                    url: "/books/progress/" + id,
+                    success: function (data, status, xhr) {
+                        alert(xhr.responseJSON.message);
+                        location.reload();
+                    },
+                    error: function (data, status, xhr) {
+                        alert(data.responseJSON.message);
+                    }
+                });
+            });
+
+            $(".btnRemoveFromPath").on('click', function (e) {
+
+                var bookId = $(this).data("id");
+                var pathId = $(this).data("path");
+                var divId = $(this).data("div");
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "/paths/" + pathId + "/books/" + bookId,
+                    success: function (data, status, xhr) {
+                        $('#' + divId).remove();
+                        alert(xhr.responseJSON.message);
+                    },
+                    error: function (data, status, xhr) {
+                        alert(data.responseJSON.message);
+                    }
+                });
+            });
+
+        };
+
+        initBooks();
+    });
+</script>
+</body>
+</html>
