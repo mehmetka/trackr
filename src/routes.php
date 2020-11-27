@@ -16,7 +16,8 @@ $app->group('', function () {
 
     $this->get('/books/paths', BookController::class . ':paths')->setName('paths');
     $this->get('/all-books', BookController::class . ':allBooks');
-    $this->get('/my-books', \App\controller\BookController::class . ':myBooks');
+    $this->get('/my-books', BookController::class . ':myBooks');
+    $this->get('/books/finished', BookController::class . ':finishedBooks');
 
     $this->get('/logout', AuthController::class . ':logout');
 
