@@ -102,7 +102,7 @@ class BookModel
         $list = [];
         $paths = $this->getPathsList();
 
-        foreach ($paths as $path){
+        foreach ($paths as $path) {
 
             if ($today > $path['finish_epoch']) {
                 $this->changePathStatus($path['path_id'], 1);
@@ -595,5 +595,35 @@ class BookModel
         }
 
         return $this->dbConnection->lastInsertId();
+    }
+
+    public function deleteBookTrackings($bookId)
+    {
+        $sql = 'DELETE FROM book_trackings
+                WHERE BOOK_ID = :bookId';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':bookId', $bookId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function deleteBookRecordsFromPaths($bookId)
+    {
+        $sql = 'DELETE FROM path_books
+                WHERE book_id = :bookId';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':bookId', $bookId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
     }
 }
