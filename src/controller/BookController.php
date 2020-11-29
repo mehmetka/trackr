@@ -19,13 +19,9 @@ class BookController extends Controller
 
     public function booksPathInside(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $authors = $this->bookModel->getAuthorsKeyValue();
-        $subject = $this->bookModel->getSubjectsKeyValue();
         $books = $this->bookModel->getBooksPathInside($args['pathId']);
 
         $data = [
-            'subjects' => $subject,
-            'authors' => $authors,
             'books' => $books,
             'activeBookPaths' => 'active'
         ];
@@ -51,12 +47,12 @@ class BookController extends Controller
 
     public function allBooks(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $authors = $this->bookModel->getAuthorsKeyValue();
-        $subject = $this->bookModel->getSubjectsKeyValue();
+        $authors = $this->bookModel->getAuthors();
+        $categories = $this->bookModel->getCategories();
         $books = $this->bookModel->getAllBooks();
 
         $data = [
-            'subjects' => $subject,
+            'categories' => $categories,
             'authors' => $authors,
             'books' => $books,
             'activeAllBooks' => 'active'
@@ -67,13 +63,9 @@ class BookController extends Controller
 
     public function myBooks(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $authors = $this->bookModel->getAuthorsKeyValue();
-        $subject = $this->bookModel->getSubjectsKeyValue();
         $books = $this->bookModel->getMyBooks();
 
         $data = [
-            'subjects' => $subject,
-            'authors' => $authors,
             'books' => $books,
             'activeMyBooks' => 'active'
         ];
