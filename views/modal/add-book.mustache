@@ -12,7 +12,6 @@
                 <div>
                     <form id="bookSaveForm" name="bookSaveForm">
                         <div class="form-group">
-
                             <label for="author">Author:</label>
                             <select id="authors" multiple="multiple" name="authors[]" class="form-control">
                                 {{#authors}}
@@ -53,11 +52,11 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="subject">Subject:</label>
+                            <label for="subject">Category:</label>
                             <select id="subject" name="subject" class="form-control">
-                                {{#subjects}}
+                                {{#categories}}
                                     <option value="{{id}}">{{name}}</option>
-                                {{/subjects}}
+                                {{/categories}}
                             </select>
                         </div>
 
