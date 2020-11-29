@@ -8,7 +8,8 @@ use App\controller\BookController;
 $app->group('', function () {
     $this->get('/login', AuthController::class . ':loginPage')->setName('login');
     $this->post('/login', AuthController::class . ':login');
-    $this->get('/register', AuthController::class . ':registerPage')->setName('login');
+    $this->get('/register', AuthController::class . ':registerPage')->setName('register');
+    $this->post('/register', AuthController::class . ':register');
 })->add(new Middleware\Guest($container));
 
 $app->group('', function () {

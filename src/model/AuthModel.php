@@ -29,10 +29,10 @@ class AuthModel
         $stm->bindParam(':password', $password, \PDO::PARAM_STR);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(500,  'Something went wrong');
+            throw CustomException::dbError(500, 'Something went wrong');
         }
 
-        if(!$stm->rowCount()){
+        if (!$stm->rowCount()) {
             throw CustomException::clientError(401, 'Credentials are incorrect!', 'Credentials are incorrect!');
         }
 
@@ -43,6 +43,27 @@ class AuthModel
         }
 
         $_SESSION['userInfos']['username'] = $username;
+
+        return true;
+    }
+
+    public function register($username, $password)
+    {
+        $password = hash('sha512', $password);
+        $created = time();
+
+        $sql = 'INSERT INTO users (username, password, created) 
+                VALUES(:username, :password, :created)';
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        $stm->bindParam(':username', $username, \PDO::PARAM_STR);
+        $stm->bindParam(':password', $password, \PDO::PARAM_STR);
+        $stm->bindParam(':created', $created, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
 
         return true;
     }

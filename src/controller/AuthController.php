@@ -2,9 +2,10 @@
 
 namespace App\controller;
 
+use App\exception\CustomException;
 use App\model\AuthModel;
-use \Psr\Http\Message\ServerRequestInterface;
-use \Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
 
 class AuthController extends Controller
@@ -35,11 +36,20 @@ class AuthController extends Controller
 
         $this->authModel->login($params['username'], $params['password']);
 
-        $resource = [
-            "message" => "Success!"
-        ];
-
         return $response->withRedirect($this->container->router->pathFor('home'), 302);
+    }
+
+    public function register(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $params = $request->getParsedBody();
+
+        if(trim($params['password']) != trim($params['passwordAgain'])){
+            throw CustomException::clientError(401, 'Passwords must be matched!', 'Passwords must be matched!');
+        }
+
+        $this->authModel->register(trim($params['username']), trim($params['password']));
+
+        return $response->withRedirect($this->container->router->pathFor('login'), 302);
     }
 
     public function logout(ServerRequestInterface $request, ResponseInterface $response)
