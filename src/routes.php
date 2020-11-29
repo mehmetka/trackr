@@ -18,6 +18,7 @@ $app->group('', function () {
     $this->get('/books/paths/{pathId:[0-9]+}', BookController::class . ':booksPathInside');
     $this->get('/all-books', BookController::class . ':allBooks');
     $this->get('/my-books', BookController::class . ':myBooks');
+    $this->put('/books/{bookId:[0-9]+}/add-to-library', BookController::class . ':addToLibrary');
     $this->get('/books/finished', BookController::class . ':finishedBooks');
     $this->post('/books/{bookId:[0-9]+}/progress', BookController::class . ':addProgress');
     $this->post('/authors', BookController::class . ':createAuthor');

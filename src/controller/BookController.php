@@ -127,4 +127,16 @@ class BookController extends Controller
 
         return $this->response(200, $resource);
     }
+
+    public function addToLibrary(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $bookId = $args['bookId'];
+        $this->bookModel->addToLibrary($bookId);
+
+        $resource = [
+            "message" => "Success!"
+        ];
+
+        return $this->response(200, $resource);
+    }
 }

@@ -555,4 +555,23 @@ class BookModel
 
         return $this->dbConnection->lastInsertId();
     }
+
+    public function addToLibrary($bookId)
+    {
+        $addedDate = time();
+
+        $sql = 'UPDATE books
+                SET own = 1, added_date = :addedDate
+                WHERE id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':id', $bookId, \PDO::PARAM_INT);
+        $stm->bindParam(':addedDate', $addedDate, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
 }
