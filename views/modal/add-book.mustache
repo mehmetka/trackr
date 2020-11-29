@@ -1,0 +1,114 @@
+<div class="modal fade" id="bookFormModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Insert a Book</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <form id="bookSaveForm" name="bookSaveForm">
+                        <div class="form-group">
+
+                            <label for="author">Author:</label>
+                            <select id="authors" multiple="multiple" name="authors[]" class="form-control">
+                                {{#authors}}
+                                    <option value="{{id}}">{{author}}</option>
+                                {{/authors}}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bookTitle">Title:</label>
+                            <input type="text" id="bookTitle" name="bookTitle" placeholder="Title" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="publisher">Publisher:</label>
+                            <input id="publisher" name="publisher" placeholder="Publisher" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pdf">PDF:</label>
+                            <select id="pdf" name="pdf" class="form-control">
+                                <option value="0">No</option>
+                                <option value="1">Yes</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="epub">Epub:</label>
+                            <select id="epub" name="epub" class="form-control">
+                                <option value="0">No</option>
+                                <option value="1">Yes</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notes">Notes:</label>
+                            <input id="notes" name="notes" placeholder="Notes" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject">Subject:</label>
+                            <select id="subject" name="subject" class="form-control">
+                                {{#subjects}}
+                                    <option value="{{id}}">{{name}}</option>
+                                {{/subjects}}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="own">Own:</label>
+                            <select id="own" name="own" class="form-control">
+                                <option value="0">No</option>
+                                <option value="1">Yes</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pageCount">Page Count:</label>
+                            <input type="number" id="pageCount" name="pageCount" placeholder="Page Count"
+                                   class="form-control">
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button id="save" type="button" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $("#save").on('click', function (e) {
+
+            var formData = $('#bookSaveForm').serialize();
+
+            $.ajax({
+                type: "POST",
+                data: formData,
+                url: "/books",
+                success: function (data, status, xhr) {
+                    alert(xhr.responseJSON.message);
+                    $('#bookFormModal').modal('hide');
+                    location.reload();
+                },
+                error: function (data, status, xhr) {
+                    alert(data.responseJSON.message);
+                }
+            });
+
+        });
+
+    });
+</script>
