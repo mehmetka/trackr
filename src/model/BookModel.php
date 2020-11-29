@@ -668,4 +668,48 @@ class BookModel
 
         return true;
     }
+
+    public function saveBook($params)
+    {
+        $now = time();
+        $status = self::NOT_STARTED;
+
+        $sql = 'INSERT INTO books (title, publisher, pdf, epub, notes, subject, added_date, own, page_count, status)
+                VALUES(:title,:publisher,:pdf,:epub,:notes,:subject,:added_date,:own,:page_count, :status)';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':title', $params['bookTitle'], \PDO::PARAM_STR);
+        $stm->bindParam(':publisher', $params['publisher'], \PDO::PARAM_STR);
+        $stm->bindParam(':pdf', $params['pdf'], \PDO::PARAM_INT);
+        $stm->bindParam(':epub', $params['epub'], \PDO::PARAM_INT);
+        $stm->bindParam(':notes', $params['notes'], \PDO::PARAM_STR);
+        $stm->bindParam(':subject', $params['subject'], \PDO::PARAM_INT);
+        $stm->bindParam(':added_date', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':own', $params['own'], \PDO::PARAM_INT);
+        $stm->bindParam(':page_count', $params['pageCount'], \PDO::PARAM_INT);
+        $stm->bindParam(':status', $status, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return $this->dbConnection->lastInsertId();
+    }
+
+    public function insertBookAuthor($bookId, $authorId)
+    {
+        $sql = 'INSERT INTO book_authors (author_id, book_id) 
+                VALUES(:author_id, :book_id)';
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        $stm->bindParam(':author_id', $authorId, \PDO::PARAM_INT);
+        $stm->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return $this->dbConnection->lastInsertId();
+    }
 }

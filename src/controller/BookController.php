@@ -182,4 +182,21 @@ class BookController extends Controller
 
         return $this->response(200, $resource);
     }
+
+    public function saveBook(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $params = $request->getParsedBody();
+        $bookId = $this->bookModel->saveBook($params);
+        $authors = $params['authors'];
+
+        foreach ($authors as $author) {
+            $this->bookModel->insertBookAuthor($bookId, $author);
+        }
+
+        $resource = [
+            "message" => "Success!"
+        ];
+
+        return $this->response(200, $resource);
+    }
 }
