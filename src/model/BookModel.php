@@ -296,7 +296,7 @@ class BookModel
         return $total == NULL ? 0 : $total;
     }
 
-    public function getAuthorsKeyValue()
+    public function getAuthors()
     {
         $sql = 'SELECT id,author 
                 FROM author';
@@ -317,7 +317,7 @@ class BookModel
         return $list;
     }
 
-    public function getSubjectsKeyValue()
+    public function getCategories()
     {
         $sql = 'SELECT id,name 
                 FROM categories';
