@@ -17,10 +17,16 @@ class AuthController extends Controller
         $this->authModel = new AuthModel($container);
     }
 
-    public function index(ServerRequestInterface $request, ResponseInterface $response)
+    public function loginPage(ServerRequestInterface $request, ResponseInterface $response)
     {
         $data['title'] = "trackr";
         return $this->view->render($response, 'login.mustache', $data);
+    }
+
+    public function registerPage(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $data['title'] = "trackr";
+        return $this->view->render($response, 'register.mustache', $data);
     }
 
     public function login(ServerRequestInterface $request, ResponseInterface $response)
