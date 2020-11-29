@@ -112,7 +112,7 @@ class BookModel
             $path['remaining_page'] = $this->getBooksRemainingPageCount($path['path_id']);
             $path['day_diff'] = Util::epochDateDiff($path['finish_epoch'], $today);
             $path['path_day_count'] = Util::epochDateDiff($path['finish_epoch'], $path['start_epoch']);
-            $path['ratio'] = (($path['path_day_count'] - $path['day_diff']) / $path['path_day_count']) * 100;
+            $path['ratio'] = round((($path['path_day_count'] - $path['day_diff']) / $path['path_day_count']) * 100);
             $path['today_processed'] = $this->getBookPathsDailyRemainings($path['path_id']);
 
             $dailyAmount = $path['remaining_page'] / $path['day_diff'];
