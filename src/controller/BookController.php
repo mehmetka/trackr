@@ -169,4 +169,17 @@ class BookController extends Controller
 
         return $this->response(200, $resource);
     }
+
+    public function extend(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $pathDetail = $this->bookModel->getPathById($args['pathId']);
+        $extendedFinishDate = strtotime($pathDetail['finish']) + 864000;
+        $this->bookModel->extendFinishDate($args['pathId'], $extendedFinishDate);
+
+        $resource = [
+            "message" => "Success!"
+        ];
+
+        return $this->response(200, $resource);
+    }
 }

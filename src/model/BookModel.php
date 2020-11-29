@@ -626,4 +626,46 @@ class BookModel
 
         return true;
     }
+
+    public function getPathById($pathId)
+    {
+        $sql = 'SELECT id, name, start, finish 
+                FROM paths 
+                WHERE id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':id', $pathId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        $path = [];
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $row['start'] = date('Y-m-d', $row['start']);
+            $row['finish'] = date('Y-m-d', $row['finish']);
+
+            $path = $row;
+        }
+
+        return $path;
+    }
+
+    public function extendFinishDate($pathId, $extendedFinishDate)
+    {
+        $sql = 'UPDATE paths 
+                SET finish = :finish 
+                WHERE id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':finish', $extendedFinishDate, \PDO::PARAM_INT);
+        $stm->bindParam(':id', $pathId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
 }
