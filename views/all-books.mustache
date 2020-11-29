@@ -110,8 +110,8 @@
 
                 $.ajax({
                     type: "POST",
-                    data: "bookId=" + bookId,
-                    url: "/paths/" + pathId + "/books",
+                    data: "pathId=" + pathId,
+                    url: "/books/" + bookId + "/paths",
                     success: function (data, status, xhr) {
                         alert(xhr.responseJSON.message);
                     },

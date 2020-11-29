@@ -22,6 +22,7 @@ $app->group('', function () {
     $this->get('/books/finished', BookController::class . ':finishedBooks');
     $this->post('/books/{bookId:[0-9]+}/progress', BookController::class . ':addProgress');
     $this->post('/authors', BookController::class . ':createAuthor');
+    $this->post('/books/{bookId:[0-9]+}/paths', BookController::class . ':addBookToPath');
 
     $this->get('/logout', AuthController::class . ':logout');
 

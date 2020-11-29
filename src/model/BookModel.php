@@ -574,4 +574,26 @@ class BookModel
 
         return true;
     }
+
+    public function addBookToPath($pathId, $bookId)
+    {
+        $status = 0;
+        $now = time();
+
+        $sql = 'INSERT INTO path_books (path_id, book_id, status, created, updated) 
+                VALUES(:path_id, :book_id, :status, :created, :updated)';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':path_id', $pathId, \PDO::PARAM_INT);
+        $stm->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
+        $stm->bindParam(':status', $status, \PDO::PARAM_INT);
+        $stm->bindParam(':created', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':updated', $now, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()), 'Could not add book to path!');
+        }
+
+        return $this->dbConnection->lastInsertId();
+    }
 }

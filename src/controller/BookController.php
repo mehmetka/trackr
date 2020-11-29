@@ -139,4 +139,20 @@ class BookController extends Controller
 
         return $this->response(200, $resource);
     }
+
+    public function addBookToPath(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $params = $request->getParsedBody();
+
+        $pathId = $params['pathId'];
+        $bookId = $args['bookId'];
+
+        $this->bookModel->addBookToPath($pathId,$bookId);
+
+        $resource = [
+            "message" => "Success!"
+        ];
+
+        return $this->response(200, $resource);
+    }
 }
