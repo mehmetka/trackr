@@ -2,7 +2,6 @@
 
 namespace App\middleware;
 
-use App\CustomException;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 
