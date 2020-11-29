@@ -69,11 +69,7 @@
                                             <td>{{daily_amount}}</td>
                                             <td>{{today_processed}}</td>
                                             <td>
-                                                <div class="progress">
-                                                    <div class="progress-bar bg-success" role="progressbar"
-                                                         style="width: {{ratio}}%" aria-valuenow="{{ratio}}"
-                                                         aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
+                                                <span class="text-warning">%{{ratio}}</span>
                                             </td>
                                             <td>
                                                 {{#remaining_day_warning}}
