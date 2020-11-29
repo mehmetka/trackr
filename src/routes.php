@@ -6,9 +6,10 @@ use App\controller\HomeController;
 use App\controller\BookController;
 
 $app->group('', function () {
-    $this->get('/login', AuthController::class . ':index')->setName('login');
+    $this->get('/login', AuthController::class . ':loginPage')->setName('login');
     $this->post('/login', AuthController::class . ':login');
-});
+    $this->get('/register', AuthController::class . ':registerPage')->setName('login');
+})->add(new Middleware\Guest($container));
 
 $app->group('', function () {
 
