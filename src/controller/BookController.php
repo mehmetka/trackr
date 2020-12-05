@@ -228,6 +228,14 @@ class BookController extends Controller
     public function categories(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $categories = $this->bookModel->getCategories();
+        $defaultCategory = $this->bookModel->getDefaultCategory();
+
+        if (!$defaultCategory) {
+            $defaultCategoryId = $this->bookModel->createCategory('default');
+            $this->bookModel->resetCategoriesDefaultStatus();
+            $this->bookModel->setDefaultCategory($defaultCategoryId, 1);
+        }
+
 
         $data = [
             'categories' => $categories,
@@ -251,26 +259,23 @@ class BookController extends Controller
 
     public function deleteCategory(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-//        $defaultCategory = $this->bookModel->getDefaultCategory();
-//
-//        if ($defaultCategory && $defaultCategory['id'] == $args['categoryId']) {
-//            $categoryId = $this->bookModel->createCategory('default');
-//            $this->bookModel->resetCategoriesDefaultStatus();
-//            $this->bookModel->setDefaultCategory($categoryId, 1);
-//            $this->bookModel->changeBooksCategoryByGivenCategory($args['categoryId'], $categoryId);
-//        } elseif($defaultCategory && $defaultCategory['id'] != $args['categoryId']) {
-//            $this->bookModel->changeBooksCategoryByGivenCategory($args['categoryId'], $defaultCategory['id']);
-//        } else {
-//
-//        }
-//
-//        $this->bookModel->deleteCategory($args['categoryId']);
-//
-//        $resource = [
-//            "message" => "Success!"
-//        ];
-//
-//        return $this->response(200, $resource);
+        $defaultCategory = $this->bookModel->getDefaultCategory();
+        $this->bookModel->deleteCategory($args['categoryId']);
+
+        if ($defaultCategory['id'] == $args['categoryId']) {
+            $defaultCategoryId = $this->bookModel->createCategory('default');
+            $this->bookModel->resetCategoriesDefaultStatus();
+            $this->bookModel->setDefaultCategory($defaultCategoryId, 1);
+            $this->bookModel->changeBooksCategoryByGivenCategory($args['categoryId'], $defaultCategoryId);
+        } else {
+            $this->bookModel->changeBooksCategoryByGivenCategory($args['categoryId'], $defaultCategory['id']);
+        }
+
+        $resource = [
+            "message" => "Success!"
+        ];
+
+        return $this->response(200, $resource);
     }
 
     public function setDefaultCategory(ServerRequestInterface $request, ResponseInterface $response, $args)
