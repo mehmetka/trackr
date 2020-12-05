@@ -24,21 +24,21 @@
                                             <br>
 
                                             <div class="input-group mb-3 actionCard">
-                                                <input id="{{id}}" type="number"
+                                                <input id="{{bookUID}}" type="number"
                                                        class="form-control inputAmount"
                                                        placeholder="Read amount">
                                                 <span class="input-group-append"><button
                                                         class="btn btn-secondary btnAddAmount" type="button"
-                                                        data-id="{{id}}" data-path="{{uid}}">+</button>
+                                                        data-id="{{bookUID}}" data-path="{{pathUID}}">+</button>
                                                             </span>
                                             </div>
 
                                             {{#remove_from_path}}
                                                 <div>
                                                     <button class="btn btn-light btnRemoveFromPath"
-                                                            type="button" data-id="{{id}}"
+                                                            type="button" data-id="{{bookUID}}"
                                                             data-div="{{divId}}"
-                                                            data-path="{{uid}}">Remove
+                                                            data-path="{{pathUID}}">Remove
                                                     </button>
                                                 </div>
                                             {{/remove_from_path}}
@@ -66,14 +66,14 @@
 
             $(".btnAddAmount").on('click', function (e) {
 
-                var id = $(this).data("id");
-                var amount = $('#' + id).val();
-                var pathUid = $(this).data("path");
+                var bookUID = $(this).data("id");
+                var amount = $('#' + bookUID).val();
+                var pathUID = $(this).data("path");
 
                 $.ajax({
                     type: "POST",
-                    data: "amount=" + amount + "&pathUid=" + pathUid,
-                    url: "/books/" + id + "/progress",
+                    data: "amount=" + amount + "&pathUID=" + pathUID,
+                    url: "/books/" + bookUID + "/progress",
                     success: function (data, status, xhr) {
                         alert(xhr.responseJSON.message);
                         location.reload();
@@ -86,14 +86,14 @@
 
             $(".btnRemoveFromPath").on('click', function (e) {
 
-                var bookId = $(this).data("id");
-                var pathUid = $(this).data("path");
+                var bookUID = $(this).data("id");
+                var pathUID = $(this).data("path");
                 var divId = $(this).data("div");
 
                 $.ajax({
                     type: "DELETE",
-                    data: "bookId=" + bookId,
-                    url: "/books/paths/" + pathUid,
+                    data: "bookUID=" + bookUID,
+                    url: "/books/paths/" + pathUID,
                     success: function (data, status, xhr) {
                         $('#' + divId).remove();
                         alert(xhr.responseJSON.message);

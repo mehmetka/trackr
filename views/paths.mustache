@@ -74,10 +74,10 @@
                                             <td>
                                                 {{#remaining_day_warning}}
                                                     <button class="btn btn-sm btn-danger btnExtendFinishDate"
-                                                            data-uid="{{uid}}">Add 10 More Days
+                                                            data-uid="{{pathUID}}">Add 10 More Days
                                                     </button>
                                                 {{/remaining_day_warning}}
-                                                <a class="btn btn-sm btn-dark" href="/books/paths/{{uid}}">List</a>
+                                                <a class="btn btn-sm btn-dark" href="/books/paths/{{pathUID}}">List</a>
                                             </td>
                                         </tr>
                                     {{/bookPaths}}
@@ -120,11 +120,11 @@
 
         $(".btnExtendFinishDate").on('click', function (e) {
 
-            var uid = $(this).data("uid");
+            var pathUID = $(this).data("uid");
 
             $.ajax({
                 type: "POST",
-                url: "/books/paths/" + uid + "/extend",
+                url: "/books/paths/" + pathUID + "/extend",
                 success: function (data, status, xhr) {
                     alert(xhr.responseJSON.message);
                     location.reload();

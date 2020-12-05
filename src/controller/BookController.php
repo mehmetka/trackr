@@ -19,7 +19,7 @@ class BookController extends Controller
 
     public function booksPathInside(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $pathId = $this->bookModel->getPathIdByUid($args['pathUid']);
+        $pathId = $this->bookModel->getPathIdByUid($args['pathUID']);
         $books = $this->bookModel->getBooksPathInside($pathId);
 
         $data = [
@@ -89,9 +89,11 @@ class BookController extends Controller
     public function addProgress(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $params = $request->getParsedBody();
-        $pathId = $this->bookModel->getPathIdByUid($params['pathUid']);
 
-        $this->bookModel->insertProgressRecord($args['bookId'], $pathId, $params['amount']);
+        $pathId = $this->bookModel->getPathIdByUid($params['pathUID']);
+        $bookId = $this->bookModel->getBookIdByUid($args['bookUID']);
+
+        $this->bookModel->insertProgressRecord($bookId, $pathId, $params['amount']);
 
         $resource = [
             "message" => "Success!"
@@ -124,7 +126,7 @@ class BookController extends Controller
 
     public function addToLibrary(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $bookId = $args['bookId'];
+        $bookId = $this->bookModel->getBookIdByUid($args['bookUID']);
         $this->bookModel->addToLibrary($bookId);
 
         $resource = [
@@ -138,10 +140,10 @@ class BookController extends Controller
     {
         $params = $request->getParsedBody();
 
-        $pathUid = $params['pathUid'];
-        $bookId = $args['bookId'];
+        $pathId = $this->bookModel->getPathIdByUid($params['pathUID']);
+        $bookId = $this->bookModel->getBookIdByUid($args['bookUID']);
 
-        $this->bookModel->addBookToPath($pathUid, $bookId);
+        $this->bookModel->addBookToPath($pathId, $bookId);
 
         $resource = [
             "message" => "Success!"
@@ -152,7 +154,8 @@ class BookController extends Controller
 
     public function resetBook(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $bookId = $args['bookId'];
+        $bookId = $this->bookModel->getBookIdByUid($args['bookUID']);
+
         $this->bookModel->deleteBookTrackings($bookId);
         $this->bookModel->deleteBookRecordsFromPaths($bookId);
         $this->bookModel->setBookStatus($bookId, 1);
@@ -166,9 +169,9 @@ class BookController extends Controller
 
     public function extendPathFinish(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $pathDetail = $this->bookModel->getPathByUid($args['pathUid']);
+        $pathDetail = $this->bookModel->getPathByUid($args['pathUID']);
         $extendedFinishDate = strtotime($pathDetail['finish']) + 864000;
-        $this->bookModel->extendFinishDate($args['pathUid'], $extendedFinishDate);
+        $this->bookModel->extendFinishDate($args['pathUID'], $extendedFinishDate);
 
         $resource = [
             "message" => "Success!"
@@ -209,10 +212,11 @@ class BookController extends Controller
     public function removeBookFromPath(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $params = $request->getParsedBody();
-        $pathId = $this->bookModel->getPathIdByUid($args['pathUid']);
+        $pathId = $this->bookModel->getPathIdByUid($args['pathUID']);
+        $bookId = $this->bookModel->getBookIdByUid($args['bookUID']);
 
-        $this->bookModel->deleteBookTrackingsByPath($params['bookId'], $pathId);
-        $this->bookModel->deleteBookFromPath($params['bookId'], $pathId);
+        $this->bookModel->deleteBookTrackingsByPath($bookId, $pathId);
+        $this->bookModel->deleteBookFromPath($bookId, $pathId);
 
         $resource = [
             "message" => "Success!"

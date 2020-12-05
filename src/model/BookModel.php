@@ -108,6 +108,28 @@ class BookModel
         return $id;
     }
 
+    public function getBookIdByUid($uid)
+    {
+        $id = 0;
+
+        $sql = 'SELECT id 
+                FROM books
+                WHERE uid = :uid';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':uid', $uid, \PDO::PARAM_STR);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $id = $row['id'];
+        }
+
+        return $id;
+    }
+
     public function readingAverage()
     {
         $start = $this->getStartOfReadings();
@@ -367,7 +389,7 @@ class BookModel
     {
         $paths = $this->getPathsList();
 
-        $sql = "SELECT b.id,
+        $sql = "SELECT b.id, b.uid AS bookUID,
                        CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ')
                                FROM book_authors ba
                                         INNER JOIN author a ON ba.author_id = a.id
@@ -400,7 +422,7 @@ class BookModel
 
     public function getPathsList()
     {
-        $sql = 'SELECT id AS path_id, uid, name AS path_name, start, finish 
+        $sql = 'SELECT id AS path_id, uid AS pathUID, name AS path_name, start, finish 
                 FROM paths ';
 
         $stm = $this->dbConnection->prepare($sql);
@@ -478,7 +500,7 @@ class BookModel
 
     public function getBooksPathInside($pathid)
     {
-        $sql = "SELECT b.title, b.id, b.page_count, b.status AS book_status, pb.status AS path_status, pb.path_id, p.uid, CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ') FROM book_authors ba INNER JOIN author a ON ba.author_id = a.id WHERE ba.book_id = b.id)) AS author
+        $sql = "SELECT b.uid AS bookUID, b.title, b.id, b.page_count, b.status AS book_status, pb.status AS path_status, pb.path_id, p.uid AS pathUID, CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ') FROM book_authors ba INNER JOIN author a ON ba.author_id = a.id WHERE ba.book_id = b.id)) AS author
                 FROM books b
                 INNER JOIN path_books pb ON b.id = pb.book_id
                 INNER JOIN paths p ON pb.path_id = p.id
@@ -701,8 +723,8 @@ class BookModel
         $now = time();
         $status = $this->pathStatusInfos['not_started']['id'];
 
-        $sql = 'INSERT INTO books (title, publisher, pdf, epub, notes, subject, added_date, own, page_count, status)
-                VALUES(:title,:publisher,:pdf,:epub,:notes,:subject,:added_date,:own,:page_count, :status)';
+        $sql = 'INSERT INTO books (uid, title, publisher, pdf, epub, notes, subject, added_date, own, page_count, status)
+                VALUES(UUID(), :title,:publisher,:pdf,:epub,:notes,:subject,:added_date,:own,:page_count, :status)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':title', $params['bookTitle'], \PDO::PARAM_STR);

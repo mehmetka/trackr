@@ -17,18 +17,18 @@ $app->group('', function () {
     $this->get('/', HomeController::class . ':index')->setName('home');
 
     $this->get('/books/paths', BookController::class . ':paths')->setName('paths');
-    $this->get('/books/paths/{pathUid}', BookController::class . ':booksPathInside');
+    $this->get('/books/paths/{pathUID}', BookController::class . ':booksPathInside');
     $this->get('/all-books', BookController::class . ':allBooks');
     $this->get('/my-books', BookController::class . ':myBooks');
-    $this->put('/books/{bookId:[0-9]+}/add-to-library', BookController::class . ':addToLibrary');
+    $this->put('/books/{bookUID}/add-to-library', BookController::class . ':addToLibrary');
     $this->get('/books/finished', BookController::class . ':finishedBooks');
-    $this->post('/books/{bookId:[0-9]+}/progress', BookController::class . ':addProgress');
+    $this->post('/books/{bookUID}/progress', BookController::class . ':addProgress');
     $this->post('/authors', BookController::class . ':createAuthor');
-    $this->post('/books/{bookId:[0-9]+}/paths', BookController::class . ':addBookToPath');
-    $this->delete('/books/{bookId:[0-9]+}', BookController::class . ':resetBook');
-    $this->delete('/books/paths/{pathUid}', BookController::class . ':removeBookFromPath');
+    $this->post('/books/{bookUID}/paths', BookController::class . ':addBookToPath');
+    $this->delete('/books/{bookUID}', BookController::class . ':resetBook');
+    $this->delete('/books/paths/{pathUID}', BookController::class . ':removeBookFromPath');
     $this->post('/books/paths', BookController::class . ':createPath');
-    $this->post('/books/paths/{pathUid}/extend', BookController::class . ':extendPathFinish');
+    $this->post('/books/paths/{pathUID}/extend', BookController::class . ':extendPathFinish');
     $this->post('/books', BookController::class . ':saveBook');
 
     $this->get('/logout', AuthController::class . ':logout');
