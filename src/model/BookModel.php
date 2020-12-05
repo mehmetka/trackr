@@ -86,6 +86,28 @@ class BookModel
         return $total;
     }
 
+    public function getPathIdByUid($uid)
+    {
+        $id = 0;
+
+        $sql = 'SELECT id 
+                FROM paths
+                WHERE uid = :uid';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':uid', $uid, \PDO::PARAM_STR);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $id = $row['id'];
+        }
+
+        return $id;
+    }
+
     public function readingAverage()
     {
         $start = $this->getStartOfReadings();
@@ -454,16 +476,17 @@ class BookModel
         return $books;
     }
 
-    public function getBooksPathInside($pathId)
+    public function getBooksPathInside($pathid)
     {
-        $sql = "SELECT b.title, b.id, b.page_count, b.status AS book_status, pb.status AS path_status, pb.path_id, CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ') FROM book_authors ba INNER JOIN author a ON ba.author_id = a.id WHERE ba.book_id = b.id)) AS author
+        $sql = "SELECT b.title, b.id, b.page_count, b.status AS book_status, pb.status AS path_status, pb.path_id, p.uid, CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ') FROM book_authors ba INNER JOIN author a ON ba.author_id = a.id WHERE ba.book_id = b.id)) AS author
                 FROM books b
                 INNER JOIN path_books pb ON b.id = pb.book_id
+                INNER JOIN paths p ON pb.path_id = p.id
                 WHERE pb.path_id = :path_id AND pb.status <= 1
                 ORDER BY pb.status DESC";
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':path_id', $pathId, \PDO::PARAM_INT);
+        $stm->bindParam(':path_id', $pathid, \PDO::PARAM_STR);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -631,14 +654,14 @@ class BookModel
         return true;
     }
 
-    public function getPathById($pathId)
+    public function getPathByUid($pathUid)
     {
         $sql = 'SELECT id, name, start, finish 
                 FROM paths 
-                WHERE id = :id';
+                WHERE uid = :uid';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':id', $pathId, \PDO::PARAM_INT);
+        $stm->bindParam(':uid', $pathUid, \PDO::PARAM_STR);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -656,15 +679,15 @@ class BookModel
         return $path;
     }
 
-    public function extendFinishDate($pathId, $extendedFinishDate)
+    public function extendFinishDate($pathUid, $extendedFinishDate)
     {
         $sql = 'UPDATE paths 
                 SET finish = :finish 
-                WHERE id = :id';
+                WHERE uid = :uid';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':finish', $extendedFinishDate, \PDO::PARAM_INT);
-        $stm->bindParam(':id', $pathId, \PDO::PARAM_INT);
+        $stm->bindParam(':uid', $pathUid, \PDO::PARAM_STR);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -722,13 +745,45 @@ class BookModel
         $now = time();
         $finish = strtotime($finish);
 
-        $sql = 'INSERT INTO paths (name, start, finish)
-                VALUES(:name, :start, :finish)';
+        $sql = 'INSERT INTO paths (uid, name, start, finish)
+                VALUES(UUID(), :name, :start, :finish)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':name', $name, \PDO::PARAM_STR);
         $stm->bindParam(':start', $now, \PDO::PARAM_INT);
         $stm->bindParam(':finish', $finish, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function deleteBookTrackingsByPath($bookId, $pathId)
+    {
+        $sql = 'DELETE FROM book_trackings
+                WHERE BOOK_ID = :bookId AND PATH_ID = :pathId';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':bookId', $bookId, \PDO::PARAM_INT);
+        $stm->bindParam(':pathId', $pathId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function deleteBookFromPath($bookId, $pathId)
+    {
+        $sql = 'DELETE FROM path_books
+                WHERE book_id = :bookId AND path_id = :pathId';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':bookId', $bookId, \PDO::PARAM_INT);
+        $stm->bindParam(':pathId', $pathId, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));

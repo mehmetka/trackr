@@ -20,13 +20,13 @@
                             <div class="row">
                                 <div class="input-group input-group-lg">
                                     <div class="form-group col-md-6">
-                                        <label for="multi-select2">List Name</label>
-                                        <input id="pathName" placeholder="List Name" type="text"
+                                        <label for="multi-select2">Name</label>
+                                        <input id="pathName" placeholder="Name" type="text"
                                                class="form-control enterButtonKeyPress"></div>
 
                                     <div class="form-group col-md-6">
-                                        <label for="multi-select2">List Finish</label>
-                                        <input type="text" id="pathFinish" placeholder="List Finish"
+                                        <label for="multi-select2">Finish</label>
+                                        <input type="text" id="pathFinish" placeholder="Finish"
                                                class="form-control enterButtonKeyPress">
                                     </div>
 
@@ -74,10 +74,10 @@
                                             <td>
                                                 {{#remaining_day_warning}}
                                                     <button class="btn btn-sm btn-danger btnExtendFinishDate"
-                                                            data-id="{{id}}">Add 10 More Days
+                                                            data-uid="{{uid}}">Add 10 More Days
                                                     </button>
                                                 {{/remaining_day_warning}}
-                                                <a class="btn btn-sm btn-dark" href="/books/paths/{{path_id}}">List</a>
+                                                <a class="btn btn-sm btn-dark" href="/books/paths/{{uid}}">List</a>
                                             </td>
                                         </tr>
                                     {{/bookPaths}}
@@ -120,11 +120,11 @@
 
         $(".btnExtendFinishDate").on('click', function (e) {
 
-            var id = $(this).data("id");
+            var uid = $(this).data("uid");
 
             $.ajax({
                 type: "POST",
-                url: "/paths/" + id + "/extend",
+                url: "/books/paths/" + uid + "/extend",
                 success: function (data, status, xhr) {
                     alert(xhr.responseJSON.message);
                     location.reload();

@@ -29,7 +29,7 @@
                                                        placeholder="Read amount">
                                                 <span class="input-group-append"><button
                                                         class="btn btn-secondary btnAddAmount" type="button"
-                                                        data-id="{{id}}" data-path="{{path_id}}">+</button>
+                                                        data-id="{{id}}" data-path="{{uid}}">+</button>
                                                             </span>
                                             </div>
 
@@ -38,7 +38,7 @@
                                                     <button class="btn btn-light btnRemoveFromPath"
                                                             type="button" data-id="{{id}}"
                                                             data-div="{{divId}}"
-                                                            data-path="{{path_id}}">Remove
+                                                            data-path="{{uid}}">Remove
                                                     </button>
                                                 </div>
                                             {{/remove_from_path}}
@@ -68,11 +68,11 @@
 
                 var id = $(this).data("id");
                 var amount = $('#' + id).val();
-                var pathId = $(this).data("path");
+                var pathUid = $(this).data("path");
 
                 $.ajax({
                     type: "POST",
-                    data: "amount=" + amount + "&pathId=" + pathId,
+                    data: "amount=" + amount + "&pathUid=" + pathUid,
                     url: "/books/" + id + "/progress",
                     success: function (data, status, xhr) {
                         alert(xhr.responseJSON.message);
@@ -87,12 +87,13 @@
             $(".btnRemoveFromPath").on('click', function (e) {
 
                 var bookId = $(this).data("id");
-                var pathId = $(this).data("path");
+                var pathUid = $(this).data("path");
                 var divId = $(this).data("div");
 
                 $.ajax({
                     type: "DELETE",
-                    url: "/paths/" + pathId + "/books/" + bookId,
+                    data: "bookId=" + bookId,
+                    url: "/books/paths/" + pathUid,
                     success: function (data, status, xhr) {
                         $('#' + divId).remove();
                         alert(xhr.responseJSON.message);
