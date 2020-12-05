@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {{> head }}
+</head>
+<body class="vertical  dark">
+<div class="wrapper">
+    {{> navbar }}
+    {{> menu }}
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Add Category</h5>
+                                <input id="category" placeholder="Type new category, press enter" type="text"
+                                       class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- simple table -->
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <strong class="card-title">All Categories</strong>
+
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-striped table-bordered" id="booksDatatable" width="100%">
+                                    <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {{#categories}}
+                                        <tr>
+                                            <td>{{name}}</td>
+                                            <td>
+                                                <a class="btn btn-danger btn-sm btnDeleteCategory"
+                                                   data-id="{{id}}"><span class="fe fe-delete"></span>
+                                                </a>
+
+                                                {{^defaultStatus}}
+                                                    <a class="btn btn-primary btn-sm float-right btnSetDefault"
+                                                       data-id="{{id}}">Set Default
+                                                    </a>
+                                                {{/defaultStatus}}
+                                            </td>
+                                        </tr>
+                                    {{/categories}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div> <!-- simple table -->
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
+{{> include}}
+{{> add-book }}
+<script>
+    $(document).ready(function () {
+
+        var initBooks = function () {
+            bindingsBooks();
+        };
+
+        var bindingsBooks = function () {
+
+            $('#category').bind('keypress', function (e) {
+                if (e.keyCode == 13) {
+                    var category = $('#category').val();
+
+                    $.ajax({
+                        type: "POST",
+                        data: "category=" + category,
+                        url: "/categories",
+                        success: function (data, status, xhr) {
+                            alert(xhr.responseJSON.message);
+                            location.reload();
+                        },
+                        error: function (data, status, xhr) {
+                            alert(data.responseJSON.message);
+                        }
+                    });
+
+                }
+            });
+
+            $(".btnDeleteCategory").on('click', function (e) {
+
+                var categoryId = $(this).data("id");
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "/categories/" + categoryId,
+                    success: function (data, status, xhr) {
+                        alert(xhr.responseJSON.message);
+                        location.reload();
+                    },
+                    error: function (data, status, xhr) {
+                        alert(data.responseJSON.message);
+                    }
+                });
+            });
+
+            $(".btnSetDefault").on('click', function (e) {
+
+                var categoryId = $(this).data("id");
+
+                $.ajax({
+                    type: "PUT",
+                    url: "/categories/" + categoryId,
+                    success: function (data, status, xhr) {
+                        alert(xhr.responseJSON.message);
+                        location.reload();
+                    },
+                    error: function (data, status, xhr) {
+                        alert(data.responseJSON.message);
+                    }
+                });
+            });
+
+        };
+
+        initBooks();
+
+    });
+</script>
+</body>
+</html>
