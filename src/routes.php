@@ -31,6 +31,11 @@ $app->group('', function () {
     $this->post('/books/paths/{pathUID}/extend', BookController::class . ':extendPathFinish');
     $this->post('/books', BookController::class . ':saveBook');
 
+    $this->get('/categories', BookController::class . ':categories');
+    $this->post('/categories', BookController::class . ':createCategory');
+    $this->delete('/categories/{categoryId:[0-9]+}', BookController::class . ':deleteCategory');
+    $this->put('/categories/{categoryId:[0-9]+}', BookController::class . ':setDefaultCategory');
+
     $this->get('/logout', AuthController::class . ':logout');
 
 })->add(new Middleware\Authentication($container));

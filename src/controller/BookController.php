@@ -224,4 +224,67 @@ class BookController extends Controller
 
         return $this->response(200, $resource);
     }
+
+    public function categories(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $categories = $this->bookModel->getCategories();
+
+        $data = [
+            'categories' => $categories,
+            'activeBookPaths' => 'active'
+        ];
+
+        return $this->view->render($response, 'categories.mustache', $data);
+    }
+
+    public function createCategory(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $params = $request->getParsedBody();
+        $this->bookModel->createCategory($params['category']);
+
+        $resource = [
+            "message" => "Success!"
+        ];
+
+        return $this->response(200, $resource);
+    }
+
+    public function deleteCategory(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+//        $defaultCategory = $this->bookModel->getDefaultCategory();
+//
+//        if ($defaultCategory && $defaultCategory['id'] == $args['categoryId']) {
+//            $categoryId = $this->bookModel->createCategory('default');
+//            $this->bookModel->resetCategoriesDefaultStatus();
+//            $this->bookModel->setDefaultCategory($categoryId, 1);
+//            $this->bookModel->changeBooksCategoryByGivenCategory($args['categoryId'], $categoryId);
+//        } elseif($defaultCategory && $defaultCategory['id'] != $args['categoryId']) {
+//            $this->bookModel->changeBooksCategoryByGivenCategory($args['categoryId'], $defaultCategory['id']);
+//        } else {
+//
+//        }
+//
+//        $this->bookModel->deleteCategory($args['categoryId']);
+//
+//        $resource = [
+//            "message" => "Success!"
+//        ];
+//
+//        return $this->response(200, $resource);
+    }
+
+    public function setDefaultCategory(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $categoryId = $args['categoryId'];
+        $active = 1;
+
+        $this->bookModel->resetCategoriesDefaultStatus();
+        $this->bookModel->setDefaultCategory($categoryId, $active);
+
+        $resource = [
+            "message" => "Success!"
+        ];
+
+        return $this->response(200, $resource);
+    }
 }
