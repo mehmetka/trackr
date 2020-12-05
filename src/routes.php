@@ -26,6 +26,7 @@ $app->group('', function () {
     $this->post('/authors', BookController::class . ':createAuthor');
     $this->post('/books/{bookId:[0-9]+}/paths', BookController::class . ':addBookToPath');
     $this->delete('/books/{bookId:[0-9]+}', BookController::class . ':resetBook');
+    $this->post('/books/paths', BookController::class . ':createPath');
     $this->post('/books/paths/{pathId:[0-9]+}/extend', BookController::class . ':extendPathFinish');
     $this->post('/books', BookController::class . ':saveBook');
 

@@ -191,4 +191,16 @@ class BookController extends Controller
 
         return $this->response(200, $resource);
     }
+
+    public function createPath(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $params = $request->getParsedBody();
+        $this->bookModel->createPath($params['pathName'], $params['pathFinish']);
+
+        $resource = [
+            "message" => "Success!"
+        ];
+
+        return $this->response(200, $resource);
+    }
 }

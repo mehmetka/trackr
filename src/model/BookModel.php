@@ -10,32 +10,36 @@ class BookModel
 {
     /** @var \PDO $dbConnection */
     private $dbConnection;
-    private $pathStatusLabels;
-    const NOT_STARTED = 0;
-    const READING = 1;
-    const DONE = 2;
-    const LIST_OUT = 3;
-
+    private $pathStatusInfos;
 
     public function __construct(ContainerInterface $container)
     {
         $this->dbConnection = $container->get('db');
-        $this->pathStatusLabels = [
-            0 => [
-                'STATUS_LABEL' => 'badge-secondary',
-                'STATUS_LABEL_TEXT' => 'Not Started'
+        $this->pathStatusInfos = [
+            'not_started' => [
+                'status_label' => 'badge-secondary',
+                'status_label_text' => 'Not Started',
+                'id' => 0,
+                'uid' => '9a90d0c2-3701-11eb-9ef0-0242ac110002'
             ],
-            1 => [
-                'STATUS_LABEL' => 'badge-warning',
-                'STATUS_LABEL_TEXT' => 'Reading'
+            'reading' => [
+                'status_label' => 'badge-warning',
+                'status_label_text' => 'Reading',
+                'id' => 1,
+                'uid' => '7df59e3b-3702-11eb-9ef0-0242ac110002'
+
             ],
-            2 => [
-                'STATUS_LABEL' => 'badge-success',
-                'STATUS_LABEL_TEXT' => 'Done'
+            'done' => [
+                'status_label' => 'badge-success',
+                'status_label_text' => 'Done',
+                'id' => 2,
+                'uid' => '846714e2-3702-11eb-9ef0-0242ac110002'
             ],
-            3 => [
-                'STATUS_LABEL' => 'badge-danger',
-                'STATUS_LABEL_TEXT' => 'List Out'
+            'list_out' => [
+                'status_label' => 'badge-danger',
+                'status_label_text' => 'List Out',
+                'id' => 3,
+                'uid' => '8deaa986-3702-11eb-9ef0-0242ac110002'
             ]
         ];
     }
@@ -155,7 +159,7 @@ class BookModel
                     $total += $diff;
                 } else {
                     $this->insertNewReadRecord($pathId, $row['id']);
-                    $this->setBookPathStatus($pathId, $row['id'], self::DONE);
+                    $this->setBookPathStatus($pathId, $row['id'], $this->pathStatusInfos['done']['id']);
                 }
             }
 
@@ -374,7 +378,7 @@ class BookModel
 
     public function getPathsList()
     {
-        $sql = 'SELECT id AS path_id, name AS path_name, start, finish 
+        $sql = 'SELECT id AS path_id, uid, name AS path_name, start, finish 
                 FROM paths ';
 
         $stm = $this->dbConnection->prepare($sql);
@@ -477,8 +481,8 @@ class BookModel
 
             if ($pageCount != 0 && $diff <= 0) {
                 $this->insertNewReadRecord($row['path_id'], $row['id']);
-                $this->setBookPathStatus($row['path_id'], $row['id'], self::DONE);
-                $this->setBookStatus($row['id'], self::DONE);
+                $this->setBookPathStatus($row['path_id'], $row['id'], $this->pathStatusInfos['done']['id']);
+                $this->setBookStatus($row['id'], $this->pathStatusInfos['done']['id']);
 
                 continue;
             }
@@ -523,7 +527,7 @@ class BookModel
     {
         $now = time();
 
-        $this->setBookPathStatus($pathId, $bookId, self::READING);
+        $this->setBookPathStatus($pathId, $bookId, $this->pathStatusInfos['reading']['id']);
 
         $sql = 'INSERT INTO book_trackings (book_id, path_id, record_date, amount)
                 VALUES(:book_id,:path_id,:record_date,:amount)';
@@ -672,7 +676,7 @@ class BookModel
     public function saveBook($params)
     {
         $now = time();
-        $status = self::NOT_STARTED;
+        $status = $this->pathStatusInfos['not_started']['id'];
 
         $sql = 'INSERT INTO books (title, publisher, pdf, epub, notes, subject, added_date, own, page_count, status)
                 VALUES(:title,:publisher,:pdf,:epub,:notes,:subject,:added_date,:own,:page_count, :status)';
@@ -711,5 +715,25 @@ class BookModel
         }
 
         return $this->dbConnection->lastInsertId();
+    }
+
+    public function createPath($name, $finish)
+    {
+        $now = time();
+        $finish = strtotime($finish);
+
+        $sql = 'INSERT INTO paths (name, start, finish)
+                VALUES(:name, :start, :finish)';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':name', $name, \PDO::PARAM_STR);
+        $stm->bindParam(':start', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':finish', $finish, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
     }
 }
