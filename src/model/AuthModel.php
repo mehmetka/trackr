@@ -47,6 +47,23 @@ class AuthModel
         return true;
     }
 
+    public function userCreatedBefore()
+    {
+        $sql = 'SELECT id FROM users';
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(500, 'Something went wrong');
+        }
+
+        if ($stm->rowCount()) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function register($username, $password)
     {
         $password = hash('sha512', $password);

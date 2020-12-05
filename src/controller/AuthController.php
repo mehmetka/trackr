@@ -2,11 +2,11 @@
 
 namespace App\controller;
 
-use App\exception\CustomException;
 use App\model\AuthModel;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use App\exception\CustomException;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class AuthController extends Controller
 {
@@ -21,6 +21,8 @@ class AuthController extends Controller
     public function loginPage(ServerRequestInterface $request, ResponseInterface $response)
     {
         $data['title'] = "trackr";
+        $data['userExist'] = $this->authModel->userCreatedBefore();
+
         return $this->view->render($response, 'login.mustache', $data);
     }
 
@@ -41,9 +43,15 @@ class AuthController extends Controller
 
     public function register(ServerRequestInterface $request, ResponseInterface $response)
     {
+        $userExist = $this->authModel->userCreatedBefore();
+
+        if ($userExist) {
+            throw CustomException::clientError(403, 'User created before!', 'User created before!');
+        }
+
         $params = $request->getParsedBody();
 
-        if(trim($params['password']) != trim($params['passwordAgain'])){
+        if (trim($params['password']) != trim($params['passwordAgain'])) {
             throw CustomException::clientError(401, 'Passwords must be matched!', 'Passwords must be matched!');
         }
 
