@@ -152,6 +152,7 @@ class BookModel
         $start = $start ? $start : strtotime(date('Y-m-d', time()));
         $from = time();
         $diff = Util::epochDateDiff($from, $start);
+        $diff = $diff ? $diff : 1;
         $total = $this->getReadingTotal();
 
         $result['average'] = $total / $diff;
@@ -221,7 +222,7 @@ class BookModel
         $sql = 'SELECT b.id, b.page_count
                 FROM books b
                 INNER JOIN path_books pb ON b.id = pb.book_id
-                WHERE pb.path_id = :path_id AND pb.status = 1';
+                WHERE pb.path_id = :path_id AND pb.status < 2';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':path_id', $pathId, \PDO::PARAM_INT);
