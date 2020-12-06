@@ -9,6 +9,7 @@ use App\controller\DateTrackingController;
 use App\controller\TrackingController;
 use App\controller\VideoController;
 use App\controller\HighlightController;
+use App\controller\WritingController;
 
 $app->group('', function () {
     $this->get('/login', AuthController::class . ':loginPage')->setName('login');
@@ -56,6 +57,9 @@ $app->group('', function () {
 
     $this->get('/highlights', HighlightController::class . ':index');
     $this->post('/highlights', HighlightController::class . ':create');
+
+    $this->get('/writings', WritingController::class . ':index');
+    $this->post('/writings', WritingController::class . ':create');
 
     $this->get('/logout', AuthController::class . ':logout');
 

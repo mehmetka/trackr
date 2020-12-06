@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {{> head }}
+</head>
+<body class="vertical  dark">
+<div class="wrapper">
+    {{> navbar }}
+    {{> menu }}
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Add New Writing</h5>
+                                <div class="input-group input-group-lg">
+                                    <textarea id="writing" class="form-control" placeholder="Writing" rows="3"></textarea>
+                                    <div class="input-group-append">
+                                        <button id="createWriting" class="btn btn-success" type="button">Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- simple table -->
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">All Writings</h5>
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Writing</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {{#writings}}
+                                        <tr>
+                                            <td>{{id}}</td>
+                                            <td>{{created}}</td>
+                                            <td>{{{text}}}
+                                                {{#dateExist}}
+                                                    <br>[<strong>{{date}}</strong>]
+                                                {{/dateExist}}
+                                            </td>
+                                        </tr>
+                                    {{/writings}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div> <!-- simple table -->
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
+{{> include}}
+{{> add-book }}
+<script>
+    $(document).ready(function () {
+        $("#createWriting").on('click', function (e) {
+
+            var writing = $('#writing').val();
+
+            $.ajax({
+                type: "POST",
+                data: "writing=" + encodeURIComponent(writing),
+                url: "/writings",
+                success: function (data, status, xhr) {
+                    alert(xhr.responseJSON.message);
+                    location.reload();
+                },
+                error: function (data, status, xhr) {
+                    alert(data.responseJSON.message);
+                }
+            });
+
+        });
+    });
+</script>
+</body>
+</html>
