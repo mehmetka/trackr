@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {{> head }}
+    <link href="/css/summernote.css" rel="stylesheet">
+</head>
+<body class="vertical  dark">
+<div class="wrapper">
+    {{> navbar }}
+    {{> menu }}
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Add New To Do</h5>
+                                <div class="input-group input-group-lg">
+                                    <input type="text" id="todo" name="todo" placeholder="To Do" class="form-control">
+                                </div>
+
+                                <br>
+
+                                <div class="input-group input-group-lg">
+                                    <textarea id="description" name="description" class="form-control"
+                                              placeholder="Description" rows="2"></textarea>
+                                    <div class="input-group-append">
+                                        <button id="btnAddTodo" class="btn btn-success" type="button">Add</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="card-title">To Dos</h5>
+                    {{#todos}}
+                        <div class="card">
+                            <div class="card-header bg-dark">
+
+                                <strong>{{todo}}</strong>
+
+                                {{^complete}}
+                                    <a class="btn btn-sm btn-primary float-right btnEditTodo"
+                                       data-id="{{id}}" data-toggle="modal"
+                                       data-target="#editTodoModal">Edit</a>
+                                {{/complete}}
+
+                                {{#startAction}}
+                                    <a class="btn btn-sm btn-info float-right btnStatusAction"
+                                       data-status="1" data-id="{{id}}">Start</a>
+                                {{/startAction}}
+
+                                {{#doneAction}}
+                                    <a class="btn btn-sm btn-success float-right btnStatusAction"
+                                       data-status="2" data-id="{{id}}">Done</a>
+                                {{/doneAction}}
+
+                                {{#complete}}
+                                    <span class="badge badge-success float-right">Done</span>
+                                {{/complete}}
+
+                            </div>
+                            {{#description}}
+                                <div class="card-body">
+                                    <h5 class="card-title">Description</h5>
+                                    <p class="card-text">{{{description}}}</p>
+                                </div>
+                            {{/description}}
+                        </div>
+                        <br>
+                    {{/todos}}
+
+                    <!-- simple table -->
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Books/Videos/Bookmarks</h5>
+                                <table class="table table-striped table-bordered" id="booksDatatable" width="100%">
+                                    <thead>
+                                    <tr>
+                                        <th style="width:5%">Type</th>
+                                        <th>To Do</th>
+                                        <th style="width:5%">Status</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {{#data}}
+                                        <tr class="{{rowStatusClass}}">
+                                            <td>{{{todoType}}}</td>
+                                            <td>{{{todoName}}}</td>
+                                            <td>{{{status}}}</td>
+                                        </tr>
+                                    {{/data}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div> <!-- simple table -->
+
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
+{{> include}}
+{{> edit-todo }}
+<script>
+    $(document).ready(function () {
+
+        $("#btnAddTodo").on('click', function (e) {
+            var todo = $('#todo').val();
+            var description = $('#description').val();
+
+            $.ajax({
+                type: "POST",
+                data: "todo=" + encodeURIComponent(todo) + "&description=" + encodeURIComponent(description),
+                url: "/todos",
+                success: function (data, status, xhr) {
+                    alert(xhr.responseJSON.message);
+                    location.reload();
+                },
+                error: function (data, status, xhr) {
+                    alert(data.responseJSON.message);
+                }
+            });
+        });
+
+        $(".btnStatusAction").on('click', function (e) {
+
+            var id = $(this).data('id');
+            var status = $(this).data('status');
+
+            $.ajax({
+                type: "PUT",
+                data: "status=" + status,
+                url: "/todos/" + id + "/status",
+                success: function (data, status, xhr) {
+                    alert(xhr.responseJSON.message);
+                    location.reload();
+                },
+                error: function (data, status, xhr) {
+                    alert(data.responseJSON.message);
+                }
+            });
+        });
+
+    });
+</script>
+</body>
+</html>

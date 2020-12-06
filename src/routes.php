@@ -10,6 +10,7 @@ use App\controller\TrackingController;
 use App\controller\VideoController;
 use App\controller\HighlightController;
 use App\controller\WritingController;
+use App\controller\TodoController;
 
 $app->group('', function () {
     $this->get('/login', AuthController::class . ':loginPage')->setName('login');
@@ -60,6 +61,12 @@ $app->group('', function () {
 
     $this->get('/writings', WritingController::class . ':index');
     $this->post('/writings', WritingController::class . ':create');
+
+    $this->get('/todos', TodoController::class . ':index');
+    $this->post('/todos', TodoController::class . ':add');
+    $this->get('/todos/{id:[0-9]+}', TodoController::class . ':get');
+    $this->put('/todos/{id:[0-9]+}', TodoController::class . ':update');
+    $this->put('/todos/{id:[0-9]+}/status', TodoController::class . ':changeStatus');
 
     $this->get('/logout', AuthController::class . ':logout');
 
