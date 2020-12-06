@@ -19,27 +19,23 @@ class BookModel
             'not_started' => [
                 'status_label' => 'badge-secondary',
                 'status_label_text' => 'Not Started',
-                'id' => 0,
-                'uid' => '9a90d0c2-3701-11eb-9ef0-0242ac110002'
+                'id' => 0
             ],
             'reading' => [
                 'status_label' => 'badge-warning',
                 'status_label_text' => 'Reading',
-                'id' => 1,
-                'uid' => '7df59e3b-3702-11eb-9ef0-0242ac110002'
+                'id' => 1
 
             ],
             'done' => [
                 'status_label' => 'badge-success',
                 'status_label_text' => 'Done',
-                'id' => 2,
-                'uid' => '846714e2-3702-11eb-9ef0-0242ac110002'
+                'id' => 2
             ],
             'list_out' => [
                 'status_label' => 'badge-danger',
                 'status_label_text' => 'List Out',
-                'id' => 3,
-                'uid' => '8deaa986-3702-11eb-9ef0-0242ac110002'
+                'id' => 3
             ]
         ];
     }
