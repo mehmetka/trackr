@@ -12,11 +12,19 @@
             <div class="row justify-content-center">
                 <div class="col-12">
 
+                    <h2>Today: {{today}}</h2>
+                    <h2>Reading Average: {{readingAverage}} ({{readingTotal}}/{{dayDiff}})</h2>
+
                 </div> <!-- .col-12 -->
             </div> <!-- .row -->
         </div> <!-- .container-fluid -->
     </main> <!-- main -->
 </div> <!-- .wrapper -->
 {{> include}}
+<script>
+    $(document).ready(function () {
+
+    });
+</script>
 </body>
 </html>
