@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     {{> head }}
-    <link rel="stylesheet" href="/css/jquery-ui.css">
 </head>
 <body class="vertical  dark">
 <div class="wrapper">
@@ -92,11 +91,16 @@
     </main> <!-- main -->
 </div> <!-- .wrapper -->
 {{> include}}
-<script src="/js/jquery-ui.js"></script>
 <script>
     $(document).ready(function () {
 
-        $("#pathFinish").datepicker({dateFormat: "yy-mm-dd"}).val()
+        $('#pathFinish').daterangepicker(
+                {
+                    singleDatePicker: true,
+                    timePicker: false,
+                    showDropdowns: true,
+                    locale: {format: 'MM/DD/YYYY'}
+                });
 
         $("#btnAddNewPath").on('click', function (e) {
 
