@@ -65,7 +65,7 @@ class TrackingModel
         $to = date('Y-m-d', time());
         $dateDiff = Util::getDayDifference($from, $to);
         $total = 0;
-        // TODO status=1 olan kayit sayisini toplam gun sayisindan cikar.
+        // TODO day off - status=1 olan kayit sayisini toplam gun sayisindan cikar.
 
         $sql = 'SELECT SUM(work) AS total
                 FROM work_trackings';
