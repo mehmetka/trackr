@@ -6,6 +6,7 @@ use App\controller\HomeController;
 use App\controller\BookController;
 use App\controller\BookmarkController;
 use App\controller\DateTrackingController;
+use App\controller\TrackingController;
 
 $app->group('', function () {
     $this->get('/login', AuthController::class . ':loginPage')->setName('login');
@@ -43,6 +44,9 @@ $app->group('', function () {
     $this->get('/bookmarks', BookmarkController::class . ':index');
     $this->post('/bookmarks', BookmarkController::class . ':create');
     $this->put('/bookmarks/{id:[0-9]+}/status', BookmarkController::class . ':changeStatus');
+
+    $this->get('/trackings', TrackingController::class . ':index');
+    $this->post('/trackings', TrackingController::class . ':add');
 
     $this->get('/logout', AuthController::class . ':logout');
 
