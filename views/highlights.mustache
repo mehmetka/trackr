@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {{> head }}
+</head>
+<body class="vertical  dark">
+<div class="wrapper">
+    {{> navbar }}
+    {{> menu }}
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Add New Highlight</h5>
+                                <div class="input-group input-group-lg">
+                                    <textarea id="highlight" class="form-control  form-control-lg" placeholder="Highlight"
+                                              rows="2"></textarea>
+                                </div>
+                                <br>
+                                <div class="input-group input-group-lg">
+                                    <input id="author" placeholder="Author" type="text"
+                                           class="form-control enterButtonKeyPress">
+                                    <input id="source" placeholder="Source" type="text"
+                                           class="form-control enterButtonKeyPress">
+                                    <input id="page" placeholder="Page" type="number"
+                                           class="form-control enterButtonKeyPress">
+                                </div>
+                                <br>
+                                <div class="input-group input-group-lg">
+                                    <input id="link" placeholder="Link" type="text"
+                                           class="form-control enterButtonKeyPress">
+                                    <input id="tags" placeholder="Tags" type="text"
+                                           class="form-control enterButtonKeyPress">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="card-title">Highlights</h5>
+                    <div>
+                        {{#headerTags}}
+                            <a href="/highlights?tag={{tag}}" class="badge badge-{{badge}}"><h5>{{tag}}</h5></a>
+                        {{/headerTags}}
+                    </div>
+
+                    <br>
+
+                    <div class="card-columns">
+                        {{#highlights}}
+                            <div class="card">
+                                <div class="card-header bg-dark">
+                                    {{#tags}}{{{tag}}}{{/tags}}
+                                    {{^tags}}{{author}}{{/tags}}
+                                </div>
+                                <div class="card-body">
+                                    <blockquote class="blockquote mb-0">
+                                        <p>{{{highlight}}}</p>
+                                        <footer class="blockquote-footer">{{author}} <cite
+                                                title="Source Title">{{source}}</cite>
+                                        </footer>
+                                    </blockquote>
+                                </div>
+                            </div>
+                        {{/highlights}}
+                    </div>
+
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
+{{> include}}
+{{> add-book }}
+<script>
+    $(document).ready(function () {
+        $('.enterButtonKeyPress').bind('keypress', function (e) {
+            if (e.keyCode == 13) {
+                var highlight = $('#highlight').val();
+                var author = $('#author').val();
+                var source = $('#source').val();
+                var page = $('#page').val();
+                var link = $('#link').val();
+                var tags = $('#tags').val();
+
+                $.ajax({
+                    type: "POST",
+                    data: "highlight=" + encodeURIComponent(highlight) + "&author=" + encodeURIComponent(author) + "&source=" + encodeURIComponent(source) + "&page=" + encodeURIComponent(page) + "&link=" + encodeURIComponent(link) + "&tags=" + encodeURIComponent(tags),
+                    url: "/highlights",
+                    success: function () {
+                        alert("success");
+                        location.reload();
+                    },
+                    error: function () {
+                        alert("error");
+                    }
+                });
+
+            }
+        });
+    });
+</script>
+</body>
+</html>
