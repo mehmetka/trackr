@@ -4,6 +4,7 @@ use App\middleware;
 use App\controller\AuthController;
 use App\controller\HomeController;
 use App\controller\BookController;
+use App\controller\DateTrackingController;
 
 $app->group('', function () {
     $this->get('/login', AuthController::class . ':loginPage')->setName('login');
@@ -35,6 +36,8 @@ $app->group('', function () {
     $this->post('/categories', BookController::class . ':createCategory');
     $this->delete('/categories/{categoryId:[0-9]+}', BookController::class . ':deleteCategory');
     $this->put('/categories/{categoryId:[0-9]+}', BookController::class . ':setDefaultCategory');
+
+    $this->post('/datetrackings', DateTrackingController::class . ':create');
 
     $this->get('/logout', AuthController::class . ':logout');
 
