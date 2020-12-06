@@ -2,9 +2,8 @@
 
 namespace App\model;
 
-use App\Util;
 use Psr\Container\ContainerInterface;
-use App\CustomException;
+use App\exception\CustomException;
 
 class BookmarkModel
 {
@@ -80,12 +79,10 @@ class BookmarkModel
     public function create($bookmark, $note, $type)
     {
         $now = time();
-        $uid = Util::gen_uuid();
         $title = $this->getTitle($bookmark);
-        # $bookmark = substr($bookmark, 0, strpos($bookmark, "?"));
 
         $sql = 'INSERT INTO bookmarks (uid, bookmark, title, note, type, created)
-                VALUES(:uid, :bookmark, :title, :note, :type, :created)';
+                VALUES(UUID(), :bookmark, :title, :note, :type, :created)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':uid', $uid, \PDO::PARAM_STR);
