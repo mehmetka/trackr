@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {{> head }}
+</head>
+<body class="vertical  dark">
+<div class="wrapper">
+    {{> navbar }}
+    {{> menu }}
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title">Add Video Source</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="createVideoForm">
+                                    <div class="form-group col-md-12">
+                                        <input type="text" id="title" name="title" placeholder="Title" class="form-control">
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <input id="length" name="length" placeholder="Length (Minute)" type="number" class="form-control">
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <input id="link" name="link" placeholder="Link" type="text" class="form-control">
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <select id="category" name="category" class="form-control">
+                                            {{#categories}}
+                                                <option value="{{id}}">{{name}}</option>
+                                            {{/categories}}
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <button id="btnCreateVideo" class="btn btn-success" type="button">Create</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- simple table -->
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Videos</h5>
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">Title</th>
+                                        <th scope="col">Length</th>
+                                        <th scope="col">Category</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {{#sources}}
+                                        <tr>
+                                            <td>{{title}}</td>
+                                            <td>{{length}}</td>
+                                            <td>{{categoryName}}</td>
+                                            <td>
+                                                {{#startAction}}
+                                                    <a class="btn btn-sm btn-primary btnStatusAction" data-status="1"
+                                                       data-id="{{id}}">Start</a>
+                                                {{/startAction}}
+
+                                                {{#doneAction}}
+                                                    <a class="btn btn-sm btn-success btnStatusAction" data-status="2"
+                                                       data-id="{{id}}">Done</a>
+                                                {{/doneAction}}
+
+                                                {{#complete}}
+                                                    <span class="badge badge-success">Done</span>
+                                                {{/complete}}
+                                            </td>
+                                        </tr>
+                                    {{/sources}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div> <!-- simple table -->
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
+{{> include}}
+{{> add-book }}
+<script>
+    $(document).ready(function () {
+
+        $(".btnStatusAction").on('click', function (e) {
+
+            var id = $(this).data('id');
+            var status = $(this).data('status');
+
+            $.ajax({
+                type: "PUT",
+                data: "status=" + status,
+                url: "/videos/" + id + "/status",
+                success: function (data, status, xhr) {
+                    alert(xhr.responseJSON.message);
+                    location.reload();
+                },
+                error: function (data, status, xhr) {
+                    alert(data.responseJSON.message);
+                }
+            });
+        });
+
+        $("#btnCreateVideo").on('click', function (e) {
+
+            var formData = $('#createVideoForm').serialize();
+
+            $.ajax({
+                type: "POST",
+                data: formData,
+                url: "/videos",
+                success: function (data, status, xhr) {
+                    alert(xhr.responseJSON.message);
+                    location.reload();
+                },
+                error: function (data, status, xhr) {
+                    alert(data.responseJSON.message);
+                }
+            });
+        });
+
+    });
+</script>
+</body>
+</html>

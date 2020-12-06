@@ -7,6 +7,7 @@ use App\controller\BookController;
 use App\controller\BookmarkController;
 use App\controller\DateTrackingController;
 use App\controller\TrackingController;
+use App\controller\VideoController;
 
 $app->group('', function () {
     $this->get('/login', AuthController::class . ':loginPage')->setName('login');
@@ -47,6 +48,10 @@ $app->group('', function () {
 
     $this->get('/trackings', TrackingController::class . ':index');
     $this->post('/trackings', TrackingController::class . ':add');
+
+    $this->get('/videos', VideoController::class . ':index');
+    $this->post('/videos', VideoController::class . ':create');
+    $this->put('/videos/{id:[0-9]+}/status', VideoController::class . ':changeStatus');
 
     $this->get('/logout', AuthController::class . ':logout');
 
