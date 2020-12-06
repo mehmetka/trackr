@@ -15,7 +15,6 @@ class Util
         return intval($interval->format('%a')) + 1;
     }
 
-
     static function epochDateDiff($d1, $d2)
     {
         return round(abs($d1 - $d2) / 86400);
