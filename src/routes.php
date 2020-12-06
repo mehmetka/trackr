@@ -4,6 +4,7 @@ use App\middleware;
 use App\controller\AuthController;
 use App\controller\HomeController;
 use App\controller\BookController;
+use App\controller\BookmarkController;
 use App\controller\DateTrackingController;
 
 $app->group('', function () {
@@ -38,6 +39,10 @@ $app->group('', function () {
     $this->put('/categories/{categoryId:[0-9]+}', BookController::class . ':setDefaultCategory');
 
     $this->post('/datetrackings', DateTrackingController::class . ':create');
+
+    $this->get('/bookmarks', BookmarkController::class . ':index');
+    $this->post('/bookmarks', BookmarkController::class . ':create');
+    $this->put('/bookmarks/{id:[0-9]+}/status', BookmarkController::class . ':changeStatus');
 
     $this->get('/logout', AuthController::class . ':logout');
 

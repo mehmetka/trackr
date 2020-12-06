@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {{> head }}
+</head>
+<body class="vertical  dark">
+<div class="wrapper">
+    {{> navbar }}
+    {{> menu }}
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Add New Bookmark</h5>
+                                <div class="form-group">
+                                    <input id="bookmark" placeholder="Bookmark" type="text" class="form-control">
+                                </div>
+                                <div class="form-group ">
+                                    <input id="note" placeholder="Note" type="text" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <select id="category" name="category" class="form-control">
+                                        {{#categories}}
+                                            <option value="{{id}}">{{name}}</option>
+                                        {{/categories}}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <button id="addBookmark" type="button" class="btn btn-primary">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-columns">
+                        {{#bookmarks}}
+                            <div class="card">
+                                <div class="card-header bg-dark">
+                                    <span class="badge badge-primary">{{categoryName}}</span>
+                                </div>
+                                <div class="card-body">
+                                    <p><a href="{{bookmark}}" target="_blank">{{title}}</a></p>
+                                    {{created}}
+                                </div>
+                                <div class="card-footer">
+                                    {{#startAction}}
+                                        <a class="btn btn-sm btn-primary btnStatusAction" data-status="1"
+                                           data-id="{{id}}">Start</a>
+                                    {{/startAction}}
+
+                                    {{#doneAction}}
+                                        <a class="btn btn-sm btn-success btnStatusAction" data-status="2"
+                                           data-id="{{id}}">Done</a>
+                                    {{/doneAction}}
+
+                                    {{#complete}}
+                                        <span class="badge badge-success">Done</span>
+                                    {{/complete}}
+                                </div>
+                            </div>
+                        {{/bookmarks}}
+                    </div>
+
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
+{{> include}}
+{{> add-book }}
+<script>
+    $(document).ready(function () {
+
+        $("#addBookmark").on('click', function (e) {
+
+            var bookmark = $('#bookmark').val();
+            var type = $('#type').val();
+            var note = $('#note').val();
+            var btnContext = this;
+
+            $(btnContext).prop("disabled", true);
+            $(btnContext).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...');
+
+            $.ajax({
+                type: "POST",
+                data: "bookmark=" + bookmark + "&type=" + type + "&note=" + note,
+                url: "/bookmarks",
+                success: function (data, status, xhr) {
+                    alert(xhr.responseJSON.message);
+                    location.reload();
+                },
+                error: function (data, status, xhr) {
+                    alert(data.responseJSON.message);
+                },
+                complete: function (data, status, xhr) {
+                    $(btnContext).delay(3000).removeAttr("disabled").addClass('btn-primary').html('Add');
+                }
+            });
+        });
+
+        $(".btnStatusAction").on('click', function (e) {
+
+            var id = $(this).data('id');
+            var status = $(this).data('status');
+
+            $.ajax({
+                type: "PUT",
+                data: "status=" + status,
+                url: "/bookmarks/" + id + "/status",
+                success: function (data, status, xhr) {
+                    alert(xhr.responseJSON.message);
+                    location.reload();
+                },
+                error: function (data, status, xhr) {
+                    alert(data.responseJSON.message);
+                }
+            });
+        });
+
+    });
+</script>
+</body>
+</html>
