@@ -76,20 +76,19 @@ class BookmarkModel
         return $list;
     }
 
-    public function create($bookmark, $note, $type)
+    public function create($bookmark, $note, $categoryId)
     {
         $now = time();
         $title = $this->getTitle($bookmark);
 
-        $sql = 'INSERT INTO bookmarks (uid, bookmark, title, note, type, created)
-                VALUES(UUID(), :bookmark, :title, :note, :type, :created)';
+        $sql = 'INSERT INTO bookmarks (uid, bookmark, title, note, categoryId, created)
+                VALUES(UUID(), :bookmark, :title, :note, :categoryId, :created)';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':uid', $uid, \PDO::PARAM_STR);
         $stm->bindParam(':bookmark', $bookmark, \PDO::PARAM_STR);
         $stm->bindParam(':note', $note, \PDO::PARAM_STR);
         $stm->bindParam(':title', $title, \PDO::PARAM_STR);
-        $stm->bindParam(':type', $type, \PDO::PARAM_INT);
+        $stm->bindParam(':categoryId', $categoryId, \PDO::PARAM_INT);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {

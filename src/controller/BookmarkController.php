@@ -45,7 +45,7 @@ class BookmarkController extends Controller
             throw CustomException::clientError(400, 'Bookmark exist!');
         }
 
-        $title = $this->bookmarkModel->create($params['bookmark'], $params['note'], $params['type']);
+        $title = $this->bookmarkModel->create($params['bookmark'], $params['note'], $params['category']);
 
         $resource = [
             "message" => "Success! Title: " . htmlentities($title)

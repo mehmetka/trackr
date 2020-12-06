@@ -16,13 +16,13 @@
                             <div class="card-body">
                                 <h5 class="card-title">Add New Bookmark</h5>
                                 <div class="form-group">
-                                    <input id="bookmark" placeholder="Bookmark" type="text" class="form-control">
+                                    <input type="text" id="bookmark" placeholder="Bookmark"  class="form-control">
                                 </div>
                                 <div class="form-group ">
-                                    <input id="note" placeholder="Note" type="text" class="form-control">
+                                    <input type="text" id="note" placeholder="Note"  class="form-control">
                                 </div>
                                 <div class="form-group">
-                                    <select id="category" name="category" class="form-control">
+                                    <select id="category" class="form-control">
                                         {{#categories}}
                                             <option value="{{id}}">{{name}}</option>
                                         {{/categories}}
@@ -77,7 +77,7 @@
         $("#addBookmark").on('click', function (e) {
 
             var bookmark = $('#bookmark').val();
-            var type = $('#type').val();
+            var type = $('#category').val();
             var note = $('#note').val();
             var btnContext = this;
 
@@ -86,7 +86,7 @@
 
             $.ajax({
                 type: "POST",
-                data: "bookmark=" + bookmark + "&type=" + type + "&note=" + note,
+                data: "bookmark=" + bookmark + "&category=" + type + "&note=" + note,
                 url: "/bookmarks",
                 success: function (data, status, xhr) {
                     alert(xhr.responseJSON.message);
