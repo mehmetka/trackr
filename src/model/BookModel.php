@@ -180,10 +180,31 @@ class BookModel
             $path['today_processed'] = $this->getBookPathsDailyRemainings($path['path_id']);
 
             $dailyAmount = $path['remaining_page'] / $path['day_diff'];
-            $path['daily_amount'] = round($dailyAmount, 2);
+            $path['daily_amount'] = round($dailyAmount, 0, PHP_ROUND_HALF_UP);
 
             if ($path['day_diff'] <= 3) {
                 $path['remaining_day_warning'] = true;
+            }
+
+            if ($path['day_diff'] > 1) {
+                $path['day_diff_text'] = "<span class=\"badge badge-primary\">{$path['day_diff']} days left</span>";
+            } else {
+                $path['day_diff_text'] = "<span class=\"badge badge-danger\">Last day!</span>";
+            }
+
+            if (!$path['today_processed']) {
+                $pages = $path['daily_amount'] > 1 ? 'pages' : 'page';
+                $path['today_processed_text'] = "You haven't read today :( You have to read {$path['daily_amount']} $pages";
+            } else {
+                $pages = $path['today_processed'] > 1 ? 'pages' : 'page';
+                $tmpDailyAmount = $path['daily_amount'] - $path['today_processed'];
+
+                if ($tmpDailyAmount) {
+                    $path['today_processed_text'] = "You read {$path['today_processed']} $pages today. Read $tmpDailyAmount more pages";
+                } else {
+                    $path['today_processed_text'] = "<span class=\"text-success\">Congrats, you read'em all! \m/</span>";
+                }
+
             }
 
             $list[] = $path;
