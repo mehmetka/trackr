@@ -56,7 +56,7 @@ class BookController extends Controller
             'categories' => $categories,
             'authors' => $authors,
             'books' => $books,
-            'activeCategories' => 'active'
+            'activeAllBooks' => 'active'
         ];
 
         return $this->view->render($response, 'all-books.mustache', $data);
@@ -239,7 +239,7 @@ class BookController extends Controller
 
         $data = [
             'categories' => $categories,
-            'activeBookPaths' => 'active'
+            'activeCategories' => 'active'
         ];
 
         return $this->view->render($response, 'categories.mustache', $data);
