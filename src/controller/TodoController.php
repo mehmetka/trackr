@@ -19,17 +19,26 @@ class TodoController extends Controller
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $otherTodoList = $this->todosModel->todoList();
         $todoListInTodos = $this->todosModel->getTodos();
-        $otherTodoList = array_merge($todoListInTodos, $otherTodoList);
 
         $data = [
-            'data' => $otherTodoList,
             'todos' => $todoListInTodos,
-            'activeOneListToRuleThemAll' => 'active'
+            'activeTodos' => 'active'
         ];
 
         return $this->view->render($response, 'todos.mustache', $data);
+    }
+
+    public function allTodos(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $allTodos = $this->todosModel->getAllTodos();
+
+        $data = [
+            'data' => $allTodos,
+            'activeOneListToRuleThemAll' => 'active'
+        ];
+
+        return $this->view->render($response, 'all-todos.mustache', $data);
     }
 
     public function get(ServerRequestInterface $request, ResponseInterface $response, $args)

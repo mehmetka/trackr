@@ -15,16 +15,6 @@ class TodoModel
         $this->dbConnection = $container->get('db');
     }
 
-    public function todoList()
-    {
-        $books = $this->getBooks();
-        $bookmarks = $this->getBookmarks();
-        $videos = $this->getVideos();
-
-        return array_merge($books, $bookmarks, $videos);
-
-    }
-
     public function getTodos()
     {
         $list = [];
@@ -92,20 +82,40 @@ class TodoModel
         return $todo;
     }
 
-    public function getBooks()
+    public function getAllTodos()
     {
         $list = [];
 
-        $sql = "SELECT b.id AS typeTableId,
-                CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ') 
-                        FROM book_authors ba 
-                        INNER JOIN author a ON ba.author_id = a.id
-                        WHERE ba.book_id = b.id), ' - ', b.title) AS todoName, pb.status as status
-                FROM books b 
-                LEFT JOIN books_finished bf ON b.id = bf.book_id
-                LEFT JOIN path_books pb ON b.ID = pb.book_id
+        $sql = "SELECT t.id AS typeTableId, t.todo AS todoName, t.status AS status, 'todo' AS todoType, 'warning' AS badge
+                FROM todos t
+                UNION ALL
+                SELECT b.id AS typeTableId,
+                       CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ')
+                               FROM book_authors ba
+                                        INNER JOIN author a ON ba.author_id = a.id
+                               WHERE ba.book_id = b.id), ' - ', b.title) AS todoName,
+                       pb.status AS status,
+                       'book' AS todoType,
+                       'warning' AS badge
+                FROM books b
+                         LEFT JOIN books_finished bf ON b.id = bf.book_id
+                         LEFT JOIN path_books pb ON b.ID = pb.book_id
                 GROUP BY b.id
-                ORDER BY pb.status ASC";
+                UNION ALL
+                SELECT b.id AS typeTableId,
+                       CONCAT('<a href=\"', b.bookmark, '\" target=\"_blank\">', IFNULL(b.title,b.bookmark), '<span class=\"badge badge-dark float-right\">', c.name, '</span>', '</a>') AS todoName,
+                       b.status AS status,
+                       'bookmark' AS todoType,
+                       'info' AS badge
+                FROM bookmarks b
+                         INNER JOIN categories c ON b.categoryID = c.id
+                UNION ALL
+                SELECT v.id AS typeTableId,
+                       CONCAT(v.title,' (',v.length, ') ', ' <span class=\"badge badge-dark float-right\">', c.NAME, '</span>') AS todoName,
+                       v.status AS status,
+                       'video' AS todoType,
+                       'danger' AS badge
+                FROM videos v INNER JOIN categories c ON v.category_id = c.id";
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -114,7 +124,8 @@ class TodoModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['todoType'] = '<span class="badge badge-info">book</span>';
+
+            $status = $row['status'];
 
             if ($row['status'] == 0 || $row['status'] == "") {
                 $row['status'] = '<span class="badge badge-secondary">to do</span>';
@@ -126,92 +137,14 @@ class TodoModel
                 $row['status'] = '<span class="badge badge-dark">list out</span>';
             }
 
-            $list[] = $row;
-        }
-
-        return $list;
-    }
-
-    public function getBookmarks()
-    {
-        $list = [];
-
-        $sql = 'SELECT b.id AS typeTableId, b.bookmark, b.title, b.note, b.status, b.categoryId, c.name AS categoryName
-                FROM bookmarks b
-                INNER JOIN categories c ON b.categoryID = c.id
-                ORDER BY b.id DESC';
-
-        $stm = $this->dbConnection->prepare($sql);
-
-        if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
-        }
-
-        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-
-            $text = $row['title'];
-
-            if (strlen($row['title']) > 150) {
-                $text = substr($row['title'], 0, 150);
-                $text .= '...';
-            }
-
-            if ($row['title'] == "" | $row['title'] == null) {
-                $text = $row['bookmark'];
-            }
-
-            $href = '<a href="' . $row['bookmark'] . '" target="_blank">' . $text . '</a>';
-            $row['todoName'] = $href;
-
-            $row['todoName'] .= "<span class=\"badge badge-dark float-right\">{$row['categoryName']}</span>";
-            $row['todoType'] = '<span class="badge badge-primary">bookmark</span>';
-
-            if ($row['status'] == 0) {
-                $row['status'] = '<span class="badge badge-secondary">to do</span>';
-            } elseif ($row['status'] == 1) {
-                $row['status'] = '<span class="badge badge-warning">in progress</span>';
+            if ($status == 1) {
+                array_unshift($list, $row);
             } else {
-                $row['status'] = '<span class="badge badge-success">done</span>';
-                $row['rowStatusClass'] = 'table-success';
+                $list[] = $row;
             }
-
-            $list[] = $row;
         }
 
         return $list;
-    }
-
-    public function getVideos()
-    {
-        $list = [];
-
-        $sql = "SELECT v.id AS typeTableId,
-                       CONCAT(v.title,' (',v.length, ') ', ' <span class=\"badge badge-dark float-right\">', c.NAME, '</span>') AS todoName,
-                       v.status
-                FROM videos v INNER JOIN categories c ON v.category_id = c.id";
-
-        $stm = $this->dbConnection->prepare($sql);
-
-        if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
-        }
-
-        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-
-            if ($row['status'] == 0) {
-                $row['status'] = '<span class="badge badge-secondary">to do</span>';
-            } elseif ($row['status'] == 1) {
-                $row['status'] = '<span class="badge badge-warning">in progress</span>';
-            } elseif ($row['status'] == 2) {
-                $row['status'] = '<span class="badge badge-success">done</span>';
-            }
-
-            $row['todoType'] = '<span class="badge badge-primary">video</span>';
-            $list[] = $row;
-        }
-
-        return $list;
-
     }
 
     public function create($todo, $description)

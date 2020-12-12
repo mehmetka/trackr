@@ -63,6 +63,7 @@ $app->group('', function () {
     $this->post('/writings', WritingController::class . ':create');
 
     $this->get('/todos', TodoController::class . ':index');
+    $this->get('/all-todos', TodoController::class . ':allTodos');
     $this->post('/todos', TodoController::class . ':add');
     $this->get('/todos/{id:[0-9]+}', TodoController::class . ':get');
     $this->put('/todos/{id:[0-9]+}', TodoController::class . ':update');

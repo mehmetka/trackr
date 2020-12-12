@@ -72,33 +72,6 @@
                         <br>
                     {{/todos}}
 
-                    <!-- simple table -->
-                    <div class="card mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Books/Videos/Bookmarks</h5>
-                                <table class="table table-striped table-bordered" id="booksDatatable" width="100%">
-                                    <thead>
-                                    <tr>
-                                        <th style="width:5%">Type</th>
-                                        <th>To Do</th>
-                                        <th style="width:5%">Status</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {{#data}}
-                                        <tr class="{{rowStatusClass}}">
-                                            <td>{{{todoType}}}</td>
-                                            <td>{{{todoName}}}</td>
-                                            <td>{{{status}}}</td>
-                                        </tr>
-                                    {{/data}}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div> <!-- simple table -->
-
                 </div> <!-- .col-12 -->
             </div> <!-- .row -->
         </div> <!-- .container-fluid -->
