@@ -274,6 +274,29 @@ class BookModel
         return $total;
     }
 
+    public function getBookDetailByBookIdAndPathId($bookId, $pathId)
+    {
+        $detail = [];
+
+        $sql = 'SELECT *
+                FROM path_books 
+                WHERE book_id=:book_id AND path_id=:path_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
+        $stm->bindParam(':path_id', $pathId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $detail = $row;
+        }
+
+        return $detail;
+    }
+
     public function insertNewReadRecord($pathId, $bookId)
     {
         $now = date("Y-m-d H:i:s");
@@ -515,17 +538,17 @@ class BookModel
         return $books;
     }
 
-    public function getBooksPathInside($pathid)
+    public function getBooksPathInside($pathId)
     {
         $sql = "SELECT b.uid AS bookUID, b.title, b.id, b.page_count, b.status AS book_status, pb.status AS path_status, pb.path_id, p.uid AS pathUID, CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ') FROM book_authors ba INNER JOIN author a ON ba.author_id = a.id WHERE ba.book_id = b.id)) AS author
                 FROM books b
                 INNER JOIN path_books pb ON b.id = pb.book_id
                 INNER JOIN paths p ON pb.path_id = p.id
-                WHERE pb.path_id = :path_id AND pb.status <= 1
+                WHERE pb.path_id = :path_id
                 ORDER BY pb.status DESC";
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':path_id', $pathid, \PDO::PARAM_STR);
+        $stm->bindParam(':path_id', $pathId, \PDO::PARAM_STR);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -534,6 +557,16 @@ class BookModel
         $list = [];
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+
+            if($row['path_status'] == 2){
+                $row['status_label'] = 'bg-success-dark';
+                $row['cardBodyBg'] = 'bg-success-light';
+                $row['readStatus'] = '<i class="fe fe-check fe-16"></i>';
+                $row['amount'] = true;
+                $row['remove'] = true;
+                $list[] = $row;
+                continue;
+            }
 
             $readAmount = $this->getReadAmount($row['id'], $row['path_id']);
             $readAmount = $readAmount ? $readAmount : 0;
@@ -549,13 +582,9 @@ class BookModel
                 continue;
             }
 
-            if ($row['path_status'] == 0) {
-                $row['remove_from_path'] = true;
-            }
-
-            $row['remaining'] = $readAmount;
             $row['divId'] = "div-{$row['id']}-" . uniqid();
             $row['status_label'] = 'bg-secondary-dark';
+            $row['readStatus'] = "$readAmount / {$row['page_count']}";
 
             if ($readAmount) {
                 $row['status_label'] = 'bg-warning-dark';

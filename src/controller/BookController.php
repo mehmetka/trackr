@@ -93,13 +93,18 @@ class BookController extends Controller
         $pathId = $this->bookModel->getPathIdByUid($params['pathUID']);
         $bookId = $this->bookModel->getBookIdByUid($args['bookUID']);
 
-        $this->bookModel->insertProgressRecord($bookId, $pathId, $params['amount']);
+        $bookDetail = $this->bookModel->getBookDetailByBookIdAndPathId($bookId, $pathId);
 
-        $resource = [
-            "message" => "Success!"
-        ];
+        if ($bookDetail['status'] == 2) {
+            $response['message'] = "Can't be add progress to done books!";
+            $response['responseCode'] = 400;
+        } else {
+            $this->bookModel->insertProgressRecord($bookId, $pathId, $params['amount']);
+            $response['responseCode'] = 200;
+            $response['message'] = "Success!";
+        }
 
-        return $this->response(200, $resource);
+        return $this->response($response['responseCode'], $response);
     }
 
     public function createAuthor(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -144,21 +149,6 @@ class BookController extends Controller
         $bookId = $this->bookModel->getBookIdByUid($args['bookUID']);
 
         $this->bookModel->addBookToPath($pathId, $bookId);
-
-        $resource = [
-            "message" => "Success!"
-        ];
-
-        return $this->response(200, $resource);
-    }
-
-    public function resetBook(ServerRequestInterface $request, ResponseInterface $response, $args)
-    {
-        $bookId = $this->bookModel->getBookIdByUid($args['bookUID']);
-
-        $this->bookModel->deleteBookTrackings($bookId);
-        $this->bookModel->deleteBookRecordsFromPaths($bookId);
-        $this->bookModel->setBookStatus($bookId, 1);
 
         $resource = [
             "message" => "Success!"
@@ -215,14 +205,20 @@ class BookController extends Controller
         $pathId = $this->bookModel->getPathIdByUid($args['pathUID']);
         $bookId = $this->bookModel->getBookIdByUid($params['bookUID']);
 
-        $this->bookModel->deleteBookTrackingsByPath($bookId, $pathId);
-        $this->bookModel->deleteBookFromPath($bookId, $pathId);
+        $bookDetail = $this->bookModel->getBookDetailByBookIdAndPathId($bookId, $pathId);
 
-        $resource = [
-            "message" => "Success!"
-        ];
+        if ($bookDetail['status'] == 2) {
+            $response['message'] = "Can't be remove done books!";
+            $response['responseCode'] = 400;
+        } else {
+            $this->bookModel->deleteBookTrackingsByPath($bookId, $pathId);
+            $this->bookModel->deleteBookFromPath($bookId, $pathId);
 
-        return $this->response(200, $resource);
+            $response['message'] = "Can't be remove done books!";
+            $response['responseCode'] = 400;
+        }
+
+        return $this->response($response['responseCode'], $response);
     }
 
     public function categories(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -235,7 +231,6 @@ class BookController extends Controller
             $this->bookModel->resetCategoriesDefaultStatus();
             $this->bookModel->setDefaultCategory($defaultCategoryId, 1);
         }
-
 
         $data = [
             'categories' => $categories,

@@ -15,7 +15,7 @@
                         {{#books}}
                             <div id="{{divId}}" class="card">
                                 <div class="card-header {{status_label}}">
-                                    Read: {{remaining}}/{{page_count}}
+                                    Read: {{{readStatus}}}
                                 </div>
                                 <div class="card-body">
                                     <blockquote class="blockquote mb-0">
@@ -23,25 +23,27 @@
                                         <footer>
                                             <br>
 
-                                            <div class="input-group mb-3 actionCard">
-                                                <input id="{{bookUID}}" type="number"
-                                                       class="form-control inputAmount"
-                                                       placeholder="Read amount">
-                                                <span class="input-group-append"><button
-                                                        class="btn btn-secondary btnAddAmount" type="button"
-                                                        data-id="{{bookUID}}" data-path="{{pathUID}}">+</button>
+                                            {{^amount}}
+                                                <div class="input-group mb-3 actionCard">
+                                                    <input id="{{bookUID}}" type="number"
+                                                           class="form-control inputAmount"
+                                                           placeholder="Read amount">
+                                                    <span class="input-group-append"><button
+                                                            class="btn btn-secondary btnAddAmount" type="button"
+                                                            data-id="{{bookUID}}" data-path="{{pathUID}}">+</button>
                                                             </span>
-                                            </div>
-
-                                            {{#remove_from_path}}
-                                                <div>
-                                                    <button class="btn btn-light btnRemoveFromPath"
-                                                            type="button" data-id="{{bookUID}}"
-                                                            data-div="{{divId}}"
-                                                            data-path="{{pathUID}}">Remove
-                                                    </button>
                                                 </div>
-                                            {{/remove_from_path}}
+                                            {{/amount}}
+
+                                           {{^remove}}
+                                               <div>
+                                                   <button class="btn btn-danger btnRemoveFromPath"
+                                                           type="button" data-id="{{bookUID}}"
+                                                           data-div="{{divId}}"
+                                                           data-path="{{pathUID}}">Remove
+                                                   </button>
+                                               </div>
+                                           {{/remove}}
                                         </footer>
                                     </blockquote>
                                 </div>

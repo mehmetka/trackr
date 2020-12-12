@@ -32,7 +32,6 @@ $app->group('', function () {
     $this->post('/books/{bookUID}/progress', BookController::class . ':addProgress');
     $this->post('/authors', BookController::class . ':createAuthor');
     $this->post('/books/{bookUID}/paths', BookController::class . ':addBookToPath');
-    $this->delete('/books/{bookUID}', BookController::class . ':resetBook');
     $this->delete('/books/paths/{pathUID}', BookController::class . ':removeBookFromPath');
     $this->post('/books/paths', BookController::class . ':createPath');
     $this->post('/books/paths/{pathUID}/extend', BookController::class . ':extendPathFinish');
