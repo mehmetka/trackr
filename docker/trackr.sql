@@ -1,13 +1,13 @@
--- MySQL dump 10.13  Distrib 8.0.21, for macos10.15 (x86_64)
+-- MySQL dump 10.13  Distrib 5.7.29, for Linux (x86_64)
 --
--- Host: 127.0.0.1    Database: trackr1
+-- Host: localhost    Database: trackr1
 -- ------------------------------------------------------
 -- Server version	5.7.29
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -21,13 +21,13 @@
 
 DROP TABLE IF EXISTS `author`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `author` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `author` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `NAME_UNIQUE` (`author`)
-) ENGINE=InnoDB AUTO_INCREMENT=1752 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `author` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          PRIMARY KEY (`id`),
+                          UNIQUE KEY `NAME_UNIQUE` (`author`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -46,14 +46,14 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `book_authors`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `book_authors` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `author_id` int(11) NOT NULL,
-  `book_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_author_id_book_id` (`author_id`,`book_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1614 DEFAULT CHARSET=utf8;
+                                `id` int(11) NOT NULL AUTO_INCREMENT,
+                                `author_id` int(11) NOT NULL,
+                                `book_id` int(11) NOT NULL,
+                                PRIMARY KEY (`id`),
+                                UNIQUE KEY `idx_author_id_book_id` (`author_id`,`book_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -72,15 +72,15 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `book_trackings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `book_trackings` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `book_id` int(11) NOT NULL,
-  `path_id` varchar(45) NOT NULL,
-  `record_date` int(11) NOT NULL,
-  `amount` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=617 DEFAULT CHARSET=latin1;
+                                  `id` int(11) NOT NULL AUTO_INCREMENT,
+                                  `book_id` int(11) NOT NULL,
+                                  `path_id` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
+                                  `record_date` int(11) NOT NULL,
+                                  `amount` int(11) NOT NULL,
+                                  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -98,20 +98,20 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `bookmarks`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `bookmarks` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `uid` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `bookmark` varchar(2000) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `title` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `note` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `categoryId` int(11) DEFAULT NULL,
-  `status` int(11) DEFAULT '0',
-  `created` int(11) NOT NULL,
-  `started` int(11) DEFAULT NULL,
-  `done` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2571 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                             `id` int(11) NOT NULL AUTO_INCREMENT,
+                             `uid` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
+                             `bookmark` varchar(2000) COLLATE utf8mb4_unicode_ci NOT NULL,
+                             `title` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                             `note` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                             `categoryId` int(11) DEFAULT NULL,
+                             `status` int(11) DEFAULT '0',
+                             `created` int(11) NOT NULL,
+                             `started` int(11) DEFAULT NULL,
+                             `done` int(11) DEFAULT NULL,
+                             PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -129,22 +129,22 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `books`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `books` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `uid` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-  `title` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `publisher` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `pdf` int(11) DEFAULT '0',
-  `epub` int(11) DEFAULT '0',
-  `notes` longtext COLLATE utf8_unicode_ci,
-  `category` int(11) DEFAULT '6665',
-  `added_date` int(11) DEFAULT NULL,
-  `own` int(11) DEFAULT '0',
-  `page_count` int(11) DEFAULT '0',
-  `status` int(11) DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2037 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+                         `id` int(11) NOT NULL AUTO_INCREMENT,
+                         `uid` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
+                         `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                         `publisher` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                         `pdf` int(11) DEFAULT '0',
+                         `epub` int(11) DEFAULT '0',
+                         `notes` longtext COLLATE utf8mb4_unicode_ci,
+                         `category` int(11) DEFAULT '6665',
+                         `added_date` int(11) DEFAULT NULL,
+                         `own` int(11) DEFAULT '0',
+                         `page_count` int(11) DEFAULT '0',
+                         `status` int(11) DEFAULT '0',
+                         PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -163,15 +163,15 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `books_finished`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `books_finished` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `book_id` int(11) NOT NULL,
-  `path_id` int(11) NOT NULL,
-  `start_date` varchar(255) DEFAULT NULL,
-  `finish_date` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=419 DEFAULT CHARSET=latin1;
+                                  `id` int(11) NOT NULL AUTO_INCREMENT,
+                                  `book_id` int(11) NOT NULL,
+                                  `path_id` int(11) NOT NULL,
+                                  `start_date` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                                  `finish_date` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                                  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -189,15 +189,15 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `categories`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `categories` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `defaultStatus` int(11) NOT NULL DEFAULT '0',
-  `created` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `NAME_UNIQUE` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=6730 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+                              `id` int(11) NOT NULL AUTO_INCREMENT,
+                              `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                              `defaultStatus` int(11) NOT NULL DEFAULT '0',
+                              `created` int(11) NOT NULL,
+                              PRIMARY KEY (`id`),
+                              UNIQUE KEY `NAME_UNIQUE` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -206,6 +206,7 @@ CREATE TABLE `categories` (
 
 LOCK TABLES `categories` WRITE;
 /*!40000 ALTER TABLE `categories` DISABLE KEYS */;
+INSERT INTO `categories` VALUES (6665,'default',1,1607779386);
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -215,14 +216,14 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `date_trackings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `date_trackings` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `start` varchar(15) NOT NULL,
-  `created` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+                                  `id` int(11) NOT NULL AUTO_INCREMENT,
+                                  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                                  `start` varchar(15) COLLATE utf8mb4_unicode_ci NOT NULL,
+                                  `created` int(11) NOT NULL,
+                                  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -231,6 +232,7 @@ CREATE TABLE `date_trackings` (
 
 LOCK TABLES `date_trackings` WRITE;
 /*!40000 ALTER TABLE `date_trackings` DISABLE KEYS */;
+
 /*!40000 ALTER TABLE `date_trackings` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -240,14 +242,14 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `highlight_tags`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `highlight_tags` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `highlight_id` int(11) NOT NULL,
-  `tag_id` int(11) NOT NULL,
-  `created` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=804 DEFAULT CHARSET=utf8;
+                                  `id` int(11) NOT NULL AUTO_INCREMENT,
+                                  `highlight_id` int(11) NOT NULL,
+                                  `tag_id` int(11) NOT NULL,
+                                  `created` int(11) NOT NULL,
+                                  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -256,6 +258,7 @@ CREATE TABLE `highlight_tags` (
 
 LOCK TABLES `highlight_tags` WRITE;
 /*!40000 ALTER TABLE `highlight_tags` DISABLE KEYS */;
+
 /*!40000 ALTER TABLE `highlight_tags` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -265,20 +268,20 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `highlights`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `highlights` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `highlight` longtext NOT NULL,
-  `author` varchar(1000) NOT NULL,
-  `source` varchar(1000) NOT NULL,
-  `page` int(11) DEFAULT NULL,
-  `location` varchar(45) DEFAULT NULL,
-  `link` varchar(1000) DEFAULT NULL,
-  `type` int(11) DEFAULT '0',
-  `created` int(11) NOT NULL,
-  `updated` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31500 DEFAULT CHARSET=utf8;
+                              `id` int(11) NOT NULL AUTO_INCREMENT,
+                              `highlight` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+                              `author` varchar(1000) COLLATE utf8mb4_unicode_ci NOT NULL,
+                              `source` varchar(1000) COLLATE utf8mb4_unicode_ci NOT NULL,
+                              `page` int(11) DEFAULT NULL,
+                              `location` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                              `link` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                              `type` int(11) DEFAULT '0',
+                              `created` int(11) NOT NULL,
+                              `updated` int(11) DEFAULT NULL,
+                              PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -296,17 +299,17 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `path_books`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `path_books` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `path_id` int(11) NOT NULL,
-  `book_id` int(11) NOT NULL,
-  `status` int(11) NOT NULL,
-  `created` int(11) NOT NULL,
-  `updated` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_path_id_book_id` (`path_id`,`book_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1477 DEFAULT CHARSET=utf8;
+                              `id` int(11) NOT NULL AUTO_INCREMENT,
+                              `path_id` int(11) NOT NULL,
+                              `book_id` int(11) NOT NULL,
+                              `status` int(11) NOT NULL,
+                              `created` int(11) NOT NULL,
+                              `updated` int(11) DEFAULT NULL,
+                              PRIMARY KEY (`id`),
+                              UNIQUE KEY `idx_path_id_book_id` (`path_id`,`book_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -324,16 +327,16 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `paths`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `paths` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `uid` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-  `name` varchar(45) COLLATE utf8_unicode_ci NOT NULL,
-  `start` int(11) NOT NULL,
-  `finish` int(11) NOT NULL,
-  `status` int(11) DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+                         `id` int(11) NOT NULL AUTO_INCREMENT,
+                         `uid` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
+                         `name` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
+                         `start` int(11) NOT NULL,
+                         `finish` int(11) NOT NULL,
+                         `status` int(11) DEFAULT '0',
+                         PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -351,12 +354,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `publishers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `publishers` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
+                              `id` int(11) NOT NULL AUTO_INCREMENT,
+                              `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                              PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -374,13 +377,13 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `tags`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tags` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `tag` varchar(255) NOT NULL,
-  `created` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
+                        `id` int(11) NOT NULL AUTO_INCREMENT,
+                        `tag` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                        `created` int(11) NOT NULL,
+                        PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -398,17 +401,17 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `todos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `todos` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `todo` text NOT NULL,
-  `description` mediumtext,
-  `created` int(11) NOT NULL,
-  `started` int(11) DEFAULT NULL,
-  `done` int(11) DEFAULT NULL,
-  `status` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8;
+                         `id` int(11) NOT NULL AUTO_INCREMENT,
+                         `todo` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+                         `description` longtext COLLATE utf8mb4_unicode_ci,
+                         `created` int(11) NOT NULL,
+                         `started` int(11) DEFAULT NULL,
+                         `done` int(11) DEFAULT NULL,
+                         `status` int(11) NOT NULL DEFAULT '0',
+                         PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -426,15 +429,15 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(45) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `created` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `username_UNIQUE` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+                         `id` int(11) NOT NULL AUTO_INCREMENT,
+                         `username` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
+                         `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                         `created` int(11) NOT NULL,
+                         PRIMARY KEY (`id`),
+                         UNIQUE KEY `username_UNIQUE` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -452,19 +455,19 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `videos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `videos` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) NOT NULL,
-  `category_id` int(11) NOT NULL,
-  `status` int(11) NOT NULL DEFAULT '0',
-  `length` float DEFAULT NULL,
-  `link` varchar(255) DEFAULT NULL,
-  `created` int(11) NOT NULL,
-  `started` int(11) DEFAULT NULL,
-  `done` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=252 DEFAULT CHARSET=utf8;
+                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                          `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `category_id` int(11) NOT NULL,
+                          `status` int(11) NOT NULL DEFAULT '0',
+                          `length` float DEFAULT NULL,
+                          `link` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                          `created` int(11) NOT NULL,
+                          `started` int(11) DEFAULT NULL,
+                          `done` int(11) DEFAULT NULL,
+                          PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -482,15 +485,15 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `work_trackings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `work_trackings` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `work` int(11) NOT NULL DEFAULT '0',
-  `description` mediumtext,
-  `date` varchar(11) DEFAULT NULL,
-  `status` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8;
+                                  `id` int(11) NOT NULL AUTO_INCREMENT,
+                                  `work` int(11) NOT NULL DEFAULT '0',
+                                  `description` longtext COLLATE utf8mb4_unicode_ci,
+                                  `date` varchar(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                                  `status` int(11) NOT NULL DEFAULT '0',
+                                  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -508,15 +511,15 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `writings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `writings` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `date` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `text` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created` int(11) NOT NULL,
-  `updated` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=355 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+                            `id` int(11) NOT NULL AUTO_INCREMENT,
+                            `date` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                            `text` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+                            `created` int(11) NOT NULL,
+                            `updated` int(11) DEFAULT NULL,
+                            PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -537,4 +540,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-12-06 23:36:09
+-- Dump completed on 2020-12-12 13:17:22
