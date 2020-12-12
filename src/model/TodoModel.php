@@ -86,7 +86,7 @@ class TodoModel
     {
         $list = [];
 
-        $sql = "SELECT t.id AS typeTableId, t.todo AS todoName, t.status AS status, 'todo' AS todoType, 'warning' AS badge
+        $sql = "SELECT t.id AS typeTableId, t.todo AS todoName, t.status AS status, 'todo' AS todoType, 'primary' AS badge
                 FROM todos t
                 UNION ALL
                 SELECT b.id AS typeTableId,
