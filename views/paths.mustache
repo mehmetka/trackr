@@ -43,7 +43,7 @@
                             <div class="card">
                                 <div class="card-header bg-dark">
                                     {{path_name}} {{{day_diff_text}}}
-                                    <span class="text-warning float-right">%{{ratio}}</span>
+                                    <span class="text-{{ratioBadgeColor}} float-right">{{ratio}}</span>
                                 </div>
                                 <div class="card-body">
                                     <div><span class="text-success">Start:</span> {{start}}</div>
@@ -58,7 +58,9 @@
                                                 data-uid="{{pathUID}}">Add 10 More Days
                                         </button>
                                     {{/remaining_day_warning}}
-                                    <a class="btn btn-sm btn-dark" href="/books/paths/{{pathUID}}">Books</a>
+                                    {{^expired}}
+                                        <a class="btn btn-sm btn-dark" href="/books/paths/{{pathUID}}">Books</a>
+                                    {{/expired}}
                                 </div>
                             </div>
                         {{/bookPaths}}

@@ -172,13 +172,20 @@ class BookModel
 
             if ($today > $path['finish_epoch']) {
                 $this->changePathStatus($path['path_id'], 1);
+                $path['status'] = 1;
+                $path['expired'] = true;
+                $path['today_processed_text'] = 'EXPIRED!';
+                $path['ratio'] = 'X';
+                $path['ratioBadgeColor'] = 'danger';
+                $list[] = $path;
                 continue;
             }
 
             $path['remaining_page'] = $this->getBooksRemainingPageCount($path['path_id']);
             $path['day_diff'] = Util::epochDateDiff($path['finish_epoch'], $today);
             $path['path_day_count'] = Util::epochDateDiff($path['finish_epoch'], $path['start_epoch']);
-            $path['ratio'] = round((($path['path_day_count'] - $path['day_diff']) / $path['path_day_count']) * 100);
+            $path['ratio'] = '%' . round((($path['path_day_count'] - $path['day_diff']) / $path['path_day_count']) * 100);
+            $path['ratioBadgeColor'] = 'warning';
             $path['today_processed'] = $this->getBookPathsDailyRemainings($path['path_id']);
 
             $dailyAmount = $path['remaining_page'] / $path['day_diff'];
@@ -558,7 +565,7 @@ class BookModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
 
-            if($row['path_status'] == 2){
+            if ($row['path_status'] == 2) {
                 $row['status_label'] = 'bg-success-dark';
                 $row['cardBodyBg'] = 'bg-success-light';
                 $row['readStatus'] = '<i class="fe fe-check fe-16"></i>';
