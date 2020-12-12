@@ -6,7 +6,7 @@
 <body class="dark ">
 <div class="wrapper vh-100">
     <div class="row align-items-center h-100">
-        <form class="col-lg-3 col-md-4 col-10 mx-auto text-center" action="/register" method="post">
+        <form class="col-lg-3 col-md-4 col-10 mx-auto text-center" id="registerForm">
             <div class="form-group">
                 <label for="username" class="sr-only">Username</label>
                 <input type="text" id="username" name="username" class="form-control form-control-lg" placeholder="Username" autofocus="">
@@ -19,10 +19,35 @@
                 <label for="passwordAgain" class="sr-only">Password</label>
                 <input type="password" id="passwordAgain" name="passwordAgain" class="form-control form-control-lg" placeholder="Password Again">
             </div>
-            <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+            <button class="btn btn-lg btn-primary btn-block" type="button" id="btnRegister">Register</button>
         </form>
     </div>
 </div>
 {{> include }}
+<script>
+    $(document).ready(function () {
+
+        $("#btnRegister").on('click', function (e) {
+
+            var formData = $('#registerForm').serialize();
+
+            $.ajax({
+                type: "POST",
+                data: formData,
+                url: "/register",
+                success: function (data, status, xhr) {
+                    window.location.replace('/login')
+                },
+                error: function (data, status, xhr) {
+                    $.bootstrapPurr(data.responseJSON.message, {
+                        type: 'danger'
+                    });
+                }
+            });
+
+        });
+
+    });
+</script>
 </body>
 </html>

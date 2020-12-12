@@ -38,7 +38,10 @@ class AuthController extends Controller
 
         $this->authModel->login($params['username'], $params['password']);
 
-        return $response->withRedirect($this->container->router->pathFor('home'), 302);
+        $resource['responseCode'] = 200;
+        $resource['message'] = "Logged in successfully";
+
+        return $this->response($resource['responseCode'], $resource);
     }
 
     public function register(ServerRequestInterface $request, ResponseInterface $response)
@@ -57,7 +60,10 @@ class AuthController extends Controller
 
         $this->authModel->register(trim($params['username']), trim($params['password']));
 
-        return $response->withRedirect($this->container->router->pathFor('login'), 302);
+        $resource['responseCode'] = 200;
+        $resource['message'] = "Registered successfully";
+
+        return $this->response($resource['responseCode'], $resource);
     }
 
     public function logout(ServerRequestInterface $request, ResponseInterface $response)
