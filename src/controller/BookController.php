@@ -32,14 +32,10 @@ class BookController extends Controller
 
     public function paths(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $averageData = $this->bookModel->readingAverage();
         $paths = $this->bookModel->getBookPaths();
 
         $data = [
-            "bookPaths" => $paths,
-            'readingAverage' => round($averageData['average'], 3),
-            'readingTotal' => $averageData['total'],
-            'dayDiff' => $averageData['diff'],
+            'bookPaths' => $paths,
             'activeBookPaths' => 'active'
         ];
 
