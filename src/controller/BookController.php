@@ -213,7 +213,7 @@ class BookController extends Controller
     {
         $params = $request->getParsedBody();
         $pathId = $this->bookModel->getPathIdByUid($args['pathUID']);
-        $bookId = $this->bookModel->getBookIdByUid($args['bookUID']);
+        $bookId = $this->bookModel->getBookIdByUid($params['bookUID']);
 
         $this->bookModel->deleteBookTrackingsByPath($bookId, $pathId);
         $this->bookModel->deleteBookFromPath($bookId, $pathId);
