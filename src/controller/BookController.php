@@ -86,21 +86,26 @@ class BookController extends Controller
     {
         $params = $request->getParsedBody();
 
-        $pathId = $this->bookModel->getPathIdByUid($params['pathUID']);
+        $pathDetails = $this->bookModel->getPathByUid($params['pathUID']);
         $bookId = $this->bookModel->getBookIdByUid($args['bookUID']);
 
-        $bookDetail = $this->bookModel->getBookDetailByBookIdAndPathId($bookId, $pathId);
+        $bookDetail = $this->bookModel->getBookDetailByBookIdAndPathId($bookId, $pathDetails['id']);
 
-        if ($bookDetail['status'] == 2) {
-            $response['message'] = "Can't be add progress to done books!";
-            $response['responseCode'] = 400;
+        if ($pathDetails['status']) {
+            if ($bookDetail['status'] == 2) {
+                $resource['message'] = "Can't be add progress to done books!";
+                $resource['responseCode'] = 400;
+            } else {
+                $this->bookModel->insertProgressRecord($bookId, $pathDetails['id'], $params['amount']);
+                $resource['responseCode'] = 200;
+                $resource['message'] = "Success!";
+            }
         } else {
-            $this->bookModel->insertProgressRecord($bookId, $pathId, $params['amount']);
-            $response['responseCode'] = 200;
-            $response['message'] = "Success!";
+            $resource['responseCode'] = 400;
+            $resource['message'] = "You can't add progress to expired paths!";
         }
 
-        return $this->response($response['responseCode'], $response);
+        return $this->response($resource['responseCode'], $resource);
     }
 
     public function createAuthor(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -203,18 +208,18 @@ class BookController extends Controller
 
         $bookDetail = $this->bookModel->getBookDetailByBookIdAndPathId($bookId, $pathId);
 
-        if ($bookDetail['status'] == 2) {
-            $response['message'] = "Can't be remove done books!";
-            $response['responseCode'] = 400;
-        } else {
+        if ($bookDetail['status'] == 0) {
             $this->bookModel->deleteBookTrackingsByPath($bookId, $pathId);
             $this->bookModel->deleteBookFromPath($bookId, $pathId);
 
-            $response['message'] = "Can't be remove done books!";
-            $response['responseCode'] = 400;
+            $resource['message'] = "Successfully removed.";
+            $resource['responseCode'] = 200;
+        } else {
+            $resource['message'] = "You can remove only 'Not Started' books from paths!";
+            $resource['responseCode'] = 400;
         }
 
-        return $this->response($response['responseCode'], $response);
+        return $this->response($resource['responseCode'], $resource);
     }
 
     public function categories(ServerRequestInterface $request, ResponseInterface $response, $args)
