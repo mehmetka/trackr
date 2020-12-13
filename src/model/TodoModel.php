@@ -31,16 +31,7 @@ class TodoModel
             $row['todoType'] = '<span class="badge badge-warning">todo</span>';
             $row['description'] = str_replace("\n", '<br>', $row['description']);
             $row['todoName'] = $row['todo'];
-
-            if ($row['status'] == 0 || $row['status'] == "") {
-                $row['status'] = '<span class="badge badge-secondary">to do</span>';
-            } elseif ($row['status'] == 1) {
-                $row['status'] = '<span class="badge badge-warning">in progress</span>';
-            } elseif ($row['status'] == 2) {
-                $row['status'] = '<span class="badge badge-success">done</span>';
-            } else {
-                $row['status'] = '<span class="badge badge-dark">list out</span>';
-            }
+            $status = $row['status'];
 
             if (!$row['started']) {
                 $row['startAction'] = true;
@@ -54,7 +45,13 @@ class TodoModel
                 unset($row['description']);
             }
 
-            $list[] = $row;
+            if ($status == 2) {
+                $row['cardHeaderBg'] = 'bg-success-dark';
+                $list[] = $row;
+            } else {
+                $row['cardHeaderBg'] = 'bg-dark';
+                array_unshift($list, $row);
+            }
         }
 
         return $list;

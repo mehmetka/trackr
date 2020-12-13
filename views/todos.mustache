@@ -37,7 +37,7 @@
                     <h5 class="card-title">To Dos</h5>
                     {{#todos}}
                         <div class="card">
-                            <div class="card-header bg-dark">
+                            <div class="card-header {{cardHeaderBg}}">
 
                                 <strong>{{todo}}</strong>
 
@@ -58,7 +58,7 @@
                                 {{/doneAction}}
 
                                 {{#complete}}
-                                    <span class="badge badge-success float-right">Done</span>
+                                    <i class="fe fe-check fe-16 float-right"></i>
                                 {{/complete}}
 
                             </div>
