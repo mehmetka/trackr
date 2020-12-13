@@ -92,6 +92,9 @@ class BookController extends Controller
         $bookDetail = $this->bookModel->getBookDetailByBookIdAndPathId($bookId, $pathDetails['id']);
 
         if ($pathDetails['status']) {
+            $resource['responseCode'] = 400;
+            $resource['message'] = "You can't add progress to expired paths!";
+        } else {
             if ($bookDetail['status'] == 2) {
                 $resource['message'] = "Can't be add progress to done books!";
                 $resource['responseCode'] = 400;
@@ -100,9 +103,6 @@ class BookController extends Controller
                 $resource['responseCode'] = 200;
                 $resource['message'] = "Success!";
             }
-        } else {
-            $resource['responseCode'] = 400;
-            $resource['message'] = "You can't add progress to expired paths!";
         }
 
         return $this->response($resource['responseCode'], $resource);
