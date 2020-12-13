@@ -19,7 +19,7 @@ class VideoModel
     {
         $list = [];
 
-        $sql = 'SELECT v.id, v.title, c.name as categoryName, v.length, v.created, v.started, v.done
+        $sql = 'SELECT v.id, v.title, c.name as categoryName, v.status, v.length, v.created, v.started, v.done
                 FROM videos v
                 INNER JOIN categories c
                 ON v.category_id = c.id';
@@ -41,7 +41,11 @@ class VideoModel
                 $row['complete'] = true;
             }
 
-            $list[] = $row;
+            if ($row['status'] == 1) {
+                array_unshift($list, $row);
+            } else {
+                $list[] = $row;
+            }
         }
 
         return $list;
