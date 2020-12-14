@@ -1,0 +1,14 @@
+[mysqld]
+datadir=/var/lib/mysql
+max_allowed_packet = 1G
+innodb_log_file_size = 512M
+query_cache_type = 1
+query_cache_size = 128M
+innodb_buffer_pool_size = 10G
+default-storage-engine = INNODB
+innodb_file_format = Barracuda
+innodb_large_prefix = 1
+sql_mode="TRADITIONAL"
+pid-file        = /var/run/mysqld/mysqld.pid
+socket          = /var/run/mysqld/mysqld.sock
+symbolic-links = 0
