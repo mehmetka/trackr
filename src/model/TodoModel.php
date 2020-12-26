@@ -31,6 +31,8 @@ class TodoModel
             $row['todoType'] = '<span class="badge badge-warning">todo</span>';
             $row['description'] = str_replace("\n", '<br>', $row['description']);
             $row['todoName'] = $row['todo'];
+            $row['accordionId'] = 'accordion' . uniqid();
+            $row['cardBodyId'] = 'cb' . uniqid();
             $status = $row['status'];
 
             if (!$row['started']) {

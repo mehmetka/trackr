@@ -35,39 +35,48 @@
                     </div>
 
                     {{#todos}}
-                        <div class="card">
-                            <div class="card-header {{cardHeaderBg}}">
 
-                                <strong>{{todo}}</strong>
+                        <div class="accordion accordion-boxed" id="{{accordionId}}">
+                            <div class="card">
+                                <div class="card-header {{cardHeaderBg}}">
 
-                                {{^complete}}
-                                    <a class="btn btn-sm btn-primary float-right btnEditTodo"
-                                       data-id="{{id}}" data-toggle="modal"
-                                       data-target="#editTodoModal">Edit</a>
-                                {{/complete}}
+                                    <a role="button" href="#{{cardBodyId}}" data-toggle="collapse"
+                                       aria-expanded="false">
+                                        <strong>{{todo}}</strong>
+                                    </a>
 
-                                {{#startAction}}
-                                    <a class="btn btn-sm btn-info float-right btnStatusAction"
-                                       data-status="1" data-id="{{id}}">Start</a>
-                                {{/startAction}}
+                                    {{^complete}}
+                                        <a class="btn btn-sm btn-primary float-right btnEditTodo"
+                                           data-id="{{id}}" data-toggle="modal"
+                                           data-target="#editTodoModal">Edit</a>
+                                    {{/complete}}
 
-                                {{#doneAction}}
-                                    <a class="btn btn-sm btn-success float-right btnStatusAction"
-                                       data-status="2" data-id="{{id}}">Done</a>
-                                {{/doneAction}}
+                                    {{#startAction}}
+                                        <a class="btn btn-sm btn-info float-right btnStatusAction"
+                                           data-status="1" data-id="{{id}}">Start</a>
+                                    {{/startAction}}
 
-                                {{#complete}}
-                                    <i class="fe fe-check fe-16 float-right"></i>
-                                {{/complete}}
+                                    {{#doneAction}}
+                                        <a class="btn btn-sm btn-success float-right btnStatusAction"
+                                           data-status="2" data-id="{{id}}">Done</a>
+                                    {{/doneAction}}
 
-                            </div>
-                            {{#description}}
-                                <div class="card-body">
-                                    <h5 class="card-title">Description</h5>
-                                    <p class="card-text">{{{description}}}</p>
+                                    {{#complete}}
+                                        <i class="fe fe-check fe-16 float-right"></i>
+                                    {{/complete}}
+
                                 </div>
-                            {{/description}}
+                                {{#description}}
+                                    <div id="{{cardBodyId}}" class="collapse" data-parent="#{{accordionId}}">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Description</h5>
+                                            <p class="card-text">{{{description}}}</p>
+                                        </div>
+                                    </div>
+                                {{/description}}
+                            </div>
                         </div>
+
                         <br>
                     {{/todos}}
 
