@@ -26,24 +26,27 @@
                                             {{^amount}}
                                                 <div class="input-group mb-3 actionCard">
                                                     <input id="{{bookUID}}" type="number"
-                                                           class="form-control inputAmount"
+                                                           class="form-control input-group-append inputAmount"
                                                            placeholder="Read amount">
-                                                    <span class="input-group-append"><button
-                                                            class="btn btn-secondary btnAddAmount" type="button"
-                                                            data-id="{{bookUID}}" data-path="{{pathUID}}">+</button>
-                                                            </span>
+                                                    <div class="input-group-append">
+                                                        <button
+                                                                class="btn btn-primary btnAddAmount" type="button"
+                                                                data-id="{{bookUID}}" data-path="{{pathUID}}"><i
+                                                                class="fe fe-plus-circle fe-16"></i></button>
+                                                    </div>
                                                 </div>
                                             {{/amount}}
 
-                                           {{^remove}}
-                                               <div>
-                                                   <button class="btn btn-danger btnRemoveFromPath"
-                                                           type="button" data-id="{{bookUID}}"
-                                                           data-div="{{divId}}"
-                                                           data-path="{{pathUID}}">Remove
-                                                   </button>
-                                               </div>
-                                           {{/remove}}
+                                            {{^remove}}
+                                                <div>
+                                                    <button class="btn btn-sm btn-danger btnRemoveFromPath"
+                                                            type="button" data-id="{{bookUID}}"
+                                                            data-div="{{divId}}"
+                                                            data-path="{{pathUID}}">
+                                                        <i class="fe fe-trash fe-16"></i>
+                                                    </button>
+                                                </div>
+                                            {{/remove}}
                                         </footer>
                                     </blockquote>
                                 </div>
