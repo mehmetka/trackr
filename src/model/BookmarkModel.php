@@ -141,6 +141,21 @@ class BookmarkModel
         return true;
     }
 
+    public function deleteBookmark($id)
+    {
+        $sql = 'DELETE FROM bookmarks 
+                WHERE id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':id', $id, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
     public function updateDoneDate($id)
     {
         $now = time();

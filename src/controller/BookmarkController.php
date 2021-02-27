@@ -71,4 +71,17 @@ class BookmarkController extends Controller
 
         return $this->response(200, $resource);
     }
+
+    public function delete(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $bookmarkId = $args['id'];
+
+        $this->bookmarkModel->deleteBookmark($bookmarkId);
+
+        $resource = [
+            "message" => "Success!"
+        ];
+
+        return $this->response(200, $resource);
+    }
 }

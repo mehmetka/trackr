@@ -16,15 +16,15 @@
                             <div class="card-body">
                                 <h5 class="card-title">Add New Bookmark</h5>
                                 <div class="form-group">
-                                    <input type="text" id="bookmark" placeholder="Bookmark"  class="form-control">
+                                    <input type="text" id="bookmark" placeholder="Bookmark" class="form-control">
                                 </div>
                                 <div class="form-group ">
-                                    <input type="text" id="note" placeholder="Note"  class="form-control">
+                                    <input type="text" id="note" placeholder="Note" class="form-control">
                                 </div>
                                 <div class="form-group">
                                     <select id="category" class="form-control">
                                         {{#categories}}
-                                            <option value="{{id}}">{{name}}</option>
+                                            <option value="{{id}}"  {{#selected}}selected="selected"{{/selected}}>{{name}}</option>
                                         {{/categories}}
                                     </select>
                                 </div>
@@ -47,8 +47,16 @@
                                 </div>
                                 <div class="card-footer">
                                     {{#startAction}}
-                                        <a class="btn btn-sm btn-primary btnStatusAction" data-status="1"
-                                           data-id="{{id}}">Start</a>
+
+                                        <div class="btn-group" role="group" aria-label="Basic example">
+                                            <a class="btn btn-sm btn-info btnStatusAction" data-status="1"
+                                               data-id="{{id}}"><i class="fe fe-play fe-4"></i></a>
+
+                                            <a class="btn btn-sm btn-primary btnDeleteBookmark"
+                                               data-id="{{id}}"><i class="fe fe-trash fe-4"></i></a>
+                                        </div>
+
+
                                     {{/startAction}}
 
                                     {{#doneAction}}
@@ -113,6 +121,22 @@
                 success: function (data, status, xhr) {
                     alert(xhr.responseJSON.message);
                     location.reload();
+                },
+                error: function (data, status, xhr) {
+                    alert(data.responseJSON.message);
+                }
+            });
+        });
+
+        $(".btnDeleteBookmark").on('click', function (e) {
+
+            var id = $(this).data('id');
+
+            $.ajax({
+                type: "DELETE",
+                url: "/bookmarks/" + id,
+                success: function (data, status, xhr) {
+                    alert(xhr.responseJSON.message);
                 },
                 error: function (data, status, xhr) {
                     alert(data.responseJSON.message);
