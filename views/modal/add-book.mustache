@@ -3,55 +3,29 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Insert a Book</h5>
+                <h5 class="modal-title" id="exampleModalLabel">New Book</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div>
-                    <form id="bookSaveForm" name="bookSaveForm">
-                        <div class="form-group">
-                            <label for="author">Author:</label>
-                            <select id="authors" multiple="multiple" name="authors[]" class="form-control">
+                <form id="bookSaveForm" name="bookSaveForm">
+
+                    <div class="form-group">
+                        <label for="bookTitle">Title:</label>
+                        <input type="text" id="bookTitle" name="bookTitle" placeholder="Title" class="form-control">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-9">
+                            <label for="authors">Author:</label>
+                            <select id="authors" name="authors[]" class="form-control select2-multi">
                                 {{#authors}}
                                     <option value="{{id}}">{{author}}</option>
                                 {{/authors}}
                             </select>
                         </div>
-
-                        <div class="form-group">
-                            <label for="bookTitle">Title:</label>
-                            <input type="text" id="bookTitle" name="bookTitle" placeholder="Title" class="form-control">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="publisher">Publisher:</label>
-                            <input id="publisher" name="publisher" placeholder="Publisher" class="form-control">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="pdf">PDF:</label>
-                            <select id="pdf" name="pdf" class="form-control">
-                                <option value="0">No</option>
-                                <option value="1">Yes</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="epub">Epub:</label>
-                            <select id="epub" name="epub" class="form-control">
-                                <option value="0">No</option>
-                                <option value="1">Yes</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="notes">Notes:</label>
-                            <input id="notes" name="notes" placeholder="Notes" class="form-control">
-                        </div>
-
-                        <div class="form-group">
+                        <div class="form-group col-md-3">
                             <label for="category">Category:</label>
                             <select id="category" name="category" class="form-control">
                                 {{#categories}}
@@ -59,24 +33,49 @@
                                 {{/categories}}
                             </select>
                         </div>
+                    </div>
 
-                        <div class="form-group">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="publisher">Publisher:</label>
+                            <input id="publisher" name="publisher" placeholder="Publisher" class="form-control">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="pageCount">Page Count:</label>
+                            <input type="number" id="pageCount" name="pageCount" placeholder="Page Count"
+                                   class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="pdf">PDF:</label>
+                            <select id="pdf" name="pdf" class="form-control">
+                                <option value="0">No</option>
+                                <option value="1">Yes</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="epub">Epub:</label>
+                            <select id="epub" name="epub" class="form-control">
+                                <option value="0">No</option>
+                                <option value="1">Yes</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-4">
                             <label for="own">Own:</label>
                             <select id="own" name="own" class="form-control">
                                 <option value="0">No</option>
                                 <option value="1">Yes</option>
                             </select>
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="pageCount">Page Count:</label>
-                            <input type="number" id="pageCount" name="pageCount" placeholder="Page Count"
-                                   class="form-control">
-                        </div>
-
-                    </form>
-
-                </div>
+                    <div class="form-group">
+                        <label for="notes">Notes:</label>
+                        <input id="notes" name="notes" placeholder="Notes" class="form-control">
+                    </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -89,23 +88,15 @@
 <script>
     $(document).ready(function () {
 
+        $('.select2-multi').select2({
+            multiple: true,
+            theme: 'bootstrap4',
+        });
+
         $("#save").on('click', function (e) {
 
             var formData = $('#bookSaveForm').serialize();
-
-            $.ajax({
-                type: "POST",
-                data: formData,
-                url: "/books",
-                success: function (data, status, xhr) {
-                    alert(xhr.responseJSON.message);
-                    $('#bookFormModal').modal('hide');
-                    location.reload();
-                },
-                error: function (data, status, xhr) {
-                    alert(data.responseJSON.message);
-                }
-            });
+            ajaxCall('POST', '/books', formData, null, null, 'bookFormModal')
 
         });
 
