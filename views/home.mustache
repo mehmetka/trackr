@@ -46,13 +46,12 @@
 <script>
     $(document).ready(function () {
 
-        $('#start').daterangepicker(
-                {
-                    singleDatePicker: true,
-                    timePicker: false,
-                    showDropdowns: true,
-                    locale: {format: 'MM/DD/YYYY'}
-                });
+        $('#start').daterangepicker({
+            singleDatePicker: true,
+            timePicker: false,
+            showDropdowns: true,
+            locale: {format: 'MM/DD/YYYY'}
+        });
 
         $("#btnAddNewDateTracking").on('click', function (e) {
 
