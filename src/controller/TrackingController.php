@@ -6,6 +6,7 @@ use App\model\TrackingModel;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
+use Slim\Http\StatusCode;
 
 class TrackingController extends Controller
 {
@@ -52,7 +53,7 @@ class TrackingController extends Controller
             "message" => "Success!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
 }

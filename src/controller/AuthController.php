@@ -7,6 +7,7 @@ use App\exception\CustomException;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Http\StatusCode;
 
 class AuthController extends Controller
 {
@@ -38,7 +39,7 @@ class AuthController extends Controller
 
         $this->authModel->login($params['username'], $params['password']);
 
-        $resource['responseCode'] = 200;
+        $resource['responseCode'] = StatusCode::HTTP_OK;
         $resource['message'] = "Logged in successfully";
 
         return $this->response($resource['responseCode'], $resource);
@@ -49,18 +50,18 @@ class AuthController extends Controller
         $userExist = $this->authModel->userCreatedBefore();
 
         if ($userExist) {
-            throw CustomException::clientError(403, 'User created before!', 'User created before!');
+            throw CustomException::clientError(StatusCode::HTTP_FORBIDDEN, 'User created before!', 'User created before!');
         }
 
         $params = $request->getParsedBody();
 
         if (trim($params['password']) != trim($params['passwordAgain'])) {
-            throw CustomException::clientError(401, 'Passwords must be matched!', 'Passwords must be matched!');
+            throw CustomException::clientError(StatusCode::HTTP_UNAUTHORIZED, 'Passwords must be matched!', 'Passwords must be matched!');
         }
 
         $this->authModel->register(trim($params['username']), trim($params['password']));
 
-        $resource['responseCode'] = 200;
+        $resource['responseCode'] = StatusCode::HTTP_OK;
         $resource['message'] = "Registered successfully";
 
         return $this->response($resource['responseCode'], $resource);
@@ -76,7 +77,7 @@ class AuthController extends Controller
             session_destroy();
         }
 
-        return $response->withRedirect($this->container->router->pathFor('home'), 302);
+        return $response->withRedirect($this->container->router->pathFor('home'), StatusCode::HTTP_FOUND);
     }
 
 }

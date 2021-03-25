@@ -6,6 +6,7 @@ use App\model\DateTrackingModel;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
+use Slim\Http\StatusCode;
 
 class DateTrackingController extends Controller
 {
@@ -27,7 +28,7 @@ class DateTrackingController extends Controller
             "message" => "Success!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
 }

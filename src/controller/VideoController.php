@@ -7,6 +7,7 @@ use App\model\VideoModel;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
+use Slim\Http\StatusCode;
 
 class VideoController extends Controller
 {
@@ -49,7 +50,7 @@ class VideoController extends Controller
             "message" => "Success!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
     public function create(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -62,7 +63,7 @@ class VideoController extends Controller
             "message" => "Success!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
 }

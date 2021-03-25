@@ -6,6 +6,7 @@ use App\model\WritingModel;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
+use Slim\Http\StatusCode;
 
 class WritingController extends Controller
 {
@@ -35,7 +36,7 @@ class WritingController extends Controller
 
         $resource = [
             "message" => "Can't be null!",
-            "status" => 400
+            "status" => StatusCode::HTTP_BAD_REQUEST
         ];
 
         if ($params['writing'] != null) {
@@ -43,7 +44,7 @@ class WritingController extends Controller
 
             $resource = [
                 "message" => "Success!",
-                "status" => 200
+                "status" => StatusCode::HTTP_OK
             ];
         }
 
