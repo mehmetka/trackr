@@ -6,20 +6,21 @@ use App\model\TodoModel;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
+use Slim\Http\StatusCode;
 
 class TodoController extends Controller
 {
-    private $todosModel;
+    private $todoModel;
 
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
-        $this->todosModel = new TodoModel($container);
+        $this->todoModel = new TodoModel($container);
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $todoListInTodos = $this->todosModel->getTodos();
+        $todoListInTodos = $this->todoModel->getTodos();
 
         $data = [
             'todos' => $todoListInTodos,
@@ -31,7 +32,7 @@ class TodoController extends Controller
 
     public function allTodos(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $allTodos = $this->todosModel->getAllTodos();
+        $allTodos = $this->todoModel->getAllTodos();
 
         $data = [
             'data' => $allTodos,
@@ -45,14 +46,14 @@ class TodoController extends Controller
     {
         $todoId = $args['id'];
 
-        $todo = $this->todosModel->getTodo($todoId);
+        $todo = $this->todoModel->getTodo($todoId);
 
         $resource = [
             "todo" => $todo,
             "message" => "Success!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
     public function update(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -60,26 +61,26 @@ class TodoController extends Controller
         $params = $request->getParsedBody();
         $todoId = $args['id'];
 
-        $todo = $this->todosModel->updateTodo($todoId, $params);
+        $todo = $this->todoModel->updateTodo($todoId, $params);
 
         $resource = [
             "todo" => $todo,
             "message" => "Success!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
     public function add(ServerRequestInterface $request, ResponseInterface $response)
     {
         $params = $request->getParsedBody();
-        $this->todosModel->create($params['todo'], $params['description']);
+        $this->todoModel->create($params['todo'], $params['description']);
 
         $resource = [
             "message" => "Success!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
     public function changeStatus(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -88,16 +89,29 @@ class TodoController extends Controller
         $todoId = $args['id'];
 
         if ($params['status'] == 1) {
-            $this->todosModel->updateStartedDate($todoId);
+            $this->todoModel->updateStartedDate($todoId);
         } elseif ($params['status'] == 2) {
-            $this->todosModel->updateDoneDate($todoId);
+            $this->todoModel->updateDoneDate($todoId);
         }
 
         $resource = [
             "message" => "Success!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
+    }
+
+    public function escalateTodo(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $todoId = $args['id'];
+
+        $this->todoModel->escalateTodo($todoId);
+
+        $resource = [
+            "message" => "Success!"
+        ];
+
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
 }
