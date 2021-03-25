@@ -24,7 +24,7 @@
                                 <div class="form-group">
                                     <select id="category" class="form-control">
                                         {{#categories}}
-                                            <option value="{{id}}"  {{#selected}}selected="selected"{{/selected}}>{{name}}</option>
+                                            <option value="{{id}}" {{#selected}}selected="selected"{{/selected}}>{{name}}</option>
                                         {{/categories}}
                                     </select>
                                 </div>
@@ -47,26 +47,24 @@
                                 </div>
                                 <div class="card-footer">
                                     {{#startAction}}
-
                                         <div class="btn-group" role="group" aria-label="Basic example">
                                             <a class="btn btn-sm btn-info btnStatusAction" data-status="1"
                                                data-id="{{id}}"><i class="fe fe-play fe-4"></i></a>
 
                                             <a class="btn btn-sm btn-primary btnDeleteBookmark"
                                                data-id="{{id}}"><i class="fe fe-trash fe-4"></i></a>
+
                                         </div>
-
-
                                     {{/startAction}}
 
                                     {{#doneAction}}
-                                        <a class="btn btn-sm btn-success btnStatusAction" data-status="2"
-                                           data-id="{{id}}">Done</a>
+                                        <a class="btn btn-sm btn-success btnStatusAction" data-status="2" data-id="{{id}}">Done</a>
                                     {{/doneAction}}
 
                                     {{#complete}}
                                         <span class="badge badge-success">Done</span>
                                     {{/complete}}
+                                    <a class="btn btn-sm btn-primary float-right" href="/bookmarks/{{id}}/highlights">Highlights</a>
                                 </div>
                             </div>
                         {{/bookmarks}}
@@ -92,56 +90,36 @@
             $(btnContext).prop("disabled", true);
             $(btnContext).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...');
 
-            $.ajax({
-                type: "POST",
-                data: "bookmark=" + bookmark + "&category=" + type + "&note=" + note,
-                url: "/bookmarks",
-                success: function (data, status, xhr) {
-                    alert(xhr.responseJSON.message);
-                    location.reload();
-                },
-                error: function (data, status, xhr) {
-                    alert(data.responseJSON.message);
-                },
-                complete: function (data, status, xhr) {
-                    $(btnContext).delay(3000).removeAttr("disabled").addClass('btn-primary').html('Add');
-                }
-            });
+            var result = ajaxCall('POST', "/bookmarks", "bookmark=" + bookmark + "&category=" + type + "&note=" + note)
+
+            if (result !== false) {
+                location.reload();
+            }
+
+            $(btnContext).delay(3000).removeAttr("disabled").addClass('btn-primary').html('Add');
         });
 
         $(".btnStatusAction").on('click', function (e) {
 
             var id = $(this).data('id');
             var status = $(this).data('status');
+            var result = ajaxCall('PUT', "/bookmarks/" + id + "/status", "status=" + status)
 
-            $.ajax({
-                type: "PUT",
-                data: "status=" + status,
-                url: "/bookmarks/" + id + "/status",
-                success: function (data, status, xhr) {
-                    alert(xhr.responseJSON.message);
-                    location.reload();
-                },
-                error: function (data, status, xhr) {
-                    alert(data.responseJSON.message);
-                }
-            });
+            if (result !== false) {
+                location.reload();
+            }
+
         });
 
         $(".btnDeleteBookmark").on('click', function (e) {
 
             var id = $(this).data('id');
+            var result = ajaxCall('DELETE', "/bookmarks/" + id, null)
 
-            $.ajax({
-                type: "DELETE",
-                url: "/bookmarks/" + id,
-                success: function (data, status, xhr) {
-                    alert(xhr.responseJSON.message);
-                },
-                error: function (data, status, xhr) {
-                    alert(data.responseJSON.message);
-                }
-            });
+            if (result !== false) {
+                location.reload();
+            }
+
         });
 
     });

@@ -1,31 +1,33 @@
-function ajaxCall(method, url, data, redirect = null, reload = null, closeModal = null) {
+function ajaxCall(method, url, data, async = false, successAlert = true, errorAlert = true) {
+
+    var result = false;
+
     $.ajax({
-        type: "POST",
+        type: method,
         data: data,
-        url: "/books",
+        url: url,
+        async: async,
         success: function (data, status, xhr) {
 
-            $.bootstrapPurr(xhr.responseJSON.message, {
-                type: 'success'
-            });
-
-            if (closeModal !== null) {
-                $('#' + closeModal).modal('hide');
+            if (status === 'success') {
+                result = data;
             }
 
-            if (reload !== null) {
-                location.reload();
-            }
-
-            if (redirect !== null) {
-                location.reload();
+            if (successAlert === true) {
+                $.bootstrapPurr(xhr.responseJSON.message, {
+                    type: 'success'
+                });
             }
 
         },
         error: function (data, status, xhr) {
-            $.bootstrapPurr(xhr.responseJSON.message, {
+
+            $.bootstrapPurr(data.responseJSON.message, {
                 type: 'danger'
             });
+
         }
     });
+
+    return result;
 }

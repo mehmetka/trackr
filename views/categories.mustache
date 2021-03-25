@@ -78,55 +78,34 @@
             $('#category').bind('keypress', function (e) {
                 if (e.keyCode == 13) {
                     var category = $('#category').val();
+                    var result = ajaxCall('POST', "/categories", "category=" + category)
 
-                    $.ajax({
-                        type: "POST",
-                        data: "category=" + category,
-                        url: "/categories",
-                        success: function (data, status, xhr) {
-                            alert(xhr.responseJSON.message);
-                            location.reload();
-                        },
-                        error: function (data, status, xhr) {
-                            alert(data.responseJSON.message);
-                        }
-                    });
-
+                    if (result !== false) {
+                        location.reload();
+                    }
                 }
             });
 
             $(".btnDeleteCategory").on('click', function (e) {
 
                 var categoryId = $(this).data("id");
+                var result = ajaxCall('DELETE', "/categories/" + categoryId, null)
 
-                $.ajax({
-                    type: "DELETE",
-                    url: "/categories/" + categoryId,
-                    success: function (data, status, xhr) {
-                        alert(xhr.responseJSON.message);
-                        location.reload();
-                    },
-                    error: function (data, status, xhr) {
-                        alert(data.responseJSON.message);
-                    }
-                });
+                if (result !== false) {
+                    location.reload();
+                }
+
             });
 
             $(".btnSetDefault").on('click', function (e) {
 
                 var categoryId = $(this).data("id");
+                var result = ajaxCall('PUT', "/categories/" + categoryId, null)
 
-                $.ajax({
-                    type: "PUT",
-                    url: "/categories/" + categoryId,
-                    success: function (data, status, xhr) {
-                        alert(xhr.responseJSON.message);
-                        location.reload();
-                    },
-                    error: function (data, status, xhr) {
-                        alert(data.responseJSON.message);
-                    }
-                });
+                if (result !== false) {
+                    location.reload();
+                }
+
             });
 
         };

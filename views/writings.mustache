@@ -17,7 +17,8 @@
                             <div class="card-body">
                                 <h5 class="card-title">Add New Writing</h5>
                                 <div class="input-group input-group-lg">
-                                    <textarea id="writing" class="form-control" placeholder="Writing" rows="3"></textarea>
+                                    <textarea id="writing" class="form-control" placeholder="Writing"
+                                              rows="3"></textarea>
                                     <div class="input-group-append">
                                         <button id="createWriting" class="btn btn-success" type="button">Save</button>
                                     </div>
@@ -67,19 +68,11 @@
         $("#createWriting").on('click', function (e) {
 
             var writing = $('#writing').val();
+            var result = ajaxCall('POST', "/writings", "writing=" + encodeURIComponent(writing))
 
-            $.ajax({
-                type: "POST",
-                data: "writing=" + encodeURIComponent(writing),
-                url: "/writings",
-                success: function (data, status, xhr) {
-                    alert(xhr.responseJSON.message);
-                    location.reload();
-                },
-                error: function (data, status, xhr) {
-                    alert(data.responseJSON.message);
-                }
-            });
+            if (result !== false) {
+                location.reload();
+            }
 
         });
     });

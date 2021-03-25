@@ -31,20 +31,11 @@
         $("#btnLogin").on('click', function (e) {
 
             var formData = $('#loginForm').serialize();
+            var result = ajaxCall('POST', "/login", formData)
 
-            $.ajax({
-                type: "POST",
-                data: formData,
-                url: "/login",
-                success: function (data, status, xhr) {
-                    window.location.replace('/')
-                },
-                error: function (data, status, xhr) {
-                    $.bootstrapPurr(data.responseJSON.message, {
-                        type: 'danger'
-                    });
-                }
-            });
+            if (result !== false) {
+                window.location.replace('/')
+            }
 
         });
 

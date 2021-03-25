@@ -104,69 +104,40 @@
                 var pathUID = $(this).data("id");
                 var bookUID = $(this).data("book");
 
-                $.ajax({
-                    type: "POST",
-                    data: "pathUID=" + pathUID,
-                    url: "/books/" + bookUID + "/paths",
-                    success: function (data, status, xhr) {
-                        alert(xhr.responseJSON.message);
-                    },
-                    error: function (data, status, xhr) {
-                        alert(data.responseJSON.message);
-                    }
-                });
+                ajaxCall('POST', "/books/" + bookUID + "/paths", "pathUID=" + pathUID, true)
+
             });
 
             $(".btnAddToLibrary").on('click', function (e) {
 
                 var bookUID = $(this).data("id");
+                var result = ajaxCall('PUT', "/books/" + bookUID + "/add-to-library", null)
 
-                $.ajax({
-                    type: "PUT",
-                    url: "/books/" + bookUID + "/add-to-library",
-                    success: function (data, status, xhr) {
-                        alert(xhr.responseJSON.message);
-                        location.reload();
-                    },
-                    error: function (data, status, xhr) {
-                        alert(data.responseJSON.message);
-                    }
-                });
+                if (result !== false) {
+                    location.reload();
+                }
+
             });
 
             $(".btnResetBook").on('click', function (e) {
 
                 var bookUID = $(this).data("id");
+                var result = ajaxCall('DELETE', "/books/" + bookUID, null)
 
-                $.ajax({
-                    type: "DELETE",
-                    url: "/books/" + bookUID,
-                    success: function (data, status, xhr) {
-                        alert(xhr.responseJSON.message);
-                        location.reload();
-                    },
-                    error: function (data, status, xhr) {
-                        alert(data.responseJSON.message);
-                    }
-                });
+                if (result !== false) {
+                    location.reload();
+                }
+
             });
 
             $('#author').bind('keypress', function (e) {
                 if (e.keyCode == 13) {
                     var author = $('#author').val();
+                    var result = ajaxCall('POST', "/authors", "author=" + author)
 
-                    $.ajax({
-                        type: "POST",
-                        data: "author=" + author,
-                        url: "/authors",
-                        success: function (data, status, xhr) {
-                            alert(xhr.responseJSON.message);
-                            location.reload();
-                        },
-                        error: function (data, status, xhr) {
-                            alert(data.responseJSON.message);
-                        }
-                    });
+                    if (result !== false) {
+                        location.reload();
+                    }
 
                 }
             });

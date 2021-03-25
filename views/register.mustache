@@ -30,20 +30,11 @@
         $("#btnRegister").on('click', function (e) {
 
             var formData = $('#registerForm').serialize();
+            var result = ajaxCall('POST', "/register", formData)
 
-            $.ajax({
-                type: "POST",
-                data: formData,
-                url: "/register",
-                success: function (data, status, xhr) {
-                    window.location.replace('/login')
-                },
-                error: function (data, status, xhr) {
-                    $.bootstrapPurr(data.responseJSON.message, {
-                        type: 'danger'
-                    });
-                }
-            });
+            if (result !== false) {
+                window.location.replace('/login');
+            }
 
         });
 

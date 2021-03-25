@@ -38,14 +38,14 @@
                                             {{/amount}}
 
                                             {{^remove}}
-                                                <div>
-                                                    <button class="btn btn-sm btn-danger btnRemoveFromPath"
-                                                            type="button" data-id="{{bookUID}}"
-                                                            data-div="{{divId}}"
-                                                            data-path="{{pathUID}}">
-                                                        <i class="fe fe-trash fe-16"></i>
-                                                    </button>
-                                                </div>
+<!--                                                <div>-->
+<!--                                                    <button class="btn btn-sm btn-danger btnRemoveFromPath"-->
+<!--                                                            type="button" data-id="{{bookUID}}"-->
+<!--                                                            data-div="{{divId}}"-->
+<!--                                                            data-path="{{pathUID}}">-->
+<!--                                                        <i class="fe fe-trash fe-16"></i>-->
+<!--                                                    </button>-->
+<!--                                                </div>-->
                                             {{/remove}}
                                         </footer>
                                     </blockquote>
@@ -74,19 +74,12 @@
                 var bookUID = $(this).data("id");
                 var amount = $('#' + bookUID).val();
                 var pathUID = $(this).data("path");
+                var result = ajaxCall('POST', "/books/" + bookUID + "/progress", "amount=" + amount + "&pathUID=" + pathUID)
 
-                $.ajax({
-                    type: "POST",
-                    data: "amount=" + amount + "&pathUID=" + pathUID,
-                    url: "/books/" + bookUID + "/progress",
-                    success: function (data, status, xhr) {
-                        alert(xhr.responseJSON.message);
-                        location.reload();
-                    },
-                    error: function (data, status, xhr) {
-                        alert(data.responseJSON.message);
-                    }
-                });
+                if (result !== false) {
+                    location.reload();
+                }
+
             });
 
             $(".btnRemoveFromPath").on('click', function (e) {
@@ -94,19 +87,12 @@
                 var bookUID = $(this).data("id");
                 var pathUID = $(this).data("path");
                 var divId = $(this).data("div");
+                var result = ajaxCall('DELETE', "/books/paths/" + pathUID, "bookUID=" + bookUID)
 
-                $.ajax({
-                    type: "DELETE",
-                    data: "bookUID=" + bookUID,
-                    url: "/books/paths/" + pathUID,
-                    success: function (data, status, xhr) {
-                        $('#' + divId).remove();
-                        alert(xhr.responseJSON.message);
-                    },
-                    error: function (data, status, xhr) {
-                        alert(data.responseJSON.message);
-                    }
-                });
+                if (result !== false) {
+                    $('#' + divId).remove();
+                }
+
             });
 
         };

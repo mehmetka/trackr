@@ -57,19 +57,11 @@
 
             var name = $('#name').val();
             var start = $('#start').val();
+            var result = ajaxCall('POST', "/datetrackings", "name=" + name + "&start=" + start)
 
-            $.ajax({
-                type: "POST",
-                data: "name=" + name + "&start=" + start,
-                url: "/datetrackings",
-                success: function () {
-                    alert("success");
-                    location.reload();
-                },
-                error: function () {
-                    alert("error");
-                }
-            });
+            if (result !== false) {
+                location.reload();
+            }
 
         });
 

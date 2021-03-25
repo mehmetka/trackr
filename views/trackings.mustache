@@ -75,19 +75,13 @@
         $("#updateTracking").on('click', function (e) {
             var workingsAmount = $('#workingsAmount').val();
             var workingsDescription = $('#workingsDescription').val();
+            var formData = "workingsAmount=" + encodeURIComponent(workingsAmount) + "&workingsDescription=" + encodeURIComponent(workingsDescription);
+            var result = ajaxCall('POST', "/trackings", formData)
 
-            $.ajax({
-                type: "POST",
-                data: "workingsAmount=" + encodeURIComponent(workingsAmount) + "&workingsDescription=" + encodeURIComponent(workingsDescription),
-                url: "/trackings",
-                success: function (data, status, xhr) {
-                    alert(xhr.responseJSON.message);
-                    location.reload();
-                },
-                error: function (data, status, xhr) {
-                    alert(data.responseJSON.message);
-                }
-            });
+            if (result !== false) {
+                location.reload();
+            }
+
         });
 
     });

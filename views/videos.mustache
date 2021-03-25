@@ -20,13 +20,16 @@
                             <div class="card-body">
                                 <form id="createVideoForm">
                                     <div class="form-group col-md-12">
-                                        <input type="text" id="title" name="title" placeholder="Title" class="form-control">
+                                        <input type="text" id="title" name="title" placeholder="Title"
+                                               class="form-control">
                                     </div>
                                     <div class="form-group col-md-12">
-                                        <input id="length" name="length" placeholder="Length (Minute)" type="number" class="form-control">
+                                        <input id="length" name="length" placeholder="Length (Minute)" type="number"
+                                               class="form-control">
                                     </div>
                                     <div class="form-group col-md-12">
-                                        <input id="link" name="link" placeholder="Link" type="text" class="form-control">
+                                        <input id="link" name="link" placeholder="Link" type="text"
+                                               class="form-control">
                                     </div>
                                     <div class="form-group col-md-12">
                                         <select id="category" name="category" class="form-control">
@@ -36,7 +39,8 @@
                                         </select>
                                     </div>
                                     <div class="form-group col-md-12">
-                                        <button id="btnCreateVideo" class="btn btn-success" type="button">Create</button>
+                                        <button id="btnCreateVideo" class="btn btn-success" type="button">Create
+                                        </button>
                                     </div>
                                 </form>
                             </div>
@@ -98,37 +102,23 @@
 
             var id = $(this).data('id');
             var status = $(this).data('status');
+            var result = ajaxCall('PUT', "/videos/" + id + "/status", "status=" + status)
 
-            $.ajax({
-                type: "PUT",
-                data: "status=" + status,
-                url: "/videos/" + id + "/status",
-                success: function (data, status, xhr) {
-                    alert(xhr.responseJSON.message);
-                    location.reload();
-                },
-                error: function (data, status, xhr) {
-                    alert(data.responseJSON.message);
-                }
-            });
+            if (result !== false) {
+                location.reload();
+            }
+
         });
 
         $("#btnCreateVideo").on('click', function (e) {
 
             var formData = $('#createVideoForm').serialize();
+            var result = ajaxCall('POST', "/videos", formData)
 
-            $.ajax({
-                type: "POST",
-                data: formData,
-                url: "/videos",
-                success: function (data, status, xhr) {
-                    alert(xhr.responseJSON.message);
-                    location.reload();
-                },
-                error: function (data, status, xhr) {
-                    alert(data.responseJSON.message);
-                }
-            });
+            if (result !== false) {
+                location.reload();
+            }
+
         });
 
     });
