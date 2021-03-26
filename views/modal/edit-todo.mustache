@@ -35,40 +35,30 @@
 
             var id = $(this).data('id');
 
-            $.ajax({
-                type: "GET",
-                url: "/todos/" + id,
-                success: function (data, status, xhr) {
-                    $('#updateEditTodo').data('id', id);
-                    $('#editTitle').val(data.todo.todo);
-                    $('#editDescription').summernote('code', data.todo.description);
-                },
-                error: function (data, status, xhr) {
+            var result = ajaxCall('GET', '/todos/' + id, null, false, false)
 
-                }
-            });
+            if (result !== false) {
+                $('#updateEditTodo').data('id', id);
+                $('#editTitle').val(result.todo.todo);
+                $('#editDescription').summernote('code', result.todo.description);
+            }
+
         });
 
         $("#updateEditTodo").on('click', function (e) {
 
             var description = $('#editDescription').summernote('code');
             var title = $('#editTitle').val();
-            var todoId= $('#updateEditTodo').data('id');
+            var todoId = $('#updateEditTodo').data('id');
+            var data = "description=" + encodeURIComponent(description) + "&title=" + encodeURIComponent(title);
 
-            $.ajax({
-                type: "PUT",
-                data: "description=" + encodeURIComponent(description) + "&title=" + encodeURIComponent(title),
-                url: "/todos/" + todoId,
-                success: function (data, status, xhr) {
-                    alert(xhr.responseJSON.message);
-                    $('#editTodoModal').modal('hide');
-                    $('#editDescription').summernote('destroy');
-                    location.reload();
-                },
-                error: function (data, status, xhr) {
-                    alert(data.responseJSON.message);
-                }
-            });
+            var result = ajaxCall('PUT', '/todos/' + todoId, data)
+
+            if (result !== false) {
+                $('#editTodoModal').modal('hide');
+                $('#editDescription').summernote('destroy');
+                location.reload();
+            }
 
         });
 
