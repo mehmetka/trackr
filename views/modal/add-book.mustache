@@ -38,7 +38,11 @@
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="publisher">Publisher:</label>
-                            <input id="publisher" name="publisher" placeholder="Publisher" class="form-control">
+                            <select id="publisher" name="publisher" class="form-control">
+                                {{#publishers}}
+                                    <option value="{{id}}">{{name}}</option>
+                                {{/publishers}}
+                            </select>
                         </div>
                         <div class="form-group col-md-6">
                             <label for="pageCount">Page Count:</label>
@@ -96,7 +100,11 @@
         $("#save").on('click', function (e) {
 
             var formData = $('#bookSaveForm').serialize();
-            ajaxCall('POST', '/books', formData, null, null, 'bookFormModal')
+            var result = ajaxCall('POST', '/books', formData)
+
+            if (result !== false) {
+                $('#bookFormModal').modal('hide');
+            }
 
         });
 
