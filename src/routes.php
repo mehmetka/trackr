@@ -25,6 +25,7 @@ $app->group('', function () {
 
     $this->get('/books/paths', BookController::class . ':paths')->setName('paths');
     $this->get('/books/paths/{pathUID}', BookController::class . ':booksPathInside');
+    $this->get('/books/trackings/graphic-datas', BookController::class . ':getBookTrackingsGraphicData');
     $this->get('/all-books', BookController::class . ':allBooks');
     $this->get('/my-books', BookController::class . ':myBooks');
     $this->put('/books/{bookUID}/add-to-library', BookController::class . ':addToLibrary');
@@ -45,8 +46,11 @@ $app->group('', function () {
     $this->post('/datetrackings', DateTrackingController::class . ':create');
 
     $this->get('/bookmarks', BookmarkController::class . ':index');
+    $this->get('/bookmarks/{id:[0-9]+}/highlights', BookmarkController::class . ':highlights');
+    $this->post('/bookmarks/{id:[0-9]+}/highlights', BookmarkController::class . ':addHighlight');
     $this->post('/bookmarks', BookmarkController::class . ':create');
     $this->put('/bookmarks/{id:[0-9]+}/status', BookmarkController::class . ':changeStatus');
+    $this->delete('/bookmarks/{id:[0-9]+}', BookmarkController::class . ':delete');
 
     $this->get('/trackings', TrackingController::class . ':index');
     $this->post('/trackings', TrackingController::class . ':add');
@@ -56,7 +60,11 @@ $app->group('', function () {
     $this->put('/videos/{id:[0-9]+}/status', VideoController::class . ':changeStatus');
 
     $this->get('/highlights', HighlightController::class . ':index');
+    $this->get('/highlights/{id:[0-9]+}/details', HighlightController::class . ':details');
+    $this->get('/highlights-all', HighlightController::class . ':all');
+    $this->put('/highlights/{id:[0-9]+}', HighlightController::class . ':update');
     $this->post('/highlights', HighlightController::class . ':create');
+    $this->post('/highlights/{id:[0-9]+}/sub', HighlightController::class . ':createSub');
 
     $this->get('/writings', WritingController::class . ':index');
     $this->post('/writings', WritingController::class . ':create');
@@ -67,6 +75,7 @@ $app->group('', function () {
     $this->get('/todos/{id:[0-9]+}', TodoController::class . ':get');
     $this->put('/todos/{id:[0-9]+}', TodoController::class . ':update');
     $this->put('/todos/{id:[0-9]+}/status', TodoController::class . ':changeStatus');
+    $this->put('/todos/{id:[0-9]+}/escalate', TodoController::class . ':escalateTodo');
 
     $this->get('/logout', AuthController::class . ':logout');
 

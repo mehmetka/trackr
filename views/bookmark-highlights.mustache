@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {{> head }}
+</head>
+<body class="vertical  dark">
+<div class="wrapper">
+    {{> navbar }}
+    {{> menu }}
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Add New Highlight</h5>
+                                <div class="input-group input-group-lg">
+                                    <textarea id="highlight" class="form-control form-control-lg"
+                                              placeholder="Highlight"
+                                              rows="2"></textarea>
+                                </div>
+                                <br>
+                                <div class="input-group input-group-lg">
+                                    <input id="tags" placeholder="Tags" type="text"
+                                           class="form-control enterButtonKeyPress">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-columns">
+                        {{#highlights}}
+                            <div class="card">
+                                <div class="card-header bg-dark">
+                                    {{author}}
+                                </div>
+                                <div class="card-body">
+                                    <blockquote class="blockquote mb-0">
+                                        <p>{{{html}}}</p>
+                                        <footer class="blockquote-footer">{{author}} <cite
+                                                title="Source Title">{{source}}</cite>
+                                        </footer>
+                                    </blockquote>
+                                </div>
+                            </div>
+                        {{/highlights}}
+                    </div>
+
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
+{{> include}}
+<script>
+    $(document).ready(function () {
+        $('.enterButtonKeyPress').bind('keypress', function (e) {
+            if (e.keyCode == 13) {
+                var highlight = $('#highlight').val();
+                var tags = $('#tags').val();
+                var data = "highlight=" + encodeURIComponent(highlight) + "&tags=" + encodeURIComponent(tags);
+                var result = ajaxCall('POST', "/bookmarks/{{bookmarkID}}/highlights", data)
+
+                if (result !== false) {
+                    location.reload();
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

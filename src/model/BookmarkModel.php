@@ -21,7 +21,7 @@ class BookmarkModel
         $sql = 'SELECT b.id, b.uid AS bookmarkUID, b.bookmark, b.title, b.note, b.categoryId, c.name AS categoryName, b.status, b.created, b.started, b.done
                 FROM bookmarks b
                 INNER JOIN categories c ON b.categoryId = c.id
-                ORDER BY b.id DESC';
+                ORDER BY b.id DESC LIMIT 100';
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -54,6 +54,32 @@ class BookmarkModel
         return $list;
     }
 
+    public function getHighlights($bookmarkId)
+    {
+        $list = [];
+
+        $sql = 'SELECT * 
+                FROM highlights
+                WHERE link = :link';
+
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':link', $bookmarkId, \PDO::PARAM_STR);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
+            $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
+
+            $list[] = $row;
+        }
+
+        return $list;
+    }
+
     public function getBookmarkByBookmark($bookmark)
     {
         $list = [];
@@ -76,9 +102,33 @@ class BookmarkModel
         return $list;
     }
 
+    public function getBookmarkById($bookmarkId)
+    {
+        $list = [];
+
+        $sql = 'SELECT b.id, b.uid, b.bookmark, b.title, b.note, b.categoryId, h.highlight, h.author, h.source
+                FROM bookmarks b
+                INNER JOIN highlights h ON b.id = h.link
+                WHERE b.id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':id', $bookmarkId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $list = $row;
+        }
+
+        return $list;
+    }
+
     public function create($bookmark, $note, $categoryId)
     {
         $now = time();
+
         $title = $this->getTitle($bookmark);
 
         $sql = 'INSERT INTO bookmarks (uid, bookmark, title, note, categoryId, created)
@@ -95,7 +145,33 @@ class BookmarkModel
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
         }
 
-        return $title;
+        return $this->dbConnection->lastInsertId();
+    }
+
+    public function addHighlight($bookmarkHighlight)
+    {
+        $now = time();
+
+        $bookmarkHighlight['author'] = $bookmarkHighlight['author'] ? $bookmarkHighlight['author'] : 'trackr';
+        $bookmarkHighlight['source'] = $bookmarkHighlight['source'] ? $bookmarkHighlight['source'] : 'trackr';
+        $page = null;
+
+        $sql = 'INSERT INTO highlights (highlight, author, source, page, link, created)
+                VALUES(:highlight, :author, :source, :page, :link, :created)';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':highlight', $bookmarkHighlight['highlight'], \PDO::PARAM_STR);
+        $stm->bindParam(':author', $bookmarkHighlight['author'], \PDO::PARAM_STR);
+        $stm->bindParam(':source', $bookmarkHighlight['source'], \PDO::PARAM_STR);
+        $stm->bindParam(':page', $page, \PDO::PARAM_INT);
+        $stm->bindParam(':link', $bookmarkHighlight['id'], \PDO::PARAM_INT);
+        $stm->bindParam(':created', $now, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return $this->dbConnection->lastInsertId();
     }
 
     function getHttpCode($http_response_header)
@@ -110,11 +186,15 @@ class BookmarkModel
 
     public function getTitle($url)
     {
-        $data = @file_get_contents($url);
-        $code = $this->getHttpCode($http_response_header);
+        try {
+            $data = @file_get_contents($url);
+            $code = $this->getHttpCode($http_response_header);
 
-        if ($code === 404) {
-            return '404 Not Found';
+            if ($code === 404) {
+                return '404 Not Found';
+            }
+        } catch (\Exception $exception) {
+            return null;
         }
 
         return preg_match('/<title[^>]*>(.*?)<\/title>/ims', $data, $matches) ? $matches[1] : null;
