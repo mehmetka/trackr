@@ -40,30 +40,40 @@
                             <div class="card">
                                 <div class="card-header {{cardHeaderBg}}">
 
-                                    <a role="button" href="#{{cardBodyId}}" data-toggle="collapse"
-                                       aria-expanded="false">
-                                        <strong>{{todo}}</strong>
-                                    </a>
+                                    <div class="row align-items-center">
+                                        <div class="col-10">
+                                            <a role="button" href="#{{cardBodyId}}" data-toggle="collapse"
+                                               aria-expanded="false">
+                                                <strong>{{{todo}}}</strong>
+                                            </a>
+                                        </div>
+                                        <div class="col-2">
+                                            <div class="btn-group float-right" role="group" aria-label="Basic example">
+                                                {{^complete}}
+                                                    <a class="btn btn-sm btn-primary btnEscalateTodo"
+                                                       data-id="{{id}}"><i class="fe fe-arrow-up fe-16"></i></a>
+                                                    <a class="btn btn-sm btn-info btnEditTodo"
+                                                       data-id="{{id}}" data-toggle="modal"
+                                                       data-target="#editTodoModal"><i class="fe fe-edit fe-16"></i></a>
+                                                {{/complete}}
 
-                                    {{^complete}}
-                                        <a class="btn btn-sm btn-primary float-right btnEditTodo"
-                                           data-id="{{id}}" data-toggle="modal"
-                                           data-target="#editTodoModal">Edit</a>
-                                    {{/complete}}
+                                                {{#startAction}}
+                                                    <a class="btn btn-sm btn-primary btnStatusAction"
+                                                       data-status="1" data-id="{{id}}"><i class="fe fe-play fe-16"></i></a>
+                                                {{/startAction}}
 
-                                    {{#startAction}}
-                                        <a class="btn btn-sm btn-info float-right btnStatusAction"
-                                           data-status="1" data-id="{{id}}">Start</a>
-                                    {{/startAction}}
+                                                {{#doneAction}}
+                                                    <a class="btn btn-sm btn-success btnStatusAction"
+                                                       data-status="2" data-id="{{id}}"><i
+                                                            class="fe fe-check fe-16"></i></a>
+                                                {{/doneAction}}
 
-                                    {{#doneAction}}
-                                        <a class="btn btn-sm btn-success float-right btnStatusAction"
-                                           data-status="2" data-id="{{id}}">Done</a>
-                                    {{/doneAction}}
-
-                                    {{#complete}}
-                                        <i class="fe fe-check fe-16 float-right"></i>
-                                    {{/complete}}
+                                                {{#complete}}
+                                                    <i class="fe fe-check fe-16"></i>
+                                                {{/complete}}
+                                            </div>
+                                        </div>
+                                    </div>
 
                                 </div>
                                 {{#description}}
@@ -93,38 +103,30 @@
         $("#btnAddTodo").on('click', function (e) {
             var todo = $('#todo').val();
             var description = $('#description').val();
+            var result = ajaxCall('POST', "/todos", "todo=" + encodeURIComponent(todo) + "&description=" + encodeURIComponent(description))
 
-            $.ajax({
-                type: "POST",
-                data: "todo=" + encodeURIComponent(todo) + "&description=" + encodeURIComponent(description),
-                url: "/todos",
-                success: function (data, status, xhr) {
-                    alert(xhr.responseJSON.message);
-                    location.reload();
-                },
-                error: function (data, status, xhr) {
-                    alert(data.responseJSON.message);
-                }
-            });
+            if (result !== false) {
+                location.reload();
+            }
         });
 
         $(".btnStatusAction").on('click', function (e) {
-
             var id = $(this).data('id');
             var status = $(this).data('status');
+            var result = ajaxCall('PUT', "/todos" + id + "/status", "status=" + status)
 
-            $.ajax({
-                type: "PUT",
-                data: "status=" + status,
-                url: "/todos/" + id + "/status",
-                success: function (data, status, xhr) {
-                    alert(xhr.responseJSON.message);
-                    location.reload();
-                },
-                error: function (data, status, xhr) {
-                    alert(data.responseJSON.message);
-                }
-            });
+            if (result !== false) {
+                location.reload();
+            }
+        });
+
+        $(".btnEscalateTodo").on('click', function (e) {
+            var id = $(this).data('id');
+            var result = ajaxCall('PUT', "/todos/" + id + "/escalate", null)
+
+            if (result !== false) {
+                location.reload();
+            }
         });
 
     });

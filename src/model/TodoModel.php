@@ -2,6 +2,7 @@
 
 namespace App\model;
 
+use App\util\Util;
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
 
@@ -19,7 +20,9 @@ class TodoModel
     {
         $list = [];
 
-        $sql = "SELECT * FROM todos ORDER BY description DESC, id DESC";
+        $sql = "SELECT * 
+                FROM todos 
+                ORDER BY orderNumber ASC";
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -28,9 +31,9 @@ class TodoModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['todoType'] = '<span class="badge badge-warning">todo</span>';
+
+            $row['todo'] = Util::hashtagsToLabel($row['todo']);
             $row['description'] = str_replace("\n", '<br>', $row['description']);
-            $row['todoName'] = $row['todo'];
             $row['accordionId'] = 'accordion' . uniqid();
             $row['cardBodyId'] = 'cb' . uniqid();
             $status = $row['status'];
@@ -48,12 +51,13 @@ class TodoModel
             }
 
             if ($status == 2) {
-                $row['cardHeaderBg'] = 'bg-success-dark';
+                $row['cardHeaderBg'] = 'bg-info-dark';
                 $list[] = $row;
             } else {
                 $row['cardHeaderBg'] = 'bg-dark';
                 array_unshift($list, $row);
             }
+
         }
 
         return $list;
@@ -84,6 +88,7 @@ class TodoModel
     public function getAllTodos()
     {
         $list = [];
+        $done = [];
 
         $sql = "SELECT t.id AS typeTableId, t.todo AS todoName, t.status AS status, 'todo' AS todoType, 'primary' AS badge
                 FROM todos t
@@ -124,25 +129,23 @@ class TodoModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
 
-            $status = $row['status'];
-
             if ($row['status'] == 0 || $row['status'] == "") {
                 $row['status'] = '<span class="badge badge-secondary">to do</span>';
+                $list[] = $row;
             } elseif ($row['status'] == 1) {
                 $row['status'] = '<span class="badge badge-warning">in progress</span>';
+                array_unshift($list, $row);
             } elseif ($row['status'] == 2) {
                 $row['status'] = '<span class="badge badge-success">done</span>';
+                $done[] = $row;
             } else {
                 $row['status'] = '<span class="badge badge-dark">list out</span>';
-            }
-
-            if ($status == 1) {
-                array_unshift($list, $row);
-            } else {
                 $list[] = $row;
             }
+
         }
 
+        $list = array_merge($list, $done);
         return $list;
     }
 
@@ -223,5 +226,44 @@ class TodoModel
         }
 
         return true;
+    }
+
+    public function getLatestOrderNumber()
+    {
+        $latestOrderNumber = 1;
+
+        $sql = "SELECT orderNumber
+                FROM todos
+                ORDER BY orderNumber DESC LIMIT 1";
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $latestOrderNumber = $row['orderNumber'];
+        }
+
+        return $latestOrderNumber;
+    }
+
+    public function escalateTodo($todoId)
+    {
+        $now = time();
+
+        $sql = 'UPDATE todos 
+                    SET orderNumber = :orderNumber 
+                    WHERE id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':orderNumber', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':id', $todoId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
     }
 }
