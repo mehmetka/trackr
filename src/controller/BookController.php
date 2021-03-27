@@ -6,6 +6,7 @@ use App\model\BookModel;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
+use Slim\Http\StatusCode;
 
 class BookController extends Controller
 {
@@ -46,12 +47,14 @@ class BookController extends Controller
     {
         $authors = $this->bookModel->getAuthors();
         $categories = $this->bookModel->getCategories();
+        $publishers = $this->bookModel->getPublishers();
         $books = $this->bookModel->getAllBooks();
 
         $data = [
             'categories' => $categories,
             'authors' => $authors,
             'books' => $books,
+            'publishers' => $publishers,
             'activeAllBooks' => 'active'
         ];
 
@@ -92,15 +95,15 @@ class BookController extends Controller
         $bookDetail = $this->bookModel->getBookDetailByBookIdAndPathId($bookId, $pathDetails['id']);
 
         if ($pathDetails['status']) {
-            $resource['responseCode'] = 400;
+            $resource['responseCode'] = StatusCode::HTTP_BAD_REQUEST;
             $resource['message'] = "You can't add progress to expired paths!";
         } else {
             if ($bookDetail['status'] == 2) {
                 $resource['message'] = "Can't be add progress to done books!";
-                $resource['responseCode'] = 400;
+                $resource['responseCode'] = StatusCode::HTTP_BAD_REQUEST;
             } else {
                 $this->bookModel->insertProgressRecord($bookId, $pathDetails['id'], $params['amount']);
-                $resource['responseCode'] = 200;
+                $resource['responseCode'] = StatusCode::HTTP_OK;
                 $resource['message'] = "Success!";
             }
         }
@@ -127,7 +130,7 @@ class BookController extends Controller
             "message" => "Created successfully: " . htmlentities($params['author'])
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
     public function addToLibrary(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -139,7 +142,7 @@ class BookController extends Controller
             "message" => "Success!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
     public function addBookToPath(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -155,7 +158,7 @@ class BookController extends Controller
             "message" => "Success!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
     public function extendPathFinish(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -168,7 +171,7 @@ class BookController extends Controller
             "message" => "Success!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
     public function saveBook(ServerRequestInterface $request, ResponseInterface $response)
@@ -182,10 +185,10 @@ class BookController extends Controller
         }
 
         $resource = [
-            "message" => "Success!"
+            "message" => "Successfully created new book!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
     public function createPath(ServerRequestInterface $request, ResponseInterface $response)
@@ -197,7 +200,7 @@ class BookController extends Controller
             "message" => "Success!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
     public function removeBookFromPath(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -213,10 +216,10 @@ class BookController extends Controller
             $this->bookModel->deleteBookFromPath($bookId, $pathId);
 
             $resource['message'] = "Successfully removed.";
-            $resource['responseCode'] = 200;
+            $resource['responseCode'] = StatusCode::HTTP_OK;
         } else {
             $resource['message'] = "You can remove only 'Not Started' books from paths!";
-            $resource['responseCode'] = 400;
+            $resource['responseCode'] = StatusCode::HTTP_BAD_REQUEST;
         }
 
         return $this->response($resource['responseCode'], $resource);
@@ -250,7 +253,7 @@ class BookController extends Controller
             "message" => "Success!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
     public function deleteCategory(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -271,7 +274,7 @@ class BookController extends Controller
             "message" => "Success!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
     public function setDefaultCategory(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -286,6 +289,6 @@ class BookController extends Controller
             "message" => "Success!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 }
