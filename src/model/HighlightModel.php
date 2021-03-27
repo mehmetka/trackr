@@ -17,14 +17,22 @@ class HighlightModel
         $this->tagModel = new TagModel($container);
     }
 
-    public function getHighlights()
+    public function getHighlights($limit = null)
     {
         $list = [];
 
         $sql = 'SELECT * 
-                FROM highlights ORDER BY id DESC LIMIT 100';
+                FROM highlights ORDER BY id DESC ';
+
+        if ($limit) {
+            $sql .= 'LIMIT :limit';
+        }
 
         $stm = $this->dbConnection->prepare($sql);
+
+        if ($limit) {
+            $stm->bindParam(':limit', $limit, \PDO::PARAM_INT);
+        }
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -32,6 +40,68 @@ class HighlightModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
+            $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
+            $tags = $this->tagModel->getHighlightTagsAsHTMLByHighlightId($row['id']);
+
+            if ($tags) {
+                $row['tags'] = $tags;
+            }
+
+            $list[] = $row;
+        }
+
+        return $list;
+    }
+
+    public function getHighlightsByID($id)
+    {
+        $list = [];
+
+        $sql = 'SELECT h.id, h.highlight, h.html, h.author, h.source, h.page, h.location, b.bookmark AS link, h.link AS linkID, h.type, h.created, h.updated
+                FROM highlights h
+                LEFT JOIN bookmarks b ON h.link = b.id
+                WHERE h.id = :highlightID';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':highlightID', $id, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+
+            $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
+            $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
+            $row['tags'] = $this->tagModel->getHighlightTagsAsStringByHighlightId($row['id']);
+
+            $list = $row;
+        }
+
+        $_SESSION['update']['highlight'] = $list;
+        return $list;
+    }
+
+    public function getSubHighlightsByHighlightID($highlightID)
+    {
+        $list = [];
+
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.page, h.location, h.link, h.type, h.created, h.updated
+                FROM highlights h
+                INNER JOIN sub_highlights sh ON h.id = sh.sub_highlight_id
+                WHERE sh.highlight_id = :highlightID';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':highlightID', $highlightID, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+
+            $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
+            $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
             $tags = $this->tagModel->getHighlightTagsAsHTMLByHighlightId($row['id']);
 
             if ($tags) {
@@ -81,21 +151,77 @@ class HighlightModel
     {
         $now = time();
 
-        $params['author'] = $params['author'] == null ? 'trackr' : $params['author'];
-        $params['source'] = $params['source'] == null ? 'trackr' : $params['source'];
-        $params['page'] = $params['page'] == null ? null : $params['page'];
-        $params['link'] = $params['link'] == null ? null : $params['link'];
-        $params['tags'] = $params['tags'] == null ? null : $params['tags'];
+        $params['author'] = $params['author'] ? trim($params['author']) : 'trackr';
+        $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
+        $params['page'] = $params['page'] ? trim($params['page']) : null;
+        $params['location'] = $params['location'] ? trim($params['location']) : null;
+        $html = trim($params['highlight']);
+        $highlight = strip_tags(trim($params['highlight']));
 
-        $sql = 'INSERT INTO highlights (highlight, author, source, page, link, created)
-                VALUES(:highlight, :author, :source, :page, :link, :created)';
+        $sql = 'INSERT INTO highlights (highlight, html, author, source, page, link, created)
+                VALUES(:highlight, :html, :author, :source, :page, :link, :created)';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':highlight', $params['highlight'], \PDO::PARAM_STR);
+        $stm->bindParam(':highlight', $highlight, \PDO::PARAM_STR);
+        $stm->bindParam(':html', $html, \PDO::PARAM_STR);
         $stm->bindParam(':author', $params['author'], \PDO::PARAM_STR);
         $stm->bindParam(':source', $params['source'], \PDO::PARAM_STR);
         $stm->bindParam(':page', $params['page'], \PDO::PARAM_INT);
-        $stm->bindParam(':link', $params['link'], \PDO::PARAM_STR);
+        $stm->bindParam(':link', $params['link'], \PDO::PARAM_INT);
+        $stm->bindParam(':created', $now, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return $this->dbConnection->lastInsertId();
+    }
+
+    public function update($highlightID, $params)
+    {
+        $update = time();
+
+        $params['author'] = $params['author'] ? trim($params['author']) : 'trackr';
+        $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
+        $params['page'] = $params['page'] ? trim($params['page']) : null;
+        $params['location'] = $params['location'] ? trim($params['location']) : null;
+
+        $html = trim($params['highlight']);
+        $highlight = strip_tags(trim($params['highlight']));
+
+        $sql = 'UPDATE highlights 
+                SET highlight = :highlight, html = :html, author = :author, source = :source, page = :page, location = :location, link = :link, updated = :updated
+                WHERE id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        $stm->bindParam(':id', $highlightID, \PDO::PARAM_INT);
+        $stm->bindParam(':highlight', $highlight, \PDO::PARAM_STR);
+        $stm->bindParam(':html', $html, \PDO::PARAM_STR);
+        $stm->bindParam(':author', $params['author'], \PDO::PARAM_STR);
+        $stm->bindParam(':source', $params['source'], \PDO::PARAM_STR);
+        $stm->bindParam(':page', $params['page'], \PDO::PARAM_INT);
+        $stm->bindParam(':location', $params['location'], \PDO::PARAM_INT);
+        $stm->bindParam(':link', $params['link'], \PDO::PARAM_INT);
+        $stm->bindParam(':updated', $update, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return $this->dbConnection->lastInsertId();
+    }
+
+    public function createSubHighlight($highlightID, $subHighlightID)
+    {
+        $now = time();
+
+        $sql = 'INSERT INTO sub_highlights (highlight_id, sub_highlight_id, created)
+                VALUES(:highlight_id, :sub_highlight_id, :created)';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':highlight_id', $highlightID, \PDO::PARAM_INT);
+        $stm->bindParam(':sub_highlight_id', $subHighlightID, \PDO::PARAM_INT);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {

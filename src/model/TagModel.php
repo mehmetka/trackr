@@ -19,7 +19,7 @@ class TagModel
     {
         $tag = trim($tag);
 
-        if ($tag != null && $tag != '') {
+        if ($tag) {
             $tagExist = $this->getTagByTag($tag);
 
             if (!$tagExist) {
@@ -34,7 +34,6 @@ class TagModel
     public function createTag($tag)
     {
         $now = time();
-        $tag = trim($tag);
 
         $sql = 'INSERT INTO tags (tag, created)
                 VALUES(:tag, :created)';
@@ -69,6 +68,21 @@ class TagModel
         return true;
     }
 
+    public function deleteTagsByHighlightID($highlightId)
+    {
+        $sql = 'DELETE FROM highlight_tags
+                WHERE highlight_id = :highlight_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':highlight_id', $highlightId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
     public function getHighlightTagsAsHTML($tag = null)
     {
         $sql = 'SELECT DISTINCT t.tag, t.id
@@ -87,7 +101,7 @@ class TagModel
 
             $row['badge'] = 'info';
 
-            if($tag !== null && $tag == $row['tag']){
+            if ($tag !== null && $tag == $row['tag']) {
                 $row['badge'] = 'primary';
             }
 
@@ -121,9 +135,32 @@ class TagModel
         return $list;
     }
 
+    public function getHighlightTagsAsStringByHighlightId($highlightId)
+    {
+        $sql = 'SELECT t.tag
+                FROM highlight_tags ht
+                INNER JOIN tags t ON ht.tag_id = t.id
+                WHERE ht.highlight_id = :highlight_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':highlight_id', $highlightId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        $list = [];
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $list[] = $row['tag'];
+        }
+
+        return implode(', ', $list);
+    }
+
     public function getHighlightTagsByHighlightId($highlightId)
     {
-        $sql = 'SELECT id, tag
+        $sql = 'SELECT t.id, t.tag
                 FROM highlight_tags ht
                 INNER JOIN tags t ON ht.tag_id = t.id
                 WHERE ht.highlight_id = :highlight_id';

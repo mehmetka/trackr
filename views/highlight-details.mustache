@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {{> head }}
+    <link href="/css/summernote.css" rel="stylesheet">
+</head>
+<body class="vertical  dark">
+<div class="wrapper">
+    {{> navbar }}
+    {{> menu }}
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                {{#detail}}
+                                    <div id="highlight">{{{html}}}</div>
+
+                                    <br>
+
+                                    <div class="form-group">
+                                        <input id="author" placeholder="Author" type="text" class="form-control"
+                                               value="{{author}}">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <input id="source" placeholder="Source" type="text" class="form-control"
+                                               value="{{source}}">
+                                    </div>
+                                    <div class="form-group">
+                                        <input id="page" placeholder="Page" type="number" class="form-control"
+                                               value="{{page}}">
+                                    </div>
+                                    <div class="form-group">
+                                        <input id="location" placeholder="Location" type="text" class="form-control"
+                                               value="{{location}}">
+                                    </div>
+                                    <div class="form-group">
+                                        <input id="link" placeholder="Link" type="text" class="form-control"
+                                               value="{{link}}">
+                                    </div>
+                                    <div class="form-group">
+                                        <input id="tags" placeholder="Tags" type="text" class="form-control"
+                                               value="{{tags}}">
+                                    </div>
+                                    <div class="form-group">
+                                        <button id="updateHighlight" type="button" class="btn btn-primary"
+                                                data-id="{{id}}">
+                                            Update
+                                        </button>
+                                    </div>
+                                {{/detail}}
+                            </div>
+                        </div>
+                    </div>
+
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Add Comment</h5>
+                                <div class="form-group">
+                                    <textarea id="comment" class="form-control form-control-lg" placeholder="Comment"
+                                              rows="4"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <input id="commentSource" placeholder="Source" type="text" class="form-control"
+                                           value="{{#detail}}{{source}}{{/detail}}">
+                                </div>
+
+                                <div class="form-group">
+                                    <input id="commentLink" placeholder="Link" type="text" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                    <input id="commentTags" placeholder="Tags" type="text" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    {{#detail}}
+                                        <button id="addComment" type="button" class="btn btn-primary" data-id="{{id}}">
+                                            Add
+                                        </button>
+                                    {{/detail}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+
+            <div class="row">
+                <div class="col-md-12">
+                    {{#subHighlights}}
+                        <blockquote class="blockquote">
+                            <p class="mb-0">{{{highlight}}}</p>
+                            <footer class="blockquote-footer">{{author}} <cite
+                                    title="Source Title">{{source}}</cite></footer>
+                        </blockquote>
+                    {{/subHighlights}}
+                </div>
+            </div>
+
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
+{{> include}}
+<script src="/js/summernote.js"></script>
+<script>
+    $(document).ready(function () {
+
+        $('#highlight').summernote('code');
+
+        $('#addComment').on('click', function (e) {
+
+            var highlightID = $('#addComment').data('id');
+            var comment = $('#comment').val();
+            var source = $('#commentSource').val();
+            var link = $('#commentLink').val();
+            var tags = $('#commentTags').val();
+            var data = "highlight=" + encodeURIComponent(comment) + "&source=" + encodeURIComponent(source) + "&link=" + encodeURIComponent(link) + "&tags=" + encodeURIComponent(tags);
+            var result = ajaxCall('POST', "/highlights/" + highlightID + "/sub", data)
+
+            if (result !== false) {
+                location.reload();
+            }
+
+        });
+
+        $('#updateHighlight').on('click', function (e) {
+
+            var highlight = $('#highlight').summernote('code');
+            var author = $('#author').val();
+            var source = $('#source').val();
+            var page = $('#page').val();
+            var highlightLocation = $('#location').val();
+            var link = $('#link').val();
+            var tags = $('#tags').val();
+            var highlightID = $(this).data('id');
+            var data = "highlight=" + encodeURIComponent(highlight) + "&author=" + encodeURIComponent(author) + "&source=" + encodeURIComponent(source) + "&page=" + page + "&location=" + highlightLocation + "&link=" + link + "&tags=" + tags;
+            var result = ajaxCall('PUT', "/highlights/" + highlightID, data)
+
+            if (result !== false) {
+                location.reload();
+            }
+
+        });
+
+    });
+</script>
+</body>
+</html>
