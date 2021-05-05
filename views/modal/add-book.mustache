@@ -39,6 +39,7 @@
                         <div class="form-group col-md-6">
                             <label for="publisher">Publisher:</label>
                             <select id="publisher" name="publisher" class="form-control">
+                                <option disabled selected>Choose publisher</option>
                                 {{#publishers}}
                                     <option value="{{id}}">{{name}}</option>
                                 {{/publishers}}
