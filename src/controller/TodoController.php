@@ -92,6 +92,8 @@ class TodoController extends Controller
             $this->todoModel->updateStartedDate($todoId);
         } elseif ($params['status'] == 2) {
             $this->todoModel->updateDoneDate($todoId);
+        } elseif ($params['status'] == 3) {
+            $this->todoModel->updateCancelDate($todoId);
         }
 
         $resource = [

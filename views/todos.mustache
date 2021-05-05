@@ -49,13 +49,22 @@
                                         </div>
                                         <div class="col-2">
                                             <div class="btn-group float-right" role="group" aria-label="Basic example">
-                                                {{^complete}}
+                                                {{#escalateAction}}
                                                     <a class="btn btn-sm btn-primary btnEscalateTodo"
                                                        data-id="{{id}}"><i class="fe fe-arrow-up fe-16"></i></a>
+                                                {{/escalateAction}}
+
+                                                {{#editAction}}
                                                     <a class="btn btn-sm btn-info btnEditTodo"
                                                        data-id="{{id}}" data-toggle="modal"
                                                        data-target="#editTodoModal"><i class="fe fe-edit fe-16"></i></a>
-                                                {{/complete}}
+                                                {{/editAction}}
+
+                                                {{#cancelAction}}
+                                                    <a class="btn btn-sm btn-danger btnStatusAction"
+                                                       data-status="3" data-id="{{id}}"><i
+                                                            class="fe fe-x fe-16"></i></a>
+                                                {{/cancelAction}}
 
                                                 {{#startAction}}
                                                     <a class="btn btn-sm btn-primary btnStatusAction"
@@ -68,7 +77,13 @@
                                                             class="fe fe-check fe-16"></i></a>
                                                 {{/doneAction}}
 
+                                                {{#canceled}}
+                                                    {{canceled}}
+                                                    <i class="fe fe-x fe-16"></i>
+                                                {{/canceled}}
+
                                                 {{#complete}}
+                                                    {{done}}
                                                     <i class="fe fe-check fe-16"></i>
                                                 {{/complete}}
                                             </div>
@@ -113,7 +128,7 @@
         $(".btnStatusAction").on('click', function (e) {
             var id = $(this).data('id');
             var status = $(this).data('status');
-            var result = ajaxCall('PUT', "/todos" + id + "/status", "status=" + status)
+            var result = ajaxCall('PUT', "/todos/" + id + "/status", "status=" + status)
 
             if (result !== false) {
                 location.reload();

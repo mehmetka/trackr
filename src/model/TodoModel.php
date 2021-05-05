@@ -22,7 +22,7 @@ class TodoModel
 
         $sql = "SELECT * 
                 FROM todos 
-                ORDER BY orderNumber ASC";
+                ORDER BY orderNumber";
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -36,22 +36,39 @@ class TodoModel
             $row['description'] = str_replace("\n", '<br>', $row['description']);
             $row['accordionId'] = 'accordion' . uniqid();
             $row['cardBodyId'] = 'cb' . uniqid();
-            $status = $row['status'];
+            $row['escalateAction'] = true;
+            $row['editAction'] = true;
 
-            if (!$row['started']) {
-                $row['startAction'] = true;
-            } elseif (!$row['done']) {
-                $row['doneAction'] = true;
+            if ($row['canceled']) {
+                $row['cardHeaderBg'] = 'bg-danger';
+                $row['canceled'] = date('Y-m-d H:i', $row['canceled']);
+                $row['escalateAction'] = false;
+                $row['editAction'] = false;
             } else {
-                $row['complete'] = true;
+                if (!$row['started']) {
+                    $row['started'] = date('Y-m-d H:i', $row['started']);
+                    $row['startAction'] = true;
+                    $row['cancelAction'] = true;
+                } elseif (!$row['done']) {
+                    $row['doneAction'] = true;
+                    $row['cancelAction'] = true;
+                } else {
+                    $row['done'] = date('Y-m-d H:i', $row['done']);
+                    $row['complete'] = true;
+                    $row['escalateAction'] = false;
+                    $row['editAction'] = false;
+                }
             }
 
             if (!$row['description']) {
                 unset($row['description']);
             }
 
-            if ($status == 2) {
+            if ($row['status'] == 2) {
                 $row['cardHeaderBg'] = 'bg-info-dark';
+                $list[] = $row;
+            } elseif ($row['status'] == 3) {
+                $row['cardHeaderBg'] = 'bg-danger';
                 $list[] = $row;
             } else {
                 $row['cardHeaderBg'] = 'bg-dark';
@@ -107,7 +124,7 @@ class TodoModel
                 GROUP BY b.id
                 UNION ALL
                 SELECT b.id AS typeTableId,
-                       CONCAT('<a href=\"', b.bookmark, '\" target=\"_blank\">', IFNULL(b.title,b.bookmark), '<span class=\"badge badge-dark float-right\">', c.name, '</span>', '</a>') AS todoName,
+                       CONCAT('<a href=\"', b.bookmark, '\" target=\"_blank\">', IFNULL(b.title,b.bookmark), '</a>') AS todoName,
                        b.status AS status,
                        'bookmark' AS todoType,
                        'info' AS badge
@@ -115,7 +132,7 @@ class TodoModel
                          INNER JOIN categories c ON b.categoryID = c.id
                 UNION ALL
                 SELECT v.id AS typeTableId,
-                       CONCAT(v.title,' (',v.length, ') ', ' <span class=\"badge badge-dark float-right\">', c.NAME, '</span>') AS todoName,
+                       CONCAT(v.title,' (',v.length, ') ') AS todoName,
                        v.status AS status,
                        'video' AS todoType,
                        'danger' AS badge
@@ -220,6 +237,27 @@ class TodoModel
         $stm->bindParam(':status', $status, \PDO::PARAM_INT);
         $stm->bindParam(':id', $id, \PDO::PARAM_INT);
         $stm->bindParam(':done', $now, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function updateCancelDate($id)
+    {
+        $now = time();
+        $status = 3;
+
+        $sql = 'UPDATE todos 
+                SET status = :status, canceled = :canceled 
+                WHERE id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':status', $status, \PDO::PARAM_INT);
+        $stm->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stm->bindParam(':canceled', $now, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
