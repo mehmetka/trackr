@@ -55,11 +55,16 @@
                         {{#highlights}}
                             <div class="card">
                                 <div class="card-header bg-dark">
-                                    {{#tags}}{{{tag}}}{{/tags}}
-                                    {{^tags}}{{author}}{{/tags}}
-
-                                    <a role="button" href="/highlights/{{id}}/details"
-                                       class="badge badge-primary float-right">details</a>
+                                    <div class="row align-items-center">
+                                        <div class="col-10">
+                                            {{#tags}}{{{tag}}}{{/tags}}
+                                            {{^tags}}{{author}}{{/tags}}
+                                        </div>
+                                        <div class="col-2">
+                                            <a role="button" href="/highlights/{{id}}/details"
+                                               class="badge badge-primary float-right">details</a>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="card-body">
                                     <blockquote class="blockquote mb-0">
