@@ -54,8 +54,6 @@ $container['errorHandler'] = function ($container) {
         /** @var Exception $exception */
         if ($exception instanceof CustomException) {
 
-            $withStatus = $exception->getHttpStatusCode();
-
             if ($exception->getErrorType() == 'client_error') {
                 $data['status'] = 400;
                 $logger->warning($exception->getMessage() . " detail:" . $exception->getErrorDetail() . ' trace:' . $exception->getBackTrace());
@@ -72,12 +70,11 @@ $container['errorHandler'] = function ($container) {
             }
 
             $data = [
-                'status' => $withStatus,
+                'status' => $exception->getHttpStatusCode(),
                 'message' => $exception->getMessage()
             ];
 
         } else {
-
             $logger->critical($exception->getMessage());
             $withStatus = 500;
 
