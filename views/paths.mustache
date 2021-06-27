@@ -5,6 +5,7 @@
 </head>
 <body class="vertical  dark">
 <div class="wrapper">
+    {{> include}}
     {{> navbar }}
     {{> menu }}
     <main role="main" class="main-content">
@@ -59,11 +60,15 @@
                                         </button>
                                     {{/remaining_day_warning}}
                                     {{^expired}}
-                                        <a class="btn btn-sm btn-dark" href="/books/paths/{{pathUID}}">Books</a>
+                                        <a class="btn btn-sm btn-dark" href="/books/paths/{{pathUID}}?status=active">Books</a>
                                     {{/expired}}
                                 </div>
                             </div>
                         {{/bookPaths}}
+                    </div>
+
+                    <div class="my-4">
+                        <div id="lineChart"></div>
                     </div>
 
                 </div> <!-- .col-12 -->
@@ -71,53 +76,41 @@
         </div> <!-- .container-fluid -->
     </main> <!-- main -->
 </div> <!-- .wrapper -->
-{{> include}}
+<script src="/js/apexcharts.min.js"></script>
 <script>
     $(document).ready(function () {
 
-        $('#pathFinish').daterangepicker(
-                {
-                    singleDatePicker: true,
-                    timePicker: false,
-                    showDropdowns: true,
-                    locale: {format: 'MM/DD/YYYY'}
-                });
+        new ApexCharts(document.querySelector("#lineChart"), lineChartOptions).render();
+
+        $('#pathFinish').daterangepicker({
+            singleDatePicker: true,
+            timePicker: false,
+            showDropdowns: true,
+            locale: {format: 'MM/DD/YYYY'}
+        });
 
         $("#btnAddNewPath").on('click', function (e) {
 
             var pathName = $('#pathName').val();
             var finishDate = $('#pathFinish').val();
 
-            $.ajax({
-                type: "POST",
-                data: "pathName=" + pathName + "&pathFinish=" + finishDate,
-                url: "/books/paths",
-                success: function () {
-                    alert("success");
-                    location.reload();
-                },
-                error: function () {
-                    alert("error");
-                }
-            });
+            var result = ajaxCall('POST', "/books/paths", "pathName=" + pathName + "&pathFinish=" + finishDate)
+
+            if (result !== false) {
+                location.reload();
+            }
 
         });
 
         $(".btnExtendFinishDate").on('click', function (e) {
 
             var pathUID = $(this).data("uid");
+            var result = ajaxCall('POST', "/books/paths/" + pathUID + "/extend", null)
 
-            $.ajax({
-                type: "POST",
-                url: "/books/paths/" + pathUID + "/extend",
-                success: function (data, status, xhr) {
-                    alert(xhr.responseJSON.message);
-                    location.reload();
-                },
-                error: function (data, status, xhr) {
-                    alert(data.responseJSON.message);
-                }
-            });
+            if (result !== false) {
+                location.reload();
+            }
+
         });
 
     });

@@ -20,8 +20,15 @@ class BookController extends Controller
 
     public function booksPathInside(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
+        $queryParams = $request->getQueryParams();
+        $active = false;
+
+        if (isset($queryParams['status'])) {
+            $active = $queryParams['status'] === 'active' ? true : false;
+        }
+
         $pathId = $this->bookModel->getPathIdByUid($args['pathUID']);
-        $books = $this->bookModel->getBooksPathInside($pathId);
+        $books = $this->bookModel->getBooksPathInside($pathId, $active);
 
         $data = [
             'books' => $books,
@@ -102,9 +109,16 @@ class BookController extends Controller
                 $resource['message'] = "Can't be add progress to done books!";
                 $resource['responseCode'] = StatusCode::HTTP_BAD_REQUEST;
             } else {
-                $this->bookModel->insertProgressRecord($bookId, $pathDetails['id'], $params['amount']);
-                $resource['responseCode'] = StatusCode::HTTP_OK;
-                $resource['message'] = "Success!";
+                
+                if($params['amount'] > 0){
+                    $this->bookModel->insertProgressRecord($bookId, $pathDetails['id'], $params['amount']);
+                    $resource['responseCode'] = StatusCode::HTTP_OK;
+                    $resource['message'] = "Success!";
+                } else {
+                    $resource['responseCode'] = StatusCode::HTTP_BAD_REQUEST;
+                    $resource['message'] = "Amount must be positive";
+                }
+
             }
         }
 
@@ -290,5 +304,21 @@ class BookController extends Controller
         ];
 
         return $this->response(StatusCode::HTTP_OK, $resource);
+    }
+
+    public function getBookTrackingsGraphicData(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $graphicDatas = $this->bookModel->getBookTrackingsGraphicData();
+
+        echo "<pre>";
+        print_r($graphicDatas);
+        die;
+
+        $resource = [
+            "data" => $graphicDatas,
+            "message" => "Success!"
+        ];
+
+        return $this->response(200, $resource);
     }
 }
