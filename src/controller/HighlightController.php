@@ -147,6 +147,8 @@ class HighlightController extends Controller
             $this->tagModel->insertTagByChecking($highlightId, trim($params['tags']));
         }
 
+        unset($_SESSION['badgeCounts']);
+
         $resource = [
             "message" => "Success!"
         ];

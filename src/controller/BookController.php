@@ -106,7 +106,7 @@ class BookController extends Controller
             $resource['message'] = "You can't add progress to expired paths!";
         } else {
             if ($bookDetail['status'] == 2) {
-                $resource['message'] = "Can't be add progress to done books!";
+                $resource['message'] = "Can't add progress to done books!";
                 $resource['responseCode'] = StatusCode::HTTP_BAD_REQUEST;
             } else {
                 
@@ -197,6 +197,8 @@ class BookController extends Controller
         foreach ($authors as $author) {
             $this->bookModel->insertBookAuthor($bookId, $author);
         }
+
+        unset($_SESSION['badgeCounts']);
 
         $resource = [
             "message" => "Successfully created new book!"

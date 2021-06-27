@@ -74,6 +74,8 @@ class BookmarkController extends Controller
 
         $this->bookmarkModel->create($params['bookmark'], $params['note'], $params['category']);
 
+        unset($_SESSION['badgeCounts']);
+
         $resource = [
             "message" => "Successfully added"
         ];
@@ -138,6 +140,8 @@ class BookmarkController extends Controller
         $bookmarkId = $args['id'];
 
         $this->bookmarkModel->deleteBookmark($bookmarkId);
+
+        unset($_SESSION['badgeCounts']);
 
         $resource = [
             "message" => "Success!"

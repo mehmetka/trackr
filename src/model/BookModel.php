@@ -614,6 +614,7 @@ class BookModel
                 $this->insertNewReadRecord($row['path_id'], $row['id']);
                 $this->setBookPathStatus($row['path_id'], $row['id'], $this->pathStatusInfos['done']['id']);
                 $this->setBookStatus($row['id'], $this->pathStatusInfos['done']['id']);
+                unset($_SESSION['badgeCounts']);
                 continue;
             }
 
