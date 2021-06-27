@@ -5,6 +5,7 @@
 </head>
 <body class="vertical  dark">
 <div class="wrapper">
+    {{> include}}
     {{> navbar }}
     {{> menu }}
     <main role="main" class="main-content">
@@ -35,47 +36,56 @@
                         </div>
                     </div>
 
-                    <div class="card-columns">
-                        {{#bookmarks}}
-                            <div class="card">
-                                <div class="card-header bg-dark">
-                                    <span class="badge badge-primary">{{categoryName}}</span>
-                                </div>
-                                <div class="card-body">
-                                    <p><a href="{{bookmark}}" target="_blank">{{title}}</a></p>
-                                    {{created}}
-                                </div>
-                                <div class="card-footer">
-                                    {{#startAction}}
-                                        <div class="btn-group" role="group" aria-label="Basic example">
-                                            <a class="btn btn-sm btn-info btnStatusAction" data-status="1"
-                                               data-id="{{id}}"><i class="fe fe-play fe-4"></i></a>
-
-                                            <a class="btn btn-sm btn-primary btnDeleteBookmark"
-                                               data-id="{{id}}"><i class="fe fe-trash fe-4"></i></a>
-
-                                        </div>
-                                    {{/startAction}}
-
-                                    {{#doneAction}}
-                                        <a class="btn btn-sm btn-success btnStatusAction" data-status="2" data-id="{{id}}">Done</a>
-                                    {{/doneAction}}
-
-                                    {{#complete}}
-                                        <span class="badge badge-success">Done</span>
-                                    {{/complete}}
-                                    <a class="btn btn-sm btn-primary float-right" href="/bookmarks/{{id}}/highlights">Highlights</a>
-                                </div>
+                      <!-- simple table -->
+                      <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <table class="table table-striped table-bordered">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">Bookmark</th>
+                                        <th scope="col">Highlights</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {{#bookmarks}}
+                                        <tr>
+                                            <td><a href="{{bookmark}}" target="_blank">{{title}}</a> - {{created}}</td>
+                                            <td> <a class="btn btn-sm btn-primary float-right" href="/bookmarks/{{id}}/highlights">Highlights</a></td>
+                                            <td>
+                                                {{#startAction}}
+                                                <div class="btn-group" role="group" aria-label="Basic example">
+                                                    <a class="btn btn-sm btn-info btnStatusAction" data-status="1"
+                                                       data-id="{{id}}"><i class="fe fe-play fe-4"></i></a>
+        
+                                                    <a class="btn btn-sm btn-primary btnDeleteBookmark"
+                                                       data-id="{{id}}"><i class="fe fe-trash fe-4"></i></a>
+        
+                                                </div>
+                                            {{/startAction}}
+        
+                                            {{#doneAction}}
+                                                <a class="btn btn-sm btn-success btnStatusAction" data-status="2" data-id="{{id}}">Done</a>
+                                            {{/doneAction}}
+        
+                                            {{#complete}}
+                                                <span class="badge badge-success">Done</span>
+                                            {{/complete}}
+                                            </td>
+                                        </tr>
+                                    {{/bookmarks}}
+                                    </tbody>
+                                </table>
                             </div>
-                        {{/bookmarks}}
-                    </div>
+                        </div>
+                    </div> <!-- simple table -->
 
                 </div> <!-- .col-12 -->
             </div> <!-- .row -->
         </div> <!-- .container-fluid -->
     </main> <!-- main -->
 </div> <!-- .wrapper -->
-{{> include}}
 {{> add-book }}
 <script>
     $(document).ready(function () {

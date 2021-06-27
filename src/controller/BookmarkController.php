@@ -58,10 +58,18 @@ class BookmarkController extends Controller
     {
         $params = $request->getParsedBody();
 
+        if (!isset($params['bookmark'])) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark cannot be empty!');
+        }
+
         $bookmarkExist = $this->bookmarkModel->getBookmarkByBookmark($params['bookmark']);
 
         if ($bookmarkExist) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
+        }
+
+        if(!isset($params['category'])){
+            $params['category'] = 6665;
         }
 
         $this->bookmarkModel->create($params['bookmark'], $params['note'], $params['category']);
@@ -70,7 +78,7 @@ class BookmarkController extends Controller
             "message" => "Successfully added"
         ];
 
-        return $this->response(StatusCode::HTTP_OK, $resource);
+        return $this->response(StatusCode::HTTP_CREATED, $resource);
     }
 
     public function addHighlight(ServerRequestInterface $request, ResponseInterface $response, $args)
