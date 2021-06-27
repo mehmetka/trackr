@@ -118,6 +118,31 @@ class BookModel
         $list = [];
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+
+            if ($row['defaultStatus']) {
+                $row['selected'] = true;
+            }
+
+            $list[] = $row;
+        }
+
+        return $list;
+    }
+
+    public function getPublishers()
+    {
+        $sql = 'SELECT id, name
+                FROM publishers';
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        $list = [];
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $list[] = $row;
         }
 
@@ -208,10 +233,10 @@ class BookModel
                 $pages = $path['today_processed'] > 1 ? 'pages' : 'page';
                 $tmpDailyAmount = $path['daily_amount'] - $path['today_processed'];
 
-                if ($tmpDailyAmount) {
+                if ($tmpDailyAmount > 0) {
                     $path['today_processed_text'] = "You read {$path['today_processed']} $pages today. Read $tmpDailyAmount more pages";
                 } else {
-                    $path['today_processed_text'] = "<span class=\"text-success\">Congrats, you read'em all! \m/</span>";
+                    $path['today_processed_text'] = "<span class=\"text-success\">Congrats, you read'em all today! \m/</span>";
                 }
 
             }
@@ -545,7 +570,7 @@ class BookModel
         return $books;
     }
 
-    public function getBooksPathInside($pathId)
+    public function getBooksPathInside($pathId, $status = false)
     {
         $sql = "SELECT b.uid AS bookUID, b.title, b.id, b.page_count, b.status AS book_status, pb.status AS path_status, pb.path_id, p.uid AS pathUID, CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ') FROM book_authors ba INNER JOIN author a ON ba.author_id = a.id WHERE ba.book_id = b.id)) AS author
                 FROM books b
@@ -566,12 +591,16 @@ class BookModel
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
 
             if ($row['path_status'] == 2) {
-                $row['status_label'] = 'bg-success-dark';
-                $row['cardBodyBg'] = 'bg-success-light';
-                $row['readStatus'] = '<i class="fe fe-check fe-16"></i>';
-                $row['amount'] = true;
-                $row['remove'] = true;
-                $list[] = $row;
+
+                if (!$status) {
+                    $row['status_label'] = 'bg-success-dark';
+                    $row['cardBodyBg'] = 'bg-success-light';
+                    $row['readStatus'] = '<i class="fe fe-check fe-16"></i>';
+                    $row['amount'] = true;
+                    $row['remove'] = true;
+                    $list[] = $row;
+                }
+
                 continue;
             }
 
@@ -585,7 +614,6 @@ class BookModel
                 $this->insertNewReadRecord($row['path_id'], $row['id']);
                 $this->setBookPathStatus($row['path_id'], $row['id'], $this->pathStatusInfos['done']['id']);
                 $this->setBookStatus($row['id'], $this->pathStatusInfos['done']['id']);
-
                 continue;
             }
 
@@ -966,5 +994,134 @@ class BookModel
         }
 
         return $defaultCategory;
+    }
+
+    public function getBookTrackingsGraphicData()
+    {
+        $paths = $this->getPathsList();
+        $result = [];
+
+        foreach ($paths as $path) {
+            $graphicDatas = $this->getBookTrackingsByPathID($path['path_id']);
+            $preparedData = $this->prepareBookTrackingsGraphicData($graphicDatas);
+            $preparedData['series']['name'] = $path['path_name'];
+            $result[] = $preparedData;
+        }
+
+        return $result;
+    }
+
+    public function getBookTrackingsByPathID($pathID)
+    {
+        $trackings = [];
+
+        $sql = "SELECT FROM_UNIXTIME(record_date, '%m/%d/%Y GMT') AS date, amount
+                FROM book_trackings
+                WHERE path_id = :pathID";
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':pathID', $pathID, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $trackings[] = $row;
+        }
+
+        return $trackings;
+    }
+
+    public function prepareBookTrackingsGraphicData($bookTrackings)
+    {
+        $result = ['series' => ['data' => []], 'xaxisCategories' => []];
+        $tmp = [];
+        $dayCount = 1;
+
+        foreach ($bookTrackings as $bookTracking) {
+
+            if (isset($tmp[$bookTracking['date']])) {
+
+                if ($dayCount > 10) {
+                    break;
+                }
+
+                $tmp[$bookTracking['date']] += $bookTracking['amount'];
+
+                $dayCount += 1;
+            } else {
+                $tmp[$bookTracking['date']] = $bookTracking['amount'];
+            }
+
+        }
+
+        foreach ($tmp as $key => $value) {
+            $result['series']['data'][] = $value;
+            $result['xaxisCategories'][] = $key;
+        }
+
+        return $result;
+    }
+
+    public function getMyBooksCount()
+    {
+        $myBookCount = 0;
+
+        $sql = "SELECT COUNT(*) AS myBookCount
+                FROM books
+                WHERE own = 1";
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $myBookCount = $row['myBookCount'];
+        }
+
+        return $myBookCount;
+    }
+
+    public function getAllBookCount()
+    {
+        $allBookCount = 0;
+
+        $sql = "SELECT COUNT(*) AS allBookCount
+                FROM books";
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $allBookCount = $row['allBookCount'];
+        }
+
+        return $allBookCount;
+    }
+
+    public function getFinishedBookCount()
+    {
+        $finishedBookCount = 0;
+
+        $sql = "SELECT COUNT(*) AS finishedBookCount
+                FROM books_finished";
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $finishedBookCount = $row['finishedBookCount'];
+        }
+
+        return $finishedBookCount;
     }
 }

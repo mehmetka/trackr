@@ -116,4 +116,25 @@ class VideoModel
         return true;
     }
 
+    public function getUncompleteVideos()
+    {
+        $uncompleteCount = 0;
+
+        $sql = 'SELECT COUNT(*) AS uncompleteVideosCount
+                FROM videos
+                WHERE status < 2';
+
+        $stm = $this->dbConnection->prepare($sql);
+        
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $uncompleteCount = $row['uncompleteVideosCount'];
+        }
+
+        return $uncompleteCount;
+    }
+
 }

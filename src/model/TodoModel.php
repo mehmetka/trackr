@@ -266,27 +266,6 @@ class TodoModel
         return true;
     }
 
-    public function getLatestOrderNumber()
-    {
-        $latestOrderNumber = 1;
-
-        $sql = "SELECT orderNumber
-                FROM todos
-                ORDER BY orderNumber DESC LIMIT 1";
-
-        $stm = $this->dbConnection->prepare($sql);
-
-        if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
-        }
-
-        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $latestOrderNumber = $row['orderNumber'];
-        }
-
-        return $latestOrderNumber;
-    }
-
     public function escalateTodo($todoId)
     {
         $now = time();
@@ -303,5 +282,26 @@ class TodoModel
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
         }
 
+    }
+
+    public function getUncompleteTodoCount()
+    {
+        $count = 0;
+
+        $sql = 'SELECT COUNT(*) AS count
+                FROM todos
+                WHERE status < 2';
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $count = $row['count'];
+        }
+
+        return $count;
     }
 }

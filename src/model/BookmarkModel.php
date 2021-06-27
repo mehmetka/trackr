@@ -20,8 +20,7 @@ class BookmarkModel
         $list = [];
         $sql = 'SELECT b.id, b.uid AS bookmarkUID, b.bookmark, b.title, b.note, b.categoryId, c.name AS categoryName, b.status, b.created, b.started, b.done
                 FROM bookmarks b
-                INNER JOIN categories c ON b.categoryId = c.id
-                ORDER BY b.id DESC LIMIT 100';
+                INNER JOIN categories c ON b.categoryId = c.id';
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -48,7 +47,11 @@ class BookmarkModel
                 $row['complete'] = true;
             }
 
-            $list[] = $row;
+            if (intval($row['status']) === 2) {
+                $list[] = $row;
+            } else {
+                array_unshift($list, $row);
+            }
         }
 
         return $list;
@@ -108,7 +111,7 @@ class BookmarkModel
 
         $sql = 'SELECT b.id, b.uid, b.bookmark, b.title, b.note, b.categoryId, h.highlight, h.author, h.source
                 FROM bookmarks b
-                INNER JOIN highlights h ON b.id = h.link
+                LEFT JOIN highlights h ON b.id = h.link
                 WHERE b.id = :id';
 
         $stm = $this->dbConnection->prepare($sql);
@@ -123,6 +126,27 @@ class BookmarkModel
         }
 
         return $list;
+    }
+
+    public function getUncompleteBookmarks()
+    {
+        $uncompleteCount = 0;
+
+        $sql = 'SELECT COUNT(*) AS uncompleteBookmarksCount
+                FROM bookmarks
+                WHERE status < 2';
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $uncompleteCount = $row['uncompleteBookmarksCount'];
+        }
+
+        return $uncompleteCount;
     }
 
     public function create($bookmark, $note, $categoryId)
@@ -154,13 +178,16 @@ class BookmarkModel
 
         $bookmarkHighlight['author'] = $bookmarkHighlight['author'] ? $bookmarkHighlight['author'] : 'trackr';
         $bookmarkHighlight['source'] = $bookmarkHighlight['source'] ? $bookmarkHighlight['source'] : 'trackr';
+        $html = str_replace("\n", '<br>', trim($bookmarkHighlight['highlight']));
+        $highlight = strip_tags(trim($bookmarkHighlight['highlight']));
         $page = null;
 
-        $sql = 'INSERT INTO highlights (highlight, author, source, page, link, created)
-                VALUES(:highlight, :author, :source, :page, :link, :created)';
+        $sql = 'INSERT INTO highlights (highlight, html, author, source, page, link, created)
+                VALUES(:highlight, :html, :author, :source, :page, :link, :created)';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':highlight', $bookmarkHighlight['highlight'], \PDO::PARAM_STR);
+        $stm->bindParam(':highlight', $highlight, \PDO::PARAM_STR);
+        $stm->bindParam(':html', $html, \PDO::PARAM_STR);
         $stm->bindParam(':author', $bookmarkHighlight['author'], \PDO::PARAM_STR);
         $stm->bindParam(':source', $bookmarkHighlight['source'], \PDO::PARAM_STR);
         $stm->bindParam(':page', $page, \PDO::PARAM_INT);

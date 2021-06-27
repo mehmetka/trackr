@@ -135,6 +135,7 @@ class HighlightModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
+            $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
             $tags = $this->tagModel->getHighlightTagsAsHTMLByHighlightId($row['id']);
 
             if ($tags) {
@@ -150,13 +151,16 @@ class HighlightModel
     public function create($params)
     {
         $now = time();
+        $rawHighlight = trim($params['highlight']);
 
         $params['author'] = $params['author'] ? trim($params['author']) : 'trackr';
         $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
-        $html = trim($params['highlight']);
-        $highlight = strip_tags(trim($params['highlight']));
+
+        $html = str_replace(' ', '&nbsp;', $rawHighlight);
+        $html = str_replace("\n", '<br>', $html);
+        $highlight = strip_tags($rawHighlight);
 
         $sql = 'INSERT INTO highlights (highlight, html, author, source, page, link, created)
                 VALUES(:highlight, :html, :author, :source, :page, :link, :created)';
@@ -186,8 +190,9 @@ class HighlightModel
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
-        $html = trim($params['highlight']);
-        $highlight = strip_tags(trim($params['highlight']));
+        $html = str_replace(' ', '&nbsp;', trim($params['highlight']));
+        $highlight = str_replace('&nbsp;', ' ', trim($params['highlight']));
+        $highlight = strip_tags($highlight);
 
         $sql = 'UPDATE highlights 
                 SET highlight = :highlight, html = :html, author = :author, source = :source, page = :page, location = :location, link = :link, updated = :updated
@@ -229,6 +234,26 @@ class HighlightModel
         }
 
         return $this->dbConnection->lastInsertId();
+    }
+
+    public function getHighlightsCount()
+    {
+        $count = 0;
+
+        $sql = 'SELECT COUNT(*) AS count
+                FROM highlights';
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $count = $row['count'];
+        }
+
+        return $count;
     }
 
 }

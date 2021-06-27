@@ -19,9 +19,15 @@ $app->group('', function () {
     $this->post('/register', AuthController::class . ':register');
 })->add(new Middleware\Guest($container));
 
+$app->group('/api', function () {
+    $this->post('/bookmarks', BookmarkController::class . ':create');
+});
+
 $app->group('', function () {
 
     $this->get('/', HomeController::class . ':index')->setName('home');
+
+    $this->get('/menu-badge-counts', HomeController::class . ':getMenuBadgeCounts');
 
     $this->get('/books/paths', BookController::class . ':paths')->setName('paths');
     $this->get('/books/paths/{pathUID}', BookController::class . ':booksPathInside');
