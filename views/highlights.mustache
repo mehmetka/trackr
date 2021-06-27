@@ -1,108 +1,98 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     {{> head }}
 </head>
-<body class="vertical  dark">
-<div class="wrapper">
-    {{> navbar }}
-    {{> menu }}
-    <main role="main" class="main-content">
-        <div class="container-fluid">
-            <div class="row justify-content-center">
-                <div class="col-12">
 
-                    <div class="card mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Add New Highlight</h5>
-                                <div class="input-group input-group-lg">
-                                    <textarea id="highlight" class="form-control  form-control-lg"
-                                              placeholder="Highlight"
-                                              rows="2"></textarea>
-                                </div>
-                                <br>
-                                <div class="input-group input-group-lg">
-                                    <input id="author" placeholder="Author" type="text"
-                                           class="form-control enterButtonKeyPress">
-                                    <input id="source" placeholder="Source" type="text"
-                                           class="form-control enterButtonKeyPress">
-                                    <input id="page" placeholder="Page" type="number"
-                                           class="form-control enterButtonKeyPress">
-                                </div>
-                                <br>
-                                <div class="input-group input-group-lg">
-                                    <input id="link" placeholder="Link" type="text"
-                                           class="form-control enterButtonKeyPress">
-                                    <input id="tags" placeholder="Tags" type="text"
-                                           class="form-control enterButtonKeyPress">
+<body class="vertical  dark">
+    <div class="wrapper">
+        {{> include}}
+        {{> navbar }}
+        {{> menu }}
+        <main role="main" class="main-content">
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+
+                        <div class="card mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Add New Highlight</h5>
+                                    <div class="input-group input-group-lg">
+                                        <textarea id="highlight" class="form-control  form-control-lg"
+                                            placeholder="Highlight" rows="2"></textarea>
+                                    </div>
+                                    <br>
+                                    <div class="input-group input-group-lg">
+                                        <input id="author" placeholder="Author" type="text"
+                                            class="form-control enterButtonKeyPress">
+                                        <input id="source" placeholder="Source" type="text"
+                                            class="form-control enterButtonKeyPress">
+                                        <input id="page" placeholder="Page" type="number"
+                                            class="form-control enterButtonKeyPress">
+                                    </div>
+                                    <br>
+                                    <div class="input-group input-group-lg">
+                                        <input id="link" placeholder="Link" type="text"
+                                            class="form-control enterButtonKeyPress">
+                                        <input id="tags" placeholder="Tags" type="text"
+                                            class="form-control enterButtonKeyPress">
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div>
-                        {{#headerTags}}
+                        <div>
+                            {{#headerTags}}
                             <a role="button" href="/highlights?tag={{tag}}" class="badge badge-{{badge}}">
-                            <strong>#{{tag}}</strong>
+                                <strong>#{{tag}}</strong>
                             </a>
-                        {{/headerTags}}
-                    </div>
+                            {{/headerTags}}
+                        </div>
 
-                    <br>
+                        <br>
 
-                    <div class="card-columns">
                         {{#highlights}}
-                            <div class="card">
-                                <div class="card-header bg-dark">
-                                    <div class="row align-items-center">
-                                        <div class="col-10">
-                                            {{#tags}}{{{tag}}}{{/tags}}
-                                            {{^tags}}{{author}}{{/tags}}
-                                        </div>
-                                        <div class="col-2">
-                                            <a role="button" href="/highlights/{{id}}/details"
-                                               class="badge badge-primary float-right">details</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <blockquote class="blockquote mb-0">
-                                        <p>{{{html}}}</p>
-                                        <footer class="blockquote-footer">{{author}} <cite
-                                                title="Source Title">{{source}}</cite>
-                                        </footer>
-                                    </blockquote>
-                                </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <strong class="card-title">{{author}} - {{source}}</strong>
+
+                                <a role="button" href="/highlights/{{id}}/details"
+                                    class="badge badge-primary float-right"><span class="fe fe-edit fe-16"></a>
                             </div>
+                            <div class="card-body">
+                                {{{html}}}
+                            </div>
+                        </div>
+                        <br>
                         {{/highlights}}
-                    </div>
 
-                </div> <!-- .col-12 -->
-            </div> <!-- .row -->
-        </div> <!-- .container-fluid -->
-    </main> <!-- main -->
-</div> <!-- .wrapper -->
-{{> include}}
-<script>
-    $(document).ready(function () {
-        $('.enterButtonKeyPress').bind('keypress', function (e) {
-            if (e.keyCode == 13) {
-                var highlight = $('#highlight').val();
-                var author = $('#author').val();
-                var source = $('#source').val();
-                var page = $('#page').val();
-                var link = $('#link').val();
-                var tags = $('#tags').val();
-                var data = "highlight=" + encodeURIComponent(highlight) + "&author=" + encodeURIComponent(author) + "&source=" + encodeURIComponent(source) + "&page=" + encodeURIComponent(page) + "&link=" + encodeURIComponent(link) + "&tags=" + encodeURIComponent(tags);
-                var result = ajaxCall('POST', "/highlights", data)
+                    </div> <!-- .col-12 -->
+                </div> <!-- .row -->
+            </div> <!-- .container-fluid -->
+        </main> <!-- main -->
+    </div> <!-- .wrapper -->
+    <script>
+        $(document).ready(function () {
+            $('.enterButtonKeyPress').bind('keypress', function (e) {
+                if (e.keyCode == 13) {
+                    var highlight = $('#highlight').val();
+                    var author = $('#author').val();
+                    var source = $('#source').val();
+                    var page = $('#page').val();
+                    var link = $('#link').val();
+                    var tags = $('#tags').val();
+                    var data = "highlight=" + encodeURIComponent(highlight) + "&author=" + encodeURIComponent(author) + "&source=" + encodeURIComponent(source) + "&page=" + encodeURIComponent(page) + "&link=" + encodeURIComponent(link) + "&tags=" + encodeURIComponent(tags);
+                    var result = ajaxCall('POST', "/highlights", data)
 
-                if (result !== false) {
-                    location.reload();
+                    if (result !== false) {
+                        location.reload();
+                    }
                 }
-            }
+            });
         });
-    });
-</script>
+    </script>
 </body>
+
 </html>
