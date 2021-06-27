@@ -6,6 +6,7 @@
 </head>
 <body class="vertical  dark">
 <div class="wrapper">
+    {{> include}}
     {{> navbar }}
     {{> menu }}
     <main role="main" class="main-content">
@@ -112,7 +113,6 @@
         </div> <!-- .container-fluid -->
     </main> <!-- main -->
 </div> <!-- .wrapper -->
-{{> include}}
 <script src="/js/summernote.js"></script>
 <script>
     $(document).ready(function () {
