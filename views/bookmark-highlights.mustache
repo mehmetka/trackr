@@ -5,11 +5,8 @@
     {{> head }}
 </head>
 
-<body class="vertical  dark">
+<body class="vertical dark">
     <div class="wrapper">
-        {{> include}}
-        {{> navbar }}
-        {{> menu }}
         <main role="main" class="main-content">
             <div class="container-fluid">
                 <div class="row justify-content-center">
@@ -37,13 +34,16 @@
                             <li>{{{html}}}</li>
                             {{/highlights}}
                         </ul>
-                        
+
                     </div> <!-- .col-12 -->
                 </div> <!-- .row -->
             </div> <!-- .container-fluid -->
         </main> <!-- main -->
     </div> <!-- .wrapper -->
-    
+
+    {{> include}}
+    {{> menu }}
+    {{> navbar }}
     <script>
         $(document).ready(function () {
             $('.enterButtonKeyPress').bind('keypress', function (e) {

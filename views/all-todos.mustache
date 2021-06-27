@@ -6,9 +6,6 @@
 </head>
 <body class="vertical  dark">
 <div class="wrapper">
-    {{> include}}
-    {{> navbar }}
-    {{> menu }}
     <main role="main" class="main-content">
         <div class="container-fluid">
             <div class="row justify-content-center">
@@ -46,7 +43,12 @@
         </div> <!-- .container-fluid -->
     </main> <!-- main -->
 </div> <!-- .wrapper -->
+
+{{> include}}
+{{> menu }}
+{{> navbar }}
 {{> edit-todo }}
+
 <script>
     $(document).ready(function () {
 

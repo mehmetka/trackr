@@ -29,12 +29,8 @@ class BookmarkModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            if ($row['title'] == "" | $row['title'] == null) {
+            if (!$row['title']) {
                 $row['title'] = $row['bookmark'];
-            }
-
-            if ($row['note'] !== "" && $row['note'] !== null) {
-                $row['title'] .= " ({$row['note']})";
             }
 
             $row['created'] = date('Y-m-d H:i:s', $row['created']);

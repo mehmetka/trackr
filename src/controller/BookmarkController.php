@@ -126,6 +126,7 @@ class BookmarkController extends Controller
             $this->bookmarkModel->updateStartedDate($bookmarkId);
         } elseif ($params['status'] == 2) {
             $this->bookmarkModel->updateDoneDate($bookmarkId);
+            unset($_SESSION['badgeCounts']);
         }
 
         $resource = [
