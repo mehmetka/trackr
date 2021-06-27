@@ -4,6 +4,8 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Slim\App;
 
+date_default_timezone_set('Europe/Istanbul');
+
 session_name('trackr');
 ini_set( 'session.cookie_httponly', 1 );
 session_start();
