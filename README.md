@@ -6,20 +6,8 @@
 3. ``docker compose up``
 4. ``cd ..``
 5. ``composer install``
-6.  Create conf/conf.ini file like below  
-    ```
-    displayErrorDetails = true  
-    debug = true  
-    
-    [db]  
-    driver = mysql  
-    charset = utf8mb4
-    user = test
-    password = test
-    host = 192.168.2.2
-    database = trackr
-    ```
-7.  Create logs directory on project root.
+6. Edit conf.ini.example file as conf.ini
+7. Create logs directory on project root.
 
 ### Theme: 
 https://usebootstrap.com/theme/tinydash
