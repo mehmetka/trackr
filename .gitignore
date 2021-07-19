@@ -5,5 +5,5 @@
 /smarty-app/
 .DS_Store
 /.idea/
-/conf/
+conf.ini
 composer.lock
