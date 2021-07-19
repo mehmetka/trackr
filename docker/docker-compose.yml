@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+    db:
+        container_name: mysql
+        image: mysql:5.7.34
+        ports: 
+            - "3306:3306"
+        command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql_mode="TRADITIONAL"
+        environment:
+            MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+            MYSQL_DATABASE: trackr
+            MYSQL_USER: trackr
+            MYSQL_PASSWORD: Qwe1092!@
+        volumes:
+          - mysql-data:/var/lib/mysql
+          - .:/docker-entrypoint-initdb.d
+        networks:
+            trackr:
+                ipv4_address: 192.168.2.2
+    trackr:
+        container_name: trackr
+        build: .
+        image: phpdev
+        ports: 
+          - "80:80"
+        volumes:
+          - ..:/var/www/html/trackr
+        depends_on:
+          - db
+        networks:
+            trackr:
+                ipv4_address: 192.168.2.3
+networks:
+  trackr:
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.2.0/24
+volumes:
+  mysql-data:

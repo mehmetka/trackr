@@ -1,10 +1,10 @@
-FROM php:7.4-apache
+FROM php:7.3.29-apache
 
 COPY trackr-virtualhost.conf /etc/apache2/sites-available/000-default.conf
-COPY php.ini /usr/local/etc/php/php.ini
-COPY apache2.conf /etc/apache2/apache2.conf
 
 RUN docker-php-ext-install pdo pdo_mysql
+
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 WORKDIR /var/www/html
 
