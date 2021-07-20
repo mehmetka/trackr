@@ -10,7 +10,7 @@ session_name('trackr');
 ini_set( 'session.cookie_httponly', 1 );
 session_start();
 
-$settings['settings'] = parse_ini_file(__DIR__ . '/conf.ini', true);
+$settings['settings'] = parse_ini_file(__DIR__ . '/../conf.ini', true);
 
 $app = new App($settings);
 
