@@ -17,10 +17,12 @@ class BookmarkModel
 
     public function getBookmarks()
     {
-        $list = [];
+        $bookmarks = [];
+
         $sql = 'SELECT b.id, b.uid AS bookmarkUID, b.bookmark, b.title, b.note, b.categoryId, c.name AS categoryName, b.status, b.created, b.started, b.done
                 FROM bookmarks b
-                INNER JOIN categories c ON b.categoryId = c.id';
+                INNER JOIN categories c ON b.categoryId = c.id
+                ORDER BY FIELD(status, 1, 0, 2), id DESC';
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -29,6 +31,7 @@ class BookmarkModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+
             if (!$row['title']) {
                 $row['title'] = $row['bookmark'];
             }
@@ -43,14 +46,10 @@ class BookmarkModel
                 $row['complete'] = true;
             }
 
-            if (intval($row['status']) === 2) {
-                $list[] = $row;
-            } else {
-                array_unshift($list, $row);
-            }
+            $bookmarks[] = $row;
         }
 
-        return $list;
+        return $bookmarks;
     }
 
     public function getHighlights($bookmarkId)
@@ -151,14 +150,15 @@ class BookmarkModel
 
         $title = $this->getTitle($bookmark);
 
-        $sql = 'INSERT INTO bookmarks (uid, bookmark, title, note, categoryId, created)
-                VALUES(UUID(), :bookmark, :title, :note, :categoryId, :created)';
+        $sql = 'INSERT INTO bookmarks (uid, bookmark, title, note, categoryId, orderNumber, created)
+                VALUES(UUID(), :bookmark, :title, :note, :categoryId, :orderNumber, :created)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':bookmark', $bookmark, \PDO::PARAM_STR);
         $stm->bindParam(':note', $note, \PDO::PARAM_STR);
         $stm->bindParam(':title', $title, \PDO::PARAM_STR);
         $stm->bindParam(':categoryId', $categoryId, \PDO::PARAM_INT);
+        $stm->bindParam(':orderNumber', $now, \PDO::PARAM_INT);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
@@ -197,16 +197,6 @@ class BookmarkModel
         return $this->dbConnection->lastInsertId();
     }
 
-    function getHttpCode($http_response_header)
-    {
-        if (is_array($http_response_header)) {
-            $parts = explode(' ', $http_response_header[0]);
-            if (count($parts) > 1) //HTTP/1.0 <code> <text>
-                return intval($parts[1]); //Get code
-        }
-        return 0;
-    }
-
     public function getTitle($url)
     {
         try {
@@ -221,6 +211,16 @@ class BookmarkModel
         }
 
         return preg_match('/<title[^>]*>(.*?)<\/title>/ims', $data, $matches) ? $matches[1] : null;
+    }
+
+    function getHttpCode($http_response_header)
+    {
+        if (is_array($http_response_header)) {
+            $parts = explode(' ', $http_response_header[0]);
+            if (count($parts) > 1) //HTTP/1.0 <code> <text>
+                return intval($parts[1]); //Get code
+        }
+        return 0;
     }
 
     public function updateStartedDate($id)

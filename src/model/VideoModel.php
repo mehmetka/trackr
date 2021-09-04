@@ -22,7 +22,8 @@ class VideoModel
         $sql = 'SELECT v.id, v.title, c.name as categoryName, v.status, v.length, v.created, v.started, v.done
                 FROM videos v
                 INNER JOIN categories c
-                ON v.category_id = c.id';
+                ON v.category_id = c.id
+                ORDER BY FIELD(status, 1, 0, 2), id DESC';
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -41,11 +42,7 @@ class VideoModel
                 $row['complete'] = true;
             }
 
-            if ($row['status'] == 1) {
-                array_unshift($list, $row);
-            } else {
-                $list[] = $row;
-            }
+            $list[] = $row;
         }
 
         return $list;
