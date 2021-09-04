@@ -80,6 +80,7 @@ $app->group('', function () {
     $this->post('/todos', TodoController::class . ':add');
     $this->get('/todos/{id:[0-9]+}', TodoController::class . ':get');
     $this->put('/todos/{id:[0-9]+}', TodoController::class . ':update');
+    // $this->delete('/todos/{id:[0-9]+}', TodoController::class . ':delete');
     $this->put('/todos/{id:[0-9]+}/status', TodoController::class . ':changeStatus');
     $this->put('/todos/{id:[0-9]+}/escalate', TodoController::class . ':escalateTodo');
 

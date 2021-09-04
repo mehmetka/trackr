@@ -59,10 +59,16 @@
                                                 {{/editAction}}
 
                                                 {{#cancelAction}}
-                                                    <a class="btn btn-sm btn-danger btnStatusAction"
+                                                    <a class="btn btn-sm btn-warning btnStatusAction"
                                                        data-status="3" data-id="{{id}}"><i
                                                             class="fe fe-x fe-16"></i></a>
                                                 {{/cancelAction}}
+
+                                                {{#deleteAction}}
+                                                <a class="btn btn-sm btn-danger btnStatusAction"
+                                                data-status="4" data-id="{{id}}"><i
+                                                     class="fe fe-trash fe-16"></i></a>
+                                                {{/deleteAction}}
 
                                                 {{#startAction}}
                                                     <a class="btn btn-sm btn-primary btnStatusAction"

@@ -71,18 +71,35 @@ class TodoController extends Controller
         return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
-    public function add(ServerRequestInterface $request, ResponseInterface $response)
+    public function delete(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $params = $request->getParsedBody();
-        $this->todoModel->create($params['todo'], $params['description']);
+        $todoId = $args['id'];
 
-        unset($_SESSION['badgeCounts']);
+        $this->todoModel->deleteTodo($todoId, $params);
 
         $resource = [
             "message" => "Success!"
         ];
 
         return $this->response(StatusCode::HTTP_OK, $resource);
+    }
+
+    public function add(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $params = $request->getParsedBody();
+        
+        if(isset($params['todo']) && $params['todo']){
+            $this->todoModel->create($params['todo'], $params['description']);
+            unset($_SESSION['badgeCounts']);
+            $resource['message'] = "Success";
+            $resource['statusCode'] = StatusCode::HTTP_CREATED;
+        } else {
+            $resource['message'] = "Todo cannot be null!";
+            $resource['statusCode'] = StatusCode::HTTP_BAD_REQUEST;
+        }
+        
+        return $this->response($resource['statusCode'], $resource);
     }
 
     public function changeStatus(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -97,6 +114,9 @@ class TodoController extends Controller
             unset($_SESSION['badgeCounts']);
         } elseif ($params['status'] == 3) {
             $this->todoModel->updateCancelDate($todoId);
+            unset($_SESSION['badgeCounts']);
+        } elseif ($params['status'] == 4) {
+            $this->todoModel->updateStatus($todoId, 4);
             unset($_SESSION['badgeCounts']);
         }
 

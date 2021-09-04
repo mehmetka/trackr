@@ -22,6 +22,7 @@ class TodoModel
 
         $sql = "SELECT * 
                 FROM todos 
+                WHERE status != 4
                 ORDER BY orderNumber";
 
         $stm = $this->dbConnection->prepare($sql);
@@ -49,9 +50,11 @@ class TodoModel
                     $row['started'] = date('Y-m-d H:i', $row['started']);
                     $row['startAction'] = true;
                     $row['cancelAction'] = true;
+                    $row['deleteAction'] = true;
                 } elseif (!$row['done']) {
                     $row['doneAction'] = true;
                     $row['cancelAction'] = true;
+                    $row['deleteAction'] = true;
                 } else {
                     $row['done'] = date('Y-m-d H:i', $row['done']);
                     $row['complete'] = true;
@@ -109,6 +112,7 @@ class TodoModel
 
         $sql = "SELECT t.id AS typeTableId, t.todo AS todoName, t.status AS status, 'todo' AS todoType, 'primary' AS badge
                 FROM todos t
+                WHERE status != 4
                 UNION ALL
                 SELECT b.id AS typeTableId,
                        CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ')
@@ -206,6 +210,26 @@ class TodoModel
         return true;
     }
 
+    public function updateStatus($id, $status)
+    {
+        $now = time();
+
+        $sql = 'UPDATE todos 
+                SET status = :status, canceled = :canceled 
+                WHERE id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stm->bindParam(':status', $status, \PDO::PARAM_INT);
+        $stm->bindParam(':canceled', $now, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
     public function updateTodo($id, $todo)
     {
         $sql = 'UPDATE todos 
@@ -216,6 +240,21 @@ class TodoModel
         $stm->bindParam(':id', $id, \PDO::PARAM_INT);
         $stm->bindParam(':title', $todo['title'], \PDO::PARAM_STR);
         $stm->bindParam(':description', $todo['description'], \PDO::PARAM_STR);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function deleteTodo($id)
+    {
+        $sql = 'DELETE FROM todos
+                WHERE id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':id', $id, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -271,8 +310,8 @@ class TodoModel
         $now = time();
 
         $sql = 'UPDATE todos 
-                    SET orderNumber = :orderNumber 
-                    WHERE id = :id';
+                SET orderNumber = :orderNumber 
+                WHERE id = :id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':orderNumber', $now, \PDO::PARAM_INT);
