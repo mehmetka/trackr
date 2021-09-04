@@ -40,8 +40,8 @@ class DateTrackingModel
         $today = date('m/d/Y');
         $list = [];
 
-        $sql = 'SELECT * 
-                FROM date_trackings ';
+        $sql = 'SELECT id, name, start, created
+                FROM date_trackings';
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -51,7 +51,7 @@ class DateTrackingModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['diff'] = Util::calculateAge($today, $row['start']);
-            $row['start'] = date('m/d/Y', $row['start']);
+            $row['start'] = date('m/d/Y', strtotime($row['start']));
             $list[] = $row;
         }
 
