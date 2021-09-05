@@ -91,7 +91,7 @@ class TodoController extends Controller
         
         if(isset($params['todo']) && $params['todo']){
             $this->todoModel->create($params['todo'], $params['description']);
-            unset($_SESSION['badgeCounts']);
+            $_SESSION['badgeCounts']['todosCount'] += 1;
             $resource['message'] = "Success";
             $resource['statusCode'] = StatusCode::HTTP_CREATED;
         } else {
@@ -111,13 +111,13 @@ class TodoController extends Controller
             $this->todoModel->updateStartedDate($todoId);
         } elseif ($params['status'] == 2) {
             $this->todoModel->updateDoneDate($todoId);
-            unset($_SESSION['badgeCounts']);
+            $_SESSION['badgeCounts']['todosCount'] -= 1;
         } elseif ($params['status'] == 3) {
             $this->todoModel->updateCancelDate($todoId);
-            unset($_SESSION['badgeCounts']);
+            $_SESSION['badgeCounts']['todosCount'] -= 1;
         } elseif ($params['status'] == 4) {
             $this->todoModel->updateStatus($todoId, 4);
-            unset($_SESSION['badgeCounts']);
+            $_SESSION['badgeCounts']['todosCount'] -= 1;
         }
 
         $resource = [

@@ -44,7 +44,7 @@ class VideoController extends Controller
             $this->videoModel->updateStartedDate($bookmarkId);
         } elseif ($params['status'] == 2) {
             $this->videoModel->updateDoneDate($bookmarkId);
-            unset($_SESSION['badgeCounts']);
+            $_SESSION['badgeCounts']['todosCount'] -= 1;
         }
 
         $resource = [
@@ -60,7 +60,7 @@ class VideoController extends Controller
 
         $this->videoModel->create($params);
 
-        unset($_SESSION['badgeCounts']);
+        $_SESSION['badgeCounts']['todosCount'] += 1;
 
         $resource = [
             "message" => "Success!"

@@ -198,8 +198,12 @@ class BookController extends Controller
             $this->bookModel->insertBookAuthor($bookId, $author);
         }
 
-        unset($_SESSION['badgeCounts']);
+        $_SESSION['badgeCounts']['allBookCount'] += 1;
 
+        if($params['own']){
+            $_SESSION['badgeCounts']['myBookCount'] += 1;
+        }
+    
         $resource = [
             "message" => "Successfully created new book!"
         ];

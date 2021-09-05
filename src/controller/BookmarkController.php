@@ -74,7 +74,7 @@ class BookmarkController extends Controller
 
         $this->bookmarkModel->create($params['bookmark'], $params['note'], $params['category']);
 
-        unset($_SESSION['badgeCounts']);
+        $_SESSION['badgeCounts']['bookmarkCount'] += 1;
 
         $resource = [
             "message" => "Successfully added"
@@ -126,7 +126,7 @@ class BookmarkController extends Controller
             $this->bookmarkModel->updateStartedDate($bookmarkId);
         } elseif ($params['status'] == 2) {
             $this->bookmarkModel->updateDoneDate($bookmarkId);
-            unset($_SESSION['badgeCounts']);
+            $_SESSION['badgeCounts']['bookmarkCount'] -= 1;
         }
 
         $resource = [
@@ -142,7 +142,7 @@ class BookmarkController extends Controller
 
         $this->bookmarkModel->deleteBookmark($bookmarkId);
 
-        unset($_SESSION['badgeCounts']);
+        $_SESSION['badgeCounts']['bookmarkCount'] -= 1;
 
         $resource = [
             "message" => "Success!"
