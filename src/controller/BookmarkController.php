@@ -94,7 +94,8 @@ class BookmarkController extends Controller
 
         $bookmarkDetail = $this->bookmarkModel->getBookmarkById($_SESSION['bookmarks']['highlights']['bookmarkID']);
         $bookmarkDetail['highlight'] = $params['highlight'];
-        $bookmarkDetail['author'] = null;
+        $bookmarkDetail['author'] = $bookmarkDetail['title'] ? $bookmarkDetail['title'] : null;
+        $bookmarkDetail['source'] = 'Bookmark Highlight';
         $highlightId = $this->bookmarkModel->addHighlight($bookmarkDetail);
 
         if (strpos($params['tags'], ',') !== false) {
