@@ -40,7 +40,7 @@
                                 <table class="table table-striped table-bordered">
                                     <thead>
                                     <tr>
-                                        <th scope="col">Bookmark</th>
+                                        <th scope="col">Bookmark <small class="float-right">Created At</small></th>
                                         <th scope="col">Highlights</th>
                                         <th scope="col">Action</th>
                                     </tr>
@@ -48,7 +48,10 @@
                                     <tbody>
                                     {{#bookmarks}}
                                         <tr>
-                                            <td><a href="{{bookmark}}" target="_blank">{{title}}</a> - {{created}}</td>
+                                            <td>
+                                                <a href="{{bookmark}}" target="_blank">{{title}}</a> 
+                                                <small class="float-right">{{created}}</small>
+                                            </td>
                                             <td> <a class="btn btn-sm btn-primary float-right" href="/bookmarks/{{id}}/highlights">Highlights</a></td>
                                             <td>
                                                 {{#startAction}}
