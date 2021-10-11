@@ -42,7 +42,7 @@
 
                         <div>
                             {{#headerTags}}
-                            <a role="button" href="/highlights?tag={{tag}}" class="badge badge-{{badge}}">
+                            <a role="button" href="/highlights?tag={{href}}" class="badge badge-{{badge}}">
                                 <strong>#{{tag}}</strong>
                             </a>
                             {{/headerTags}}
@@ -52,14 +52,16 @@
 
                         {{#highlights}}
                         <div class="card">
-                            <div class="card-header">
-                                <strong class="card-title">{{author}} - {{source}}</strong>
-
-                                <a role="button" href="/highlights/{{id}}/details"
-                                    class="badge badge-primary float-right"><span class="fe fe-edit fe-16"></a>
-                            </div>
                             <div class="card-body">
+                                <a role="button" href="/highlights/{{id}}/details"
+                                    class="badge badge-primary float-right"><span class="fe fe-edit fe-8"></a>
+                                <br>
                                 {{{html}}}
+
+                                <footer class="blockquote-footer">
+                                    {{author}} <cite>{{source}}</cite>
+                                </footer>
+
                             </div>
                         </div>
                         <br>

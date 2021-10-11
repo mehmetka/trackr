@@ -100,8 +100,10 @@ class TagModel
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
 
             $row['badge'] = 'info';
+            $row['href'] = $row['tag'];
 
             if ($tag !== null && $tag == $row['tag']) {
+                $row['href'] = '';
                 $row['badge'] = 'primary';
             }
 

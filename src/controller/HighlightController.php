@@ -28,7 +28,7 @@ class HighlightController extends Controller
     {
         $queryString = $request->getQueryParams();
 
-        if (isset($queryString['tag'])) {
+        if (isset($queryString['tag']) && $queryString['tag']) {
             $highlights = $this->highlightModel->getHighlightsByTag($queryString['tag']);
         } else {
             $highlights = $this->highlightModel->getHighlights(300);
