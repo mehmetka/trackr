@@ -27,6 +27,7 @@ class VideoController extends Controller
         $categories = $this->bookModel->getCategories();
 
         $data = [
+            'title' => 'Videos | trackr',
             'sources' => $sources,
             'categories' => $categories,
             'activeVideos' => 'active'

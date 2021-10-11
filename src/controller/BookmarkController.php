@@ -31,6 +31,7 @@ class BookmarkController extends Controller
         $subject = $this->bookModel->getCategories();
 
         $data = [
+            'title' => 'Bookmarks | trackr',
             'categories' => $subject,
             'bookmarks' => $highlights,
             'activeBookmarks' => 'active'
@@ -46,6 +47,7 @@ class BookmarkController extends Controller
         $_SESSION['bookmarks']['highlights']['bookmarkID'] = $bookmarkId;
 
         $data = [
+            'title' => 'Bookmark\' Highlights | trackr',
             'highlights' => $highlights,
             'activeBookmarks' => 'active',
             'bookmarkID' => $bookmarkId

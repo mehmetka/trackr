@@ -23,6 +23,7 @@ class WritingController extends Controller
         $sources = $this->writingModel->getWritings();
 
         $data = [
+            'title' => 'Writings | trackr',
             'writings' => $sources,
             'activeWritings' => 'active'
         ];

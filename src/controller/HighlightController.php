@@ -37,6 +37,7 @@ class HighlightController extends Controller
         $tags = $this->tagModel->getHighlightTagsAsHTML($queryString['tag']);
 
         $data = [
+            'title' => 'Highlights | trackr',
             'tag' => htmlentities($queryString['tag']),
             'headerTags' => $tags,
             'highlights' => $highlights,
@@ -54,6 +55,7 @@ class HighlightController extends Controller
         $subHighlights = $this->highlightModel->getSubHighlightsByHighlightID($highlightID);
 
         $data = [
+            'title' => 'Highlight Details | trackr',
             'detail' => $detail,
             'subHighlights' => $subHighlights,
             'activeHighlights' => 'active'

@@ -35,6 +35,7 @@ class TodoController extends Controller
         $allTodos = $this->todoModel->getAllTodos();
 
         $data = [
+            'title' => 'All To Dos | trackr',
             'data' => $allTodos,
             'activeOneListToRuleThemAll' => 'active'
         ];

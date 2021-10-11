@@ -40,6 +40,7 @@ class HomeController extends Controller
         $today = date('m/d/Y');
 
         $data = [
+            'title' => 'Home | trackr',
             'dateTrackings' => $dateTrackings,
             'readingAverage' => round($averageData['average'], 3),
             'readingTotal' => $averageData['total'],

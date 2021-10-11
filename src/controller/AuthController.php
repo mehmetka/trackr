@@ -21,7 +21,7 @@ class AuthController extends Controller
 
     public function loginPage(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $data['title'] = "trackr";
+        $data['title'] = "Login | trackr";
         $data['userExist'] = $this->authModel->userCreatedBefore();
 
         return $this->view->render($response, 'login.mustache', $data);

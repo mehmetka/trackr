@@ -31,6 +31,7 @@ class BookController extends Controller
         $books = $this->bookModel->getBooksPathInside($pathId, $active);
 
         $data = [
+            'title' => "Chosen Path's Books | trackr",
             'books' => $books,
             'activeBookPaths' => 'active'
         ];
@@ -43,6 +44,7 @@ class BookController extends Controller
         $paths = $this->bookModel->getBookPaths();
 
         $data = [
+            'title' => 'Paths | trackr',
             'bookPaths' => $paths,
             'activeBookPaths' => 'active'
         ];
@@ -58,6 +60,7 @@ class BookController extends Controller
         $books = $this->bookModel->getAllBooks();
 
         $data = [
+            'title' => 'All Books | trackr',
             'categories' => $categories,
             'authors' => $authors,
             'books' => $books,
@@ -73,6 +76,7 @@ class BookController extends Controller
         $books = $this->bookModel->getMyBooks();
 
         $data = [
+            'title' => 'My Books | trackr',
             'books' => $books,
             'activeMyBooks' => 'active'
         ];
@@ -85,6 +89,7 @@ class BookController extends Controller
         $books = $this->bookModel->finishedBooks();
 
         $data = [
+            'title' => 'Finished Books | trackr',
             'books' => $books,
             'activeFinished' => 'active'
         ];
@@ -257,6 +262,7 @@ class BookController extends Controller
         }
 
         $data = [
+            'title' => 'Categories | trackr',
             'categories' => $categories,
             'activeCategories' => 'active'
         ];
@@ -325,6 +331,6 @@ class BookController extends Controller
             "message" => "Success!"
         ];
 
-        return $this->response(200, $resource);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 }

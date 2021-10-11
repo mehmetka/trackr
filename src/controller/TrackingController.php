@@ -25,6 +25,7 @@ class TrackingController extends Controller
         $todaysTracking = $this->trackingsModel->getWorkTrackingByDate($date);
 
         $data = [
+            'title' => 'Trackings | trackr',
             'average' => round($this->trackingsModel->average(), 3),
             'today' => $date,
             'todaysDescription' => $todaysTracking['description'],
