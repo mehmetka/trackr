@@ -53,12 +53,16 @@ class HighlightController extends Controller
 
         $detail = $this->highlightModel->getHighlightsByID($highlightID);
         $subHighlights = $this->highlightModel->getSubHighlightsByHighlightID($highlightID);
+        $nextID = $this->highlightModel->getNextHighlight($highlightID);
+        $previousID = $this->highlightModel->getPreviousHighlight($highlightID);
 
         $data = [
             'title' => 'Highlight Details | trackr',
             'detail' => $detail,
             'subHighlights' => $subHighlights,
-            'activeHighlights' => 'active'
+            'activeHighlights' => 'active',
+            'nextID' => $nextID,
+            'previousID' => $previousID,
         ];
 
         return $this->view->render($response, 'highlight-details.mustache', $data);

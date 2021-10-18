@@ -256,4 +256,46 @@ class HighlightModel
         return $count;
     }
 
+    public function getNextHighlight($id)
+    {
+        $next = $id;
+
+        $sql = 'SELECT * FROM highlights 
+                WHERE id = (SELECT min(id) FROM highlights WHERE id > :id)';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':id', $id, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $next = $row['id'];
+        }
+
+        return $next;
+    }
+
+    public function getPreviousHighlight($id)
+    {
+        $previous = $id;
+
+        $sql = 'SELECT * FROM highlights 
+                WHERE id = (SELECT max(id) FROM highlights WHERE id < :id)';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':id', $id, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $previous = $row['id'];
+        }
+
+        return $previous;
+    }
+
 }
