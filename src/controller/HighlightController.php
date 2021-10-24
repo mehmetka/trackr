@@ -6,6 +6,7 @@ use App\model\TagModel;
 use Slim\Http\StatusCode;
 use App\model\BookmarkModel;
 use App\model\HighlightModel;
+use App\exception\CustomException;
 use Psr\Container\ContainerInterface;
 use \Psr\Http\Message\ResponseInterface;
 use \Psr\Http\Message\ServerRequestInterface;
@@ -126,7 +127,9 @@ class HighlightController extends Controller
     {
         $params = $request->getParsedBody();
 
-        // TODO highlight cannot be null!
+        if(!$params['highlight']){
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight cannot be null!");
+        }
 
         if ($params['link']) {
             $bookmarkExist = $this->bookmarkModel->getBookmarkByBookmark($params['link']);
