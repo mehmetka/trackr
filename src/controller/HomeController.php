@@ -37,7 +37,7 @@ class HomeController extends Controller
     {
         $dateTrackings = $this->dateTrackingModel->getDateTrackings();
         $averageData = $this->bookModel->readingAverage();
-        $today = date('m/d/Y');
+        $today = date('d/m/Y');
 
         $data = [
             'title' => 'Home | trackr',
