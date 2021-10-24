@@ -66,7 +66,7 @@ $app->group('', function () {
     $this->put('/videos/{id:[0-9]+}/status', VideoController::class . ':changeStatus');
 
     $this->get('/highlights', HighlightController::class . ':index');
-    $this->get('/highlights/{id:[0-9]+}/details', HighlightController::class . ':details');
+    $this->get('/highlights/{id:[0-9]+}', HighlightController::class . ':details');
     $this->get('/highlights-all', HighlightController::class . ':all');
     $this->put('/highlights/{id:[0-9]+}', HighlightController::class . ':update');
     $this->post('/highlights', HighlightController::class . ':create');
