@@ -90,6 +90,10 @@ class BookmarkController extends Controller
         $bookmarkID = $args['id'];
         $params = $request->getParsedBody();
 
+        if(!$params['highlight']){
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight cannot be null!");
+        }
+
         if (!isset($_SESSION['bookmarks']['highlights']['bookmarkID']) || $bookmarkID != $_SESSION['bookmarks']['highlights']['bookmarkID']) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Inconsistency! You're trying to add highlight for different bookmark!");
         }
