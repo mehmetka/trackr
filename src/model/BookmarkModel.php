@@ -194,6 +194,7 @@ class BookmarkModel
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
         }
 
+        $_SESSION['badgeCounts']['highlightsCount'] += 1;
         return $this->dbConnection->lastInsertId();
     }
 
