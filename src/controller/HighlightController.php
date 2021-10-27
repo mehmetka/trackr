@@ -209,7 +209,8 @@ class HighlightController extends Controller
         $highlightID = $args['id'];
 
         $this->highlightModel->deleteHighlight($highlightID);
-
+        $this->highlightModel->deleteHighlightTagsByHighlightID($highlightID);
+        
         $_SESSION['badgeCounts']['highlightsCount'] -= 1;
 
         $resource = [

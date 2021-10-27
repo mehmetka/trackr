@@ -314,4 +314,19 @@ class HighlightModel
         return true;
     }
 
+    public function deleteHighlightTagsByHighlightID($highlightID)
+    {
+        $sql = 'DELETE FROM highlight_tags
+                WHERE highlight_id = :highlight_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':highlight_id', $highlightID, \PDO::PARAM_INT);
+        
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
 }
