@@ -202,4 +202,20 @@ class HighlightController extends Controller
 
         return $this->response(StatusCode::HTTP_OK, $resource);
     }
+
+    public function delete(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $params = $request->getParsedBody();
+        $highlightID = $args['id'];
+
+        $this->highlightModel->deleteHighlight($highlightID);
+
+        $_SESSION['badgeCounts']['highlightsCount'] -= 1;
+
+        $resource = [
+            "message" => "Success!"
+        ];
+
+        return $this->response(StatusCode::HTTP_OK, $resource);
+    }
 }

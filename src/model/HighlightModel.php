@@ -4,6 +4,7 @@ namespace App\model;
 
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
+use Slim\Http\StatusCode;
 
 class HighlightModel
 {
@@ -35,7 +36,7 @@ class HighlightModel
         }
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
@@ -66,7 +67,7 @@ class HighlightModel
         $stm->bindParam(':highlightID', $id, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
@@ -95,7 +96,7 @@ class HighlightModel
         $stm->bindParam(':highlightID', $highlightID, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
@@ -130,7 +131,7 @@ class HighlightModel
         $stm->bindParam(':tag', $tag, \PDO::PARAM_STR);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
@@ -175,7 +176,7 @@ class HighlightModel
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         return $this->dbConnection->lastInsertId();
@@ -211,7 +212,7 @@ class HighlightModel
         $stm->bindParam(':updated', $update, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         return $this->dbConnection->lastInsertId();
@@ -230,7 +231,7 @@ class HighlightModel
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         return $this->dbConnection->lastInsertId();
@@ -246,7 +247,7 @@ class HighlightModel
         $stm = $this->dbConnection->prepare($sql);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
@@ -267,7 +268,7 @@ class HighlightModel
         $stm->bindParam(':id', $id, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
@@ -288,7 +289,7 @@ class HighlightModel
         $stm->bindParam(':id', $id, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
@@ -296,6 +297,21 @@ class HighlightModel
         }
 
         return $previous;
+    }
+
+    public function deleteHighlight($highlightID)
+    {
+        $sql = 'DELETE FROM highlights
+                WHERE id = :highlight_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':highlight_id', $highlightID, \PDO::PARAM_INT);
+        
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        return true;
     }
 
 }
