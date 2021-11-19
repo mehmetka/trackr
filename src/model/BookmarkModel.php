@@ -81,13 +81,37 @@ class BookmarkModel
     public function getBookmarkByBookmark($bookmark)
     {
         $list = [];
+        $bookmark = "%$bookmark%";
 
         $sql = 'SELECT * 
                 FROM bookmarks 
-                WHERE bookmark = :bookmark';
+                WHERE bookmark LIKE :bookmark';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':bookmark', $bookmark, \PDO::PARAM_STR);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $list = $row;
+        }
+
+        return $list;
+    }
+
+    public function getBookmarkByTitle($title)
+    {
+        $list = [];
+        $title = "%$title%";
+
+        $sql = 'SELECT * 
+                FROM bookmarks 
+                WHERE title LIKE :title';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':title', $title, \PDO::PARAM_STR);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -144,7 +168,7 @@ class BookmarkModel
         return $uncompleteCount;
     }
 
-    public function create($bookmark, $note, $categoryId)
+    public function create($bookmark, $title, $note, $categoryId)
     {
         $now = time();
 

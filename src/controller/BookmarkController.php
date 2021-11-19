@@ -74,7 +74,14 @@ class BookmarkController extends Controller
             $params['category'] = 6665;
         }
 
-        $this->bookmarkModel->create($params['bookmark'], $params['note'], $params['category']);
+        $title = $this->bookmarkModel->getTitle($params['bookmark']);
+        $titleExist = $this->bookmarkModel->getBookmarkByTitle($title);
+
+        if ($titleExist) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
+        }
+
+        $this->bookmarkModel->create($params['bookmark'], $title, $params['note'], $params['category']);
 
         $_SESSION['badgeCounts']['bookmarkCount'] += 1;
 
