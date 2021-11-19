@@ -58,7 +58,7 @@ class HighlightModel
     {
         $list = [];
 
-        $sql = 'SELECT h.id, h.highlight, h.html, h.author, h.source, h.page, h.location, b.bookmark AS link, h.link AS linkID, h.type, h.created, h.updated
+        $sql = 'SELECT h.id, h.highlight, h.html, h.author, h.source, h.page, h.location, b.bookmark AS link, h.link AS linkID, h.type, h.is_secret, h.created, h.updated
                 FROM highlights h
                 LEFT JOIN bookmarks b ON h.link = b.id
                 WHERE h.id = :highlightID';
@@ -75,6 +75,7 @@ class HighlightModel
             $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
             $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
             $row['tags'] = $this->tagModel->getHighlightTagsAsStringByHighlightId($row['id']);
+            $row['is_secret'] = $row['is_secret'] ? true : false;
 
             $list = $row;
         }
@@ -196,7 +197,7 @@ class HighlightModel
         $highlight = strip_tags($highlight);
 
         $sql = 'UPDATE highlights 
-                SET highlight = :highlight, html = :html, author = :author, source = :source, page = :page, location = :location, link = :link, updated = :updated
+                SET highlight = :highlight, html = :html, author = :author, source = :source, page = :page, location = :location, link = :link, is_secret = :is_secret, updated = :updated
                 WHERE id = :id';
 
         $stm = $this->dbConnection->prepare($sql);
@@ -209,6 +210,7 @@ class HighlightModel
         $stm->bindParam(':page', $params['page'], \PDO::PARAM_INT);
         $stm->bindParam(':location', $params['location'], \PDO::PARAM_INT);
         $stm->bindParam(':link', $params['link'], \PDO::PARAM_INT);
+        $stm->bindParam(':is_secret', $params['is_secret'], \PDO::PARAM_INT);
         $stm->bindParam(':updated', $update, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
