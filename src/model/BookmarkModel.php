@@ -23,7 +23,7 @@ class BookmarkModel
         $sql = 'SELECT b.id, b.uid AS bookmarkUID, b.bookmark, b.title, b.note, b.categoryId, c.name AS categoryName, b.status, b.created, b.started, b.done
                 FROM bookmarks b
                 INNER JOIN categories c ON b.categoryId = c.id
-                ORDER BY FIELD(status, 1, 0, 2), id DESC';
+                ORDER BY FIELD(status, 1, 0, 2), orderNumber DESC, id DESC';
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -202,6 +202,7 @@ class BookmarkModel
         $bookmarkExist = $this->getBookmarkByBookmark($bookmark);
 
         if ($bookmarkExist) {
+            $this->updateOrderNumber($bookmarkExist['id']);
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
         }
 
@@ -213,6 +214,7 @@ class BookmarkModel
         $titleExist = $this->getBookmarkByTitle($title);
 
         if ($titleExist) {
+            $this->updateOrderNumber($bookmarkExist['id']);
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
         }
 
@@ -289,6 +291,25 @@ class BookmarkModel
         $stm->bindParam(':status', $status, \PDO::PARAM_INT);
         $stm->bindParam(':id', $id, \PDO::PARAM_INT);
         $stm->bindParam(':started', $now, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function updateOrderNumber($id)
+    {
+        $now = time();
+
+        $sql = 'UPDATE bookmarks 
+                SET orderNumber = :orderNumber 
+                WHERE id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stm->bindParam(':orderNumber', $now, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
