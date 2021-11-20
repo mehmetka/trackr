@@ -3,6 +3,7 @@
 namespace App\controller;
 
 use App\model\BookModel;
+use App\model\CategoryModel;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
@@ -11,11 +12,13 @@ use Slim\Http\StatusCode;
 class BookController extends Controller
 {
     private $bookModel;
+    private $categoryModel;
 
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
         $this->bookModel = new BookModel($container);
+        $this->categoryModel = new CategoryModel($container);
     }
 
     public function booksPathInside(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -55,7 +58,7 @@ class BookController extends Controller
     public function allBooks(ServerRequestInterface $request, ResponseInterface $response)
     {
         $authors = $this->bookModel->getAuthors();
-        $categories = $this->bookModel->getCategories();
+        $categories = $this->categoryModel->getCategories();
         $publishers = $this->bookModel->getPublishers();
         $books = $this->bookModel->getAllBooks();
 
@@ -248,74 +251,6 @@ class BookController extends Controller
         }
 
         return $this->response($resource['responseCode'], $resource);
-    }
-
-    public function categories(ServerRequestInterface $request, ResponseInterface $response, $args)
-    {
-        $categories = $this->bookModel->getCategories();
-        $defaultCategory = $this->bookModel->getDefaultCategory();
-
-        if (!$defaultCategory) {
-            $defaultCategoryId = $this->bookModel->createCategory('default');
-            $this->bookModel->resetCategoriesDefaultStatus();
-            $this->bookModel->setDefaultCategory($defaultCategoryId, 1);
-        }
-
-        $data = [
-            'title' => 'Categories | trackr',
-            'categories' => $categories,
-            'activeCategories' => 'active'
-        ];
-
-        return $this->view->render($response, 'categories.mustache', $data);
-    }
-
-    public function createCategory(ServerRequestInterface $request, ResponseInterface $response, $args)
-    {
-        $params = $request->getParsedBody();
-        $this->bookModel->createCategory($params['category']);
-
-        $resource = [
-            "message" => "Success!"
-        ];
-
-        return $this->response(StatusCode::HTTP_OK, $resource);
-    }
-
-    public function deleteCategory(ServerRequestInterface $request, ResponseInterface $response, $args)
-    {
-        $defaultCategory = $this->bookModel->getDefaultCategory();
-        $this->bookModel->deleteCategory($args['categoryId']);
-
-        if ($defaultCategory['id'] == $args['categoryId']) {
-            $defaultCategoryId = $this->bookModel->createCategory('default');
-            $this->bookModel->resetCategoriesDefaultStatus();
-            $this->bookModel->setDefaultCategory($defaultCategoryId, 1);
-            $this->bookModel->changeBooksCategoryByGivenCategory($args['categoryId'], $defaultCategoryId);
-        } else {
-            $this->bookModel->changeBooksCategoryByGivenCategory($args['categoryId'], $defaultCategory['id']);
-        }
-
-        $resource = [
-            "message" => "Success!"
-        ];
-
-        return $this->response(StatusCode::HTTP_OK, $resource);
-    }
-
-    public function setDefaultCategory(ServerRequestInterface $request, ResponseInterface $response, $args)
-    {
-        $categoryId = $args['categoryId'];
-        $active = 1;
-
-        $this->bookModel->resetCategoriesDefaultStatus();
-        $this->bookModel->setDefaultCategory($categoryId, $active);
-
-        $resource = [
-            "message" => "Success!"
-        ];
-
-        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
     public function getBookTrackingsGraphicData(ServerRequestInterface $request, ResponseInterface $response)

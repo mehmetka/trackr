@@ -2,7 +2,7 @@
 
 namespace App\controller;
 
-use App\model\BookModel;
+use App\model\CategoryModel;
 use App\model\VideoModel;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
@@ -12,19 +12,19 @@ use Slim\Http\StatusCode;
 class VideoController extends Controller
 {
     private $videoModel;
-    private $bookModel;
+    private $categoryModel;
 
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
         $this->videoModel = new VideoModel($container);
-        $this->bookModel = new BookModel($container);
+        $this->categoryModel = new CategoryModel($container);
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
         $sources = $this->videoModel->getVideos();
-        $categories = $this->bookModel->getCategories();
+        $categories = $this->categoryModel->getCategories();
 
         $data = [
             'title' => 'Videos | trackr',

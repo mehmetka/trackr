@@ -5,6 +5,7 @@ use App\controller\AuthController;
 use App\controller\HomeController;
 use App\controller\BookController;
 use App\controller\BookmarkController;
+use App\controller\CategoryController;
 use App\controller\DateTrackingController;
 use App\controller\TrackingController;
 use App\controller\VideoController;
@@ -44,10 +45,10 @@ $app->group('', function () {
     $this->post('/books/paths/{pathUID}/extend', BookController::class . ':extendPathFinish');
     $this->post('/books', BookController::class . ':saveBook');
 
-    $this->get('/categories', BookController::class . ':categories');
-    $this->post('/categories', BookController::class . ':createCategory');
-    $this->delete('/categories/{categoryId:[0-9]+}', BookController::class . ':deleteCategory');
-    $this->put('/categories/{categoryId:[0-9]+}', BookController::class . ':setDefaultCategory');
+    $this->get('/categories', CategoryController::class . ':index');
+    $this->post('/categories', CategoryController::class . ':create');
+    $this->delete('/categories/{categoryId:[0-9]+}', CategoryController::class . ':delete');
+    $this->put('/categories/{categoryId:[0-9]+}', CategoryController::class . ':setDefault');
 
     $this->post('/datetrackings', DateTrackingController::class . ':create');
 
