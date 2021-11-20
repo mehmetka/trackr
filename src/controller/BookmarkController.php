@@ -4,7 +4,7 @@ namespace App\controller;
 
 use App\exception\CustomException;
 use App\model\BookmarkModel;
-use App\model\BookModel;
+use App\model\CategoryModel;
 use App\model\TagModel;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
@@ -14,21 +14,21 @@ use Slim\Http\StatusCode;
 class BookmarkController extends Controller
 {
     private $bookmarkModel;
-    private $bookModel;
+    private $categoryModel;
     private $tagModel;
 
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
         $this->bookmarkModel = new BookmarkModel($container);
-        $this->bookModel = new BookModel($container);
+        $this->categoryModel = new CategoryModel($container);
         $this->tagModel = new TagModel($container);
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
         $highlights = $this->bookmarkModel->getBookmarks();
-        $subject = $this->bookModel->getCategories();
+        $subject = $this->categoryModel->getCategories();
 
         $data = [
             'title' => 'Bookmarks | trackr',
@@ -60,28 +60,7 @@ class BookmarkController extends Controller
     {
         $params = $request->getParsedBody();
 
-        if (!isset($params['bookmark'])) {
-            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark cannot be empty!');
-        }
-
-        $bookmarkExist = $this->bookmarkModel->getBookmarkByBookmark($params['bookmark']);
-
-        if ($bookmarkExist) {
-            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
-        }
-
-        if(!isset($params['category'])){
-            $params['category'] = 6665;
-        }
-
-        $title = $this->bookmarkModel->getTitle($params['bookmark']);
-        $titleExist = $this->bookmarkModel->getBookmarkByTitle($title);
-
-        if ($titleExist) {
-            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
-        }
-
-        $this->bookmarkModel->create($params['bookmark'], $title, $params['note'], $params['category']);
+        $this->bookmarkModel->createOperations($params['bookmark'], $params['note'], $params['category']);
 
         $_SESSION['badgeCounts']['bookmarkCount'] += 1;
 

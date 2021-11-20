@@ -4,6 +4,7 @@ namespace App\model;
 
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
+use Slim\Http\StatusCode;
 
 class BookmarkModel
 {
@@ -192,6 +193,33 @@ class BookmarkModel
         return $this->dbConnection->lastInsertId();
     }
 
+    public function createOperations($bookmark, $note, $categoryId)
+    {
+        if (!$bookmark) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark cannot be empty!');
+        }
+
+        $bookmarkExist = $this->getBookmarkByBookmark($bookmark);
+
+        if ($bookmarkExist) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
+        }
+
+        if(!$categoryId){
+            $categoryId = 6665;
+        }
+
+        $title = $this->getTitle($bookmark);
+        $titleExist = $this->getBookmarkByTitle($title);
+
+        if ($titleExist) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
+        }
+
+        return $this->create($bookmark, $title, $note, $categoryId);
+    }
+
+    // TODO highlight model'e tasinmali.
     public function addHighlight($bookmarkHighlight)
     {
         $now = time();

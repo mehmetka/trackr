@@ -91,7 +91,7 @@ class HighlightController extends Controller
                 if ($bookmarkExist) {
                     $params['link'] = $bookmarkExist['id'];
                 } else {
-                    $bookmarkId = $this->bookmarkModel->create($params['link'], null, 6665);
+                    $bookmarkId = $this->bookmarkModel->createOperations($params['link'], null, 6665);
                     $params['link'] = $bookmarkId;
                 }
             } else {
@@ -103,6 +103,7 @@ class HighlightController extends Controller
 
         $this->tagModel->deleteTagsByHighlightID($highlightID);
 
+        // TODO bu islem de fonksiyona ya da modele baglanabilir, cogu yerde tekrar ediyor.
         if (strpos($params['tags'], ',') !== false) {
             $tags = explode(',', $params['tags']);
 
@@ -131,12 +132,18 @@ class HighlightController extends Controller
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight cannot be null!");
         }
 
+        $highlightExist = $this->highlightModel->searchHighlight(trim($params['highlight']));
+
+        if($highlightExist){
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight added before.!");
+        }
+
         if ($params['link']) {
             $bookmarkExist = $this->bookmarkModel->getBookmarkByBookmark($params['link']);
             if ($bookmarkExist) {
                 $params['link'] = $bookmarkExist['id'];
             } else {
-                $bookmarkId = $this->bookmarkModel->create($params['link'], null, 6665);
+                $bookmarkId = $this->bookmarkModel->createOperations($params['link'], null, 6665);
                 $params['link'] = $bookmarkId;
             }
         } else {
@@ -175,7 +182,7 @@ class HighlightController extends Controller
             if ($bookmarkExist) {
                 $params['link'] = $bookmarkExist['id'];
             } else {
-                $bookmarkId = $this->bookmarkModel->create($params['link'], null, 6665);
+                $bookmarkId = $this->bookmarkModel->createOperations($params['link'], null, 6665);
                 $params['link'] = $bookmarkId;
             }
         }
