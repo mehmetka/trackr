@@ -2,7 +2,7 @@
 /cache/
 /backups/
 /logs/
-/smarty-app/
+/scripts/
 .DS_Store
 /.idea/
 conf.ini
