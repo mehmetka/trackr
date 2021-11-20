@@ -331,4 +331,27 @@ class HighlightModel
         return true;
     }
 
+    public function searchHighlight($highlight)
+    {
+        $result = [];
+        $highlight = "%$highlight%";
+
+        $sql = 'SELECT * 
+                FROM highlights 
+                WHERE highlight LIKE :highlight';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':highlight', $highlight, \PDO::PARAM_STR);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $result[] = $row;
+        }
+
+        return $result;
+    }
+
 }
