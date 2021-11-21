@@ -2,6 +2,7 @@
 
 namespace App\controller;
 
+use App\exception\CustomException;
 use App\model\BookModel;
 use App\model\CategoryModel;
 use \Psr\Http\Message\ServerRequestInterface;
@@ -173,6 +174,12 @@ class BookController extends Controller
 
         $pathId = $this->bookModel->getPathIdByUid($params['pathUID']);
         $bookId = $this->bookModel->getBookIdByUid($args['bookUID']);
+
+        $pathDetails = $this->bookModel->getPathByUid($params['pathUID']);
+        
+        if ($pathDetails['status']) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "You can't add book to expired paths!");
+        }
 
         $this->bookModel->addBookToPath($pathId, $bookId);
 

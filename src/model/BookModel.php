@@ -735,7 +735,7 @@ class BookModel
 
     public function getPathByUid($pathUid)
     {
-        $sql = 'SELECT id, name, start, finish 
+        $sql = 'SELECT id, name, start, finish, status
                 FROM paths 
                 WHERE uid = :uid';
 
