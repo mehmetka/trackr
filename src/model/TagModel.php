@@ -15,6 +15,21 @@ class TagModel
         $this->dbConnection = $container->get('db');
     }
 
+    public function updateHighlightTags($tags, $highlightID) {
+        
+        if (strpos($tags, ',') !== false) {
+            $tags = explode(',', $tags);
+
+            foreach ($tags as $tag) {
+                $this->insertTagByChecking($highlightID, $tag);
+            }
+
+        } else {
+            $this->insertTagByChecking($highlightID, $tags);
+        }
+
+    }
+
     public function insertTagByChecking($highlightId, $tag)
     {
         $tag = trim($tag);

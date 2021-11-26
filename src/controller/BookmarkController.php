@@ -90,17 +90,8 @@ class BookmarkController extends Controller
         $bookmarkDetail['source'] = 'Bookmark Highlight';
         $highlightId = $this->bookmarkModel->addHighlight($bookmarkDetail);
 
-        if (strpos($params['tags'], ',') !== false) {
-            $tags = explode(',', $params['tags']);
-
-            foreach ($tags as $tag) {
-                $this->tagModel->insertTagByChecking($highlightId, $tag);
-            }
-
-        } else {
-            $this->tagModel->insertTagByChecking($highlightId, $params['tags']);
-        }
-
+        $this->tagModel->updateHighlightTags($params['tags'], $highlightId);
+        
         $resource = [
             "message" => "Successfully added"
         ];

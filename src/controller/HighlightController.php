@@ -102,19 +102,7 @@ class HighlightController extends Controller
         }
 
         $this->tagModel->deleteTagsByHighlightID($highlightID);
-
-        // TODO bu islem de fonksiyona ya da modele baglanabilir, cogu yerde tekrar ediyor.
-        if (strpos($params['tags'], ',') !== false) {
-            $tags = explode(',', $params['tags']);
-
-            foreach ($tags as $tag) {
-                $this->tagModel->insertTagByChecking($highlightID, $tag);
-            }
-
-        } else {
-            $this->tagModel->insertTagByChecking($highlightID, $params['tags']);
-        }
-
+        $this->tagModel->updateHighlightTags($params['tags'], $highlightID);
         $this->highlightModel->update($highlightID, $params);
 
         $resource = [
