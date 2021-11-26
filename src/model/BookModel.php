@@ -177,6 +177,8 @@ class BookModel
                 $path['today_processed_text'] = 'EXPIRED!';
                 $path['ratio'] = 'X';
                 $path['ratioBadgeColor'] = 'danger';
+                $path['day_diff_text_class'] = 'warning';
+                $path['day_diff_text'] = "Done";
                 $list[] = $path;
                 continue;
             }
@@ -187,18 +189,21 @@ class BookModel
             $path['ratio'] = '%' . round((($path['path_day_count'] - $path['day_diff']) / $path['path_day_count']) * 100);
             $path['ratioBadgeColor'] = 'warning';
             $path['today_processed'] = $this->getBookPathsDailyRemainings($path['path_id']);
+            $path['active_book_count'] = $this->getPathBookCountByPathID($path['path_id']);
 
             $dailyAmount = $path['remaining_page'] / $path['day_diff'];
-            $path['daily_amount'] = round($dailyAmount, 0, PHP_ROUND_HALF_UP);
+            $path['daily_amount'] = ceil($dailyAmount);
 
             if ($path['day_diff'] <= 3) {
                 $path['remaining_day_warning'] = true;
             }
 
             if ($path['day_diff'] > 1) {
-                $path['day_diff_text'] = "<span class=\"badge badge-primary\">{$path['day_diff']} days left</span>";
+                $path['day_diff_text_class'] = 'primary';
+                $path['day_diff_text'] = "{$path['day_diff']} days left";
             } else {
-                $path['day_diff_text'] = "<span class=\"badge badge-danger\">Last day!</span>";
+                $path['day_diff_text_class'] = 'danger';
+                $path['day_diff_text'] = "Last day!";
             }
 
             if (!$path['today_processed']) {
@@ -472,7 +477,8 @@ class BookModel
     public function getPathsList()
     {
         $sql = 'SELECT id AS path_id, uid AS pathUID, name AS path_name, start, finish 
-                FROM paths ';
+                FROM paths
+                ORDER BY id DESC';
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -502,7 +508,8 @@ class BookModel
                                FROM book_authors ba
                                         INNER JOIN author a ON ba.author_id = a.id
                                WHERE ba.book_id = b.id)) AS author,
-                       b.title, b.page_count, b.own, b.added_date
+                       b.title, b.page_count, b.own, b.added_date,
+                       (IFNULL((SELECT true FROM books_finished bf WHERE bf.book_id = b.id LIMIT 1), false)) AS is_read
                 FROM books b
                 WHERE b.own = 1";
 
@@ -517,6 +524,8 @@ class BookModel
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['added_date'] = date("Y-m-d", $row['added_date']);
             $row['remaining'] = 0;
+            $row['read_status'] = $row['is_read'] ? 'success' : 'danger';
+
             $list[] = $row;
         }
 
@@ -1015,5 +1024,27 @@ class BookModel
         }
 
         return $finishedBookCount;
+    }
+
+    public function getPathBookCountByPathID($pathID)
+    {
+        $bookCount = 0;
+
+        $sql = "SELECT count(*) AS path_book_count 
+                FROM path_books 
+                WHERE path_id = :pathID AND status < 2";
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':pathID', $pathID, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $bookCount = $row['path_book_count'];
+        }
+
+        return $bookCount;
     }
 }

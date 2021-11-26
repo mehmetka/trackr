@@ -1,56 +1,62 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     {{> head }}
 </head>
+
 <body class="vertical dark">
-<div class="wrapper">
-    <main role="main" class="main-content">
-        <div class="container-fluid">
-            <div class="row justify-content-center">
-                <div class="col-12">
-                    <!-- simple table -->
-                    <div class="card mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">My Books</h5>
-                                <table class="table table-striped table-bordered" id="booksDatatable" width="100%">
-                                    <thead>
-                                    <tr>
-                                        <th>Author</th>
-                                        <th>Title</th>
-                                        <th>Page</th>
-                                        <th>Added</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {{#books}}
-                                        <tr>
-                                            <td>{{author}}</td>
-                                            <td>{{title}}</td>
-                                            <td>{{page_count}}</td>
-                                            <td>{{added_date}}</td>
-                                        </tr>
-                                    {{/books}}
-                                    </tbody>
-                                </table>
+    <div class="wrapper">
+        <main role="main" class="main-content">
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <!-- simple table -->
+                        <div class="card mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">My Books</h5>
+                                    <table class="table table-striped table-bordered" id="booksDatatable" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Author</th>
+                                                <th>Title</th>
+                                                <th>Page</th>
+                                                <th>Added</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {{#books}}
+                                            <tr>
+                                                <td>{{author}}</td>
+                                                <td>
+                                                    {{title}}
+                                                    <span class="dot dot-md bg-{{read_status}} float-right"></span>
+                                                </td>
+                                                <td>{{page_count}}</td>
+                                                <td>{{added_date}}</td>
+                                            </tr>
+                                            {{/books}}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
-                    </div> <!-- simple table -->
-                </div> <!-- .col-12 -->
-            </div> <!-- .row -->
-        </div> <!-- .container-fluid -->
-    </main> <!-- main -->
-</div> <!-- .wrapper -->
+                        </div> <!-- simple table -->
+                    </div> <!-- .col-12 -->
+                </div> <!-- .row -->
+            </div> <!-- .container-fluid -->
+        </main> <!-- main -->
+    </div> <!-- .wrapper -->
 
-{{> include}}
-{{> menu }}
-{{> navbar }}
+    {{> include}}
+    {{> menu }}
+    {{> navbar }}
 
-<script>
-    $(document).ready(function () {
+    <script>
+        $(document).ready(function () {
 
-    });
-</script>
+        });
+    </script>
 </body>
+
 </html>
