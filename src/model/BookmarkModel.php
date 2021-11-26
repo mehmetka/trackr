@@ -265,7 +265,11 @@ class BookmarkModel
             return null;
         }
 
-        return preg_match('/<title[^>]*>(.*?)<\/title>/ims', $data, $matches) ? $matches[1] : null;
+        if(preg_match('/<title[^>]*>(.*?)<\/title>/ims', $data, $matches)){
+            return mb_check_encoding($matches[1], 'UTF-8') ? $matches[1] : utf8_encode($matches[1]);   
+        }
+
+        return null;
     }
 
     function getHttpCode($http_response_header)
