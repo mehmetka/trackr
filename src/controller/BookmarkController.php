@@ -65,7 +65,7 @@ class BookmarkController extends Controller
         $_SESSION['badgeCounts']['bookmarkCount'] += 1;
 
         $resource = [
-            "message" => "Successfully added"
+            "message" => "Successfully added bookmark"
         ];
 
         return $this->response(StatusCode::HTTP_CREATED, $resource);
@@ -91,9 +91,10 @@ class BookmarkController extends Controller
         $highlightId = $this->bookmarkModel->addHighlight($bookmarkDetail);
 
         $this->tagModel->updateHighlightTags($params['tags'], $highlightId);
+        $this->bookmarkModel->updateStartedDate($bookmarkID);
         
         $resource = [
-            "message" => "Successfully added"
+            "message" => "Successfully added highlight"
         ];
 
         unset($_SESSION['bookmarks']['highlights']['bookmarkID']);
