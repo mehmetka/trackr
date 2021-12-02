@@ -189,7 +189,8 @@ class BookModel
             $path['ratio'] = '%' . round((($path['path_day_count'] - $path['day_diff']) / $path['path_day_count']) * 100);
             $path['ratioBadgeColor'] = 'warning';
             $path['today_processed'] = $this->getBookPathsDailyRemainings($path['path_id']);
-            $path['active_book_count'] = $this->getPathBookCountByPathID($path['path_id']);
+            $path['active_book_count'] = $this->getPathBookCountByPathID($path['path_id'], 'active');
+            $path['done_book_count'] = $this->getPathBookCountByPathID($path['path_id'], 'done');
 
             $dailyAmount = $path['remaining_page'] / $path['day_diff'];
             $path['daily_amount'] = ceil($dailyAmount);
@@ -1026,13 +1027,19 @@ class BookModel
         return $finishedBookCount;
     }
 
-    public function getPathBookCountByPathID($pathID)
+    public function getPathBookCountByPathID($pathID, $status)
     {
         $bookCount = 0;
 
+        if($status == 'active') {
+            $status = 'status < 2';
+        } else {
+            $status = 'status = 2';
+        }
+
         $sql = "SELECT count(*) AS path_book_count 
                 FROM path_books 
-                WHERE path_id = :pathID AND status < 2";
+                WHERE path_id = :pathID AND $status";
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':pathID', $pathID, \PDO::PARAM_INT);
