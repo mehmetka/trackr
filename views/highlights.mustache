@@ -53,13 +53,18 @@
                         {{#highlights}}
                         <div class="card">
                             <div class="card-body">
-                                <a role="button" href="/highlights/{{id}}"
-                                    class="badge badge-primary float-right"><span class="fe fe-edit fe-8"></a>
+                                <a role="button" href="/highlights/{{id}}" class="badge badge-primary float-right"><span
+                                        class="fe fe-edit fe-8"></a>
                                 <br>
                                 {{{html}}}
 
                                 <footer class="blockquote-footer">
                                     {{author}} <cite>{{source}}</cite>
+
+                                    {{#tags}}
+                                        <br><br>
+                                        {{tags}}
+                                    {{/tags}}
                                 </footer>
 
                             </div>

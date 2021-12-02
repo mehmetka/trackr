@@ -169,10 +169,10 @@ class TagModel
         $list = [];
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $list[] = $row['tag'];
+            $list[] = '#' . $row['tag'];
         }
 
-        return implode(', ', $list);
+        return implode(' ', $list);
     }
 
     public function getHighlightTagsByHighlightId($highlightId)

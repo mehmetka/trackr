@@ -42,6 +42,40 @@ class HighlightModel
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
             $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
+            $tags = $this->tagModel->getHighlightTagsAsStringByHighlightId($row['id']);
+
+            if ($tags) {
+                $row['tags'] = $tags;
+            }
+
+            $list[] = $row;
+        }
+
+        return $list;
+    }
+
+    public function getHighlightsByTag($tag)
+    {
+        $list = [];
+
+        $sql = 'SELECT h.id, h.highlight, h.html, h.author, h.source
+                FROM highlights h
+                INNER JOIN highlight_tags ht ON h.id = ht.highlight_id
+                INNER JOIN tags t ON ht.tag_id = t.id
+                WHERE t.tag = :tag
+                ORDER BY h.id DESC
+                LIMIT 100';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':tag', $tag, \PDO::PARAM_STR);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
+            $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
             $tags = $this->tagModel->getHighlightTagsAsHTMLByHighlightId($row['id']);
 
             if ($tags) {
@@ -102,40 +136,6 @@ class HighlightModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
 
-            $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
-            $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
-            $tags = $this->tagModel->getHighlightTagsAsHTMLByHighlightId($row['id']);
-
-            if ($tags) {
-                $row['tags'] = $tags;
-            }
-
-            $list[] = $row;
-        }
-
-        return $list;
-    }
-
-    public function getHighlightsByTag($tag)
-    {
-        $list = [];
-
-        $sql = 'SELECT h.id, h.highlight, h.author, h.source
-                FROM highlights h
-                INNER JOIN highlight_tags ht ON h.id = ht.highlight_id
-                INNER JOIN tags t ON ht.tag_id = t.id
-                WHERE t.tag = :tag
-                ORDER BY h.id DESC
-                LIMIT 100';
-
-        $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':tag', $tag, \PDO::PARAM_STR);
-
-        if (!$stm->execute()) {
-            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
-        }
-
-        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
             $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
             $tags = $this->tagModel->getHighlightTagsAsHTMLByHighlightId($row['id']);
