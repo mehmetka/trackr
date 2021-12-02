@@ -216,7 +216,7 @@ class BookModel
                 if ($tmpDailyAmount > 0) {
                     $path['today_processed_text'] = "You read {$path['today_processed']} $pages today. Read $tmpDailyAmount more pages";
                 } else {
-                    $path['today_processed_text'] = "<span class=\"text-success\">Congrats, you read'em all today! \m/</span>";
+                    $path['today_processed_text'] = "<span class=\"text-success\">Congrats, you read'em all today! [{$path['today_processed']}/{$path['daily_amount']}] \m/</span>";
                 }
 
             }
