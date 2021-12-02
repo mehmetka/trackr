@@ -1,6 +1,6 @@
 # trackr
 
-## Personal library management, reading/working/todo trackings
+### Personal library management, reading/working/todo trackings
 
 ## Install
 1. Clone the repository
