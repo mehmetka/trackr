@@ -128,59 +128,15 @@ class TagModel
         return $list;
     }
 
-    public function getHighlightTagsAsHTMLByHighlightId($highlightId)
-    {
-        $sql = 'SELECT t.tag
-                FROM highlight_tags ht
-                INNER JOIN tags t ON ht.tag_id = t.id
-                WHERE ht.highlight_id = :highlight_id';
-
-        $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':highlight_id', $highlightId, \PDO::PARAM_INT);
-
-        if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
-        }
-
-        $list = [];
-
-        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['tag'] = '<span class="badge badge-info">' . $row['tag'] . '</span>';
-            $list[] = $row;
-        }
-
-        return $list;
-    }
-
-    public function getHighlightTagsAsStringByHighlightId($highlightId)
-    {
-        $sql = 'SELECT t.tag
-                FROM highlight_tags ht
-                INNER JOIN tags t ON ht.tag_id = t.id
-                WHERE ht.highlight_id = :highlight_id';
-
-        $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':highlight_id', $highlightId, \PDO::PARAM_INT);
-
-        if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
-        }
-
-        $list = [];
-
-        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $list[] = '#' . $row['tag'];
-        }
-
-        return implode(' ', $list);
-    }
-
     public function getHighlightTagsByHighlightId($highlightId)
     {
-        $sql = 'SELECT t.id, t.tag
-                FROM highlight_tags ht
-                INNER JOIN tags t ON ht.tag_id = t.id
-                WHERE ht.highlight_id = :highlight_id';
+        $tags = [];
+        $hashtags = [];
+
+        $sql = "SELECT t.id, t.tag, CONCAT('#', t.tag) AS hashtag, CONCAT('<span class=\"badge badge-info\">', t.tag, '</span>') AS html
+        FROM highlight_tags ht
+        INNER JOIN tags t ON ht.tag_id = t.id
+        WHERE ht.highlight_id = :highlight_id";
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':highlight_id', $highlightId, \PDO::PARAM_INT);
@@ -192,9 +148,18 @@ class TagModel
         $list = [];
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $list[] = $row;
+            $tags[] = $row['tag'];
+            $hashtags[] = $row['hashtag'];
+            $list['tags'][] = $row;
         }
 
+        if($tags){
+            $list['imploded_blank'] = implode(' ', $tags);
+            $list['imploded_comma'] = implode(', ', $tags);
+            $list['imploded_hashtag_blank'] = implode(' ', $hashtags);
+            $list['imploded_hashtag_comma'] = implode(', ', $hashtags);
+        }
+        
         return $list;
     }
 

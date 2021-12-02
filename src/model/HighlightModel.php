@@ -42,7 +42,7 @@ class HighlightModel
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
             $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
-            $tags = $this->tagModel->getHighlightTagsAsStringByHighlightId($row['id']);
+            $tags = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
 
             if ($tags) {
                 $row['tags'] = $tags;
@@ -76,7 +76,7 @@ class HighlightModel
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
             $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
-            $tags = $this->tagModel->getHighlightTagsAsHTMLByHighlightId($row['id']);
+            $tags = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
 
             if ($tags) {
                 $row['tags'] = $tags;
@@ -108,7 +108,7 @@ class HighlightModel
 
             $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
             $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
-            $row['tags'] = $this->tagModel->getHighlightTagsAsStringByHighlightId($row['id']);
+            $row['tags'] = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
             $row['is_secret'] = $row['is_secret'] ? true : false;
 
             $list = $row;
@@ -138,7 +138,7 @@ class HighlightModel
 
             $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
             $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
-            $tags = $this->tagModel->getHighlightTagsAsHTMLByHighlightId($row['id']);
+            $tags = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
 
             if ($tags) {
                 $row['tags'] = $tags;
@@ -320,6 +320,21 @@ class HighlightModel
     {
         $sql = 'DELETE FROM highlight_tags
                 WHERE highlight_id = :highlight_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':highlight_id', $highlightID, \PDO::PARAM_INT);
+        
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function deleteSubHighlightByHighlightID($highlightID)
+    {
+        $sql = 'DELETE FROM sub_highlights 
+                WHERE highlight_id = :highlight_id OR sub_highlight_id = :highlight_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':highlight_id', $highlightID, \PDO::PARAM_INT);

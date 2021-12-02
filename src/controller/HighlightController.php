@@ -51,7 +51,7 @@ class HighlightController extends Controller
     public function details(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $highlightID = $args['id'];
-
+        
         $detail = $this->highlightModel->getHighlightsByID($highlightID);
         $subHighlights = $this->highlightModel->getSubHighlightsByHighlightID($highlightID);
         $nextID = $this->highlightModel->getNextHighlight($highlightID);
@@ -205,6 +205,7 @@ class HighlightController extends Controller
 
         $this->highlightModel->deleteHighlight($highlightID);
         $this->highlightModel->deleteHighlightTagsByHighlightID($highlightID);
+        $this->highlightModel->deleteSubHighlightByHighlightID($highlightID);
         
         $_SESSION['badgeCounts']['highlightsCount'] -= 1;
 

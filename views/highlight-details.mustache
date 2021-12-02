@@ -52,11 +52,11 @@
                                     </div>
                                     <div class="form-group">
                                         <input id="tags" placeholder="Tags" type="text" class="form-control"
-                                            value="{{tags}}">
+                                            value="{{#tags}}{{imploded_comma}}{{/tags}}">
                                     </div>
                                     <div class="form-group custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input" id="is_secret"
-                                            {{#is_secret}}checked="checked"{{/is_secret}}>
+                                            {{#is_secret}}checked="checked" {{/is_secret}}>
                                         <label class="custom-control-label" for="is_secret">Is secret?</label>
                                     </div>
 
@@ -122,6 +122,9 @@
                         <blockquote class="blockquote">
                             <p class="mb-0">{{{highlight}}}</p>
                             <footer class="blockquote-footer">{{author}} <cite title="Source Title">{{source}}</cite>
+                                {{#tags}}
+                                    <br>{{imploded_hashtag_blank}}
+                                {{/tags}}
                             </footer>
                         </blockquote>
                         {{/subHighlights}}
