@@ -16,7 +16,7 @@ class CategoryModel
         $this->dbConnection = $container->get('db');
     }
 
-    public function getCategories()
+    public function getCategories($selectedID = null)
     {
         $sql = 'SELECT id, name, defaultStatus 
                 FROM categories';
@@ -31,7 +31,11 @@ class CategoryModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
 
-            if ($row['defaultStatus']) {
+            if($selectedID && $selectedID == $row['id']){
+                $row['selected'] = true;
+            }
+
+            if (!$selectedID && $row['defaultStatus']) {
                 $row['selected'] = true;
             }
 

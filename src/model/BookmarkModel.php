@@ -125,11 +125,33 @@ class BookmarkModel
         return $list;
     }
 
+    public function getBookmarkIdByUid($bookmarkUid)
+    {
+        $id = 0;
+
+        $sql = 'SELECT id
+                FROM bookmarks
+                WHERE uid = :uid';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':uid', $bookmarkUid, \PDO::PARAM_STR);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $id = $row['id'];
+        }
+
+        return $id;
+    }
+
     public function getBookmarkById($bookmarkId)
     {
         $list = [];
 
-        $sql = 'SELECT b.id, b.uid, b.bookmark, b.title, b.note, b.categoryId, h.highlight, h.author, h.source
+        $sql = 'SELECT b.id, b.uid, b.bookmark, b.title, b.note, b.categoryId, b.status, h.highlight, h.author, h.source
                 FROM bookmarks b
                 LEFT JOIN highlights h ON b.id = h.link
                 WHERE b.id = :id';
@@ -142,6 +164,15 @@ class BookmarkModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+
+            if ($row['status'] == 0) {
+                $row['selectedNew'] = true;
+            } elseif ($row['status'] == 1) {
+                $row['selectedStarted'] = true;
+            } elseif ($row['status'] == 2) {
+                $row['selectedDone'] = true;
+            }
+
             $list = $row;
         }
 
@@ -206,22 +237,23 @@ class BookmarkModel
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
         }
 
-        if(!$categoryId){
+        if (!$categoryId) {
             $categoryId = 6665;
         }
 
         $title = $this->getTitle($bookmark);
-        $titleExist = $this->getBookmarkByTitle($title);
 
-        if ($titleExist) {
-            $this->updateOrderNumber($bookmarkExist['id']);
-            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
+        if ($title) {
+            $titleExist = $this->getBookmarkByTitle($title);
+
+            if ($titleExist) {
+                throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
+            }
         }
 
         return $this->create($bookmark, $title, $note, $categoryId);
     }
 
-    // TODO highlight model'e tasinmali.
     public function addHighlight($bookmarkHighlight)
     {
         $now = time();
@@ -265,8 +297,8 @@ class BookmarkModel
             return null;
         }
 
-        if(preg_match('/<title[^>]*>(.*?)<\/title>/ims', $data, $matches)){
-            return mb_check_encoding($matches[1], 'UTF-8') ? $matches[1] : utf8_encode($matches[1]);   
+        if (preg_match('/<title[^>]*>(.*?)<\/title>/ims', $data, $matches)) {
+            return mb_check_encoding($matches[1], 'UTF-8') ? $matches[1] : utf8_encode($matches[1]);
         }
 
         return null;
@@ -350,6 +382,27 @@ class BookmarkModel
         $stm->bindParam(':status', $status, \PDO::PARAM_INT);
         $stm->bindParam(':id', $id, \PDO::PARAM_INT);
         $stm->bindParam(':done', $now, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function updateBookmark($bookmarkID, $details)
+    {
+        $sql = 'UPDATE bookmarks 
+                SET bookmark = :bookmark, title = :title, note = :note, categoryId = :categoryId, status = :status
+                WHERE id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':bookmark', $details['bookmark'], \PDO::PARAM_STR);
+        $stm->bindParam(':title', $details['title'], \PDO::PARAM_STR);
+        $stm->bindParam(':note', $details['note'], \PDO::PARAM_STR);
+        $stm->bindParam(':categoryId', $details['categoryId'], \PDO::PARAM_INT);
+        $stm->bindParam(':status', $details['status'], \PDO::PARAM_INT);
+        $stm->bindParam(':id', $bookmarkID, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));

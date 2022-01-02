@@ -28,11 +28,11 @@ class BookmarkController extends Controller
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
         $highlights = $this->bookmarkModel->getBookmarks();
-        $subject = $this->categoryModel->getCategories();
+        $categories = $this->categoryModel->getCategories();
 
         $data = [
             'title' => 'Bookmarks | trackr',
-            'categories' => $subject,
+            'categories' => $categories,
             'bookmarks' => $highlights,
             'activeBookmarks' => 'active'
         ];
@@ -42,7 +42,9 @@ class BookmarkController extends Controller
 
     public function highlights(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $bookmarkId = $args['id'];
+        $bookmarkUid = $args['uid'];
+        $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
+
         $highlights = $this->bookmarkModel->getHighlights($bookmarkId);
         $_SESSION['bookmarks']['highlights']['bookmarkID'] = $bookmarkId;
 
@@ -54,6 +56,23 @@ class BookmarkController extends Controller
         ];
 
         return $this->view->render($response, 'bookmark-highlights.mustache', $data);
+    }
+
+    public function details(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $bookmarkUid = $args['uid'];
+        $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
+        $details = $this->bookmarkModel->getBookmarkById($bookmarkId);
+        $categories = $this->categoryModel->getCategories($details['categoryId']);
+
+        $data = [
+            'title' => 'Bookmark\'s Details | trackr',
+            'details' => $details,
+            'categories' => $categories,
+            'activeBookmarks' => 'active',
+        ];
+
+        return $this->view->render($response, 'bookmark-details.mustache', $data);
     }
 
     public function create(ServerRequestInterface $request, ResponseInterface $response)
@@ -73,14 +92,15 @@ class BookmarkController extends Controller
 
     public function addHighlight(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $bookmarkID = $args['id'];
+        $bookmarkUid = $args['uid'];
+        $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
         $params = $request->getParsedBody();
 
         if(!$params['highlight']){
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight cannot be null!");
         }
 
-        if (!isset($_SESSION['bookmarks']['highlights']['bookmarkID']) || $bookmarkID != $_SESSION['bookmarks']['highlights']['bookmarkID']) {
+        if (!isset($_SESSION['bookmarks']['highlights']['bookmarkID']) || $bookmarkId != $_SESSION['bookmarks']['highlights']['bookmarkID']) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Inconsistency! You're trying to add highlight for different bookmark!");
         }
 
@@ -91,7 +111,7 @@ class BookmarkController extends Controller
         $highlightId = $this->bookmarkModel->addHighlight($bookmarkDetail);
 
         $this->tagModel->updateHighlightTags($params['tags'], $highlightId);
-        $this->bookmarkModel->updateStartedDate($bookmarkID);
+        $this->bookmarkModel->updateStartedDate($bookmarkId);
         
         $resource = [
             "message" => "Successfully added highlight"
@@ -105,7 +125,8 @@ class BookmarkController extends Controller
     public function changeStatus(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $params = $request->getParsedBody();
-        $bookmarkId = $args['id'];
+        $bookmarkUid = $args['uid'];
+        $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
 
         if ($params['status'] == 1) {
             $this->bookmarkModel->updateStartedDate($bookmarkId);
@@ -121,9 +142,25 @@ class BookmarkController extends Controller
         return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
+    public function update(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $bookmarkUid = $args['uid'];
+        $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
+        $params = $request->getParsedBody();
+
+        $this->bookmarkModel->updateBookmark($bookmarkId, $params);
+
+        $resource = [
+            "message" => "Success!"
+        ];
+
+        return $this->response(StatusCode::HTTP_OK, $resource);
+    }
+
     public function delete(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $bookmarkId = $args['id'];
+        $bookmarkUid = $args['uid'];
+        $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
 
         $this->bookmarkModel->deleteBookmark($bookmarkId);
 
