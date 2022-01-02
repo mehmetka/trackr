@@ -79,7 +79,8 @@ class BookmarkController extends Controller
     {
         $params = $request->getParsedBody();
 
-        $this->bookmarkModel->createOperations($params['bookmark'], $params['note'], $params['category']);
+        $bookmarkID = $this->bookmarkModel->createOperations($params['bookmark'], $params['note'], $params['category']);
+        $this->bookmarkModel->getBookmarkTitleAsync($bookmarkID);
 
         $_SESSION['badgeCounts']['bookmarkCount'] += 1;
 
@@ -165,6 +166,24 @@ class BookmarkController extends Controller
         $this->bookmarkModel->deleteBookmark($bookmarkId);
 
         $_SESSION['badgeCounts']['bookmarkCount'] -= 1;
+
+        $resource = [
+            "message" => "Success!"
+        ];
+
+        return $this->response(StatusCode::HTTP_OK, $resource);
+    }
+
+    public function updateBookmarkTitleAsync(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $bookmarkId = $args['id'];
+        
+        $bookmarkDetails = $this->bookmarkModel->getBookmarkById($bookmarkId);
+        $title = $this->bookmarkModel->getTitle($bookmarkDetails['bookmark']);
+
+        if($title){
+            $this->bookmarkModel->updateTitleByID($bookmarkId, $title);
+        }
 
         $resource = [
             "message" => "Success!"

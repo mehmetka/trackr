@@ -204,8 +204,6 @@ class BookmarkModel
     {
         $now = time();
 
-        $title = $this->getTitle($bookmark);
-
         $sql = 'INSERT INTO bookmarks (uid, bookmark, title, note, categoryId, orderNumber, created)
                 VALUES(UUID(), :bookmark, :title, :note, :categoryId, :orderNumber, :created)';
 
@@ -241,17 +239,32 @@ class BookmarkModel
             $categoryId = 6665;
         }
 
-        $title = $this->getTitle($bookmark);
+        $title = null;
+        // $title = $this->getTitle($bookmark);
 
-        if ($title) {
-            $titleExist = $this->getBookmarkByTitle($title);
+        // if ($title) {
+        //     $titleExist = $this->getBookmarkByTitle($title);
 
-            if ($titleExist) {
-                throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
-            }
-        }
+        //     if ($titleExist) {
+        //         throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
+        //     }
+        // }
 
         return $this->create($bookmark, $title, $note, $categoryId);
+    }
+
+    public function getBookmarkTitleAsync($bookmarkID)
+    {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, "http://127.0.0.1/api/bookmarks/$bookmarkID/title");
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
+        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_HEADER, FALSE);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 1);
+        curl_setopt($curl, CURLOPT_NOSIGNAL, 1);
+        curl_exec($curl);
+        curl_close($curl);
     }
 
     public function addHighlight($bookmarkHighlight)
@@ -327,6 +340,23 @@ class BookmarkModel
         $stm->bindParam(':status', $status, \PDO::PARAM_INT);
         $stm->bindParam(':id', $id, \PDO::PARAM_INT);
         $stm->bindParam(':started', $now, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function updateTitleByID($id, $title)
+    {
+        $sql = 'UPDATE bookmarks 
+                SET title = :title
+                WHERE id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':title', $title, \PDO::PARAM_STR);
+        $stm->bindParam(':id', $id, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
