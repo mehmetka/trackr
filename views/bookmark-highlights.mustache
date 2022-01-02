@@ -51,7 +51,7 @@
                     var highlight = $('#highlight').val();
                     var tags = $('#tags').val();
                     var data = "highlight=" + encodeURIComponent(highlight) + "&tags=" + encodeURIComponent(tags);
-                    var result = ajaxCall('POST', "/bookmarks/{{bookmarkID}}/highlights", data)
+                    var result = ajaxCall('POST', "/bookmarks/{{bookmarkUID}}/highlights", data)
 
                     if (result !== false) {
                         location.reload();
