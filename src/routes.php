@@ -53,11 +53,13 @@ $app->group('', function () {
     $this->post('/datetrackings', DateTrackingController::class . ':create');
 
     $this->get('/bookmarks', BookmarkController::class . ':index');
-    $this->get('/bookmarks/{id:[0-9]+}/highlights', BookmarkController::class . ':highlights');
-    $this->post('/bookmarks/{id:[0-9]+}/highlights', BookmarkController::class . ':addHighlight');
+    $this->get('/bookmarks/{uid}/highlights', BookmarkController::class . ':highlights');
+    $this->post('/bookmarks/{uid}/highlights', BookmarkController::class . ':addHighlight');
     $this->post('/bookmarks', BookmarkController::class . ':create');
-    $this->put('/bookmarks/{id:[0-9]+}/status', BookmarkController::class . ':changeStatus');
-    $this->delete('/bookmarks/{id:[0-9]+}', BookmarkController::class . ':delete');
+    $this->put('/bookmarks/{uid}/status', BookmarkController::class . ':changeStatus');
+    $this->get('/bookmarks/{uid}', BookmarkController::class . ':details');
+    $this->put('/bookmarks/{uid}', BookmarkController::class . ':update');
+    $this->delete('/bookmarks/{uid}', BookmarkController::class . ':delete');
 
     $this->get('/trackings', TrackingController::class . ':index');
     $this->post('/trackings', TrackingController::class . ':add');
