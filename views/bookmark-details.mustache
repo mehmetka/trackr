@@ -90,6 +90,17 @@
 
             });
 
+            $('#deleteBookmark').on('click', function (e) {
+
+                var bookmarkUID = $(this).data('uid');
+                var result = ajaxCall('DELETE', "/bookmarks/" + bookmarkUID, null)
+
+                if (result !== false) {
+                    window.location.replace('/bookmarks')
+                }
+
+            });
+
         });
     </script>
 </body>

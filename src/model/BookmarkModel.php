@@ -240,16 +240,7 @@ class BookmarkModel
         }
 
         $title = null;
-        // $title = $this->getTitle($bookmark);
-
-        // if ($title) {
-        //     $titleExist = $this->getBookmarkByTitle($title);
-
-        //     if ($titleExist) {
-        //         throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
-        //     }
-        // }
-
+   
         return $this->create($bookmark, $title, $note, $categoryId);
     }
 
