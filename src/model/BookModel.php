@@ -194,6 +194,7 @@ class BookModel
 
             $dailyAmount = $path['remaining_page'] / $path['day_diff'];
             $path['daily_amount'] = ceil($dailyAmount);
+            $path['daily_amount_raw'] = $dailyAmount;
 
             if ($path['day_diff'] <= 3) {
                 $path['remaining_day_warning'] = true;
