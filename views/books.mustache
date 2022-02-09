@@ -16,10 +16,12 @@
                             <div id="{{divId}}" class="card">
                                 <div class="card-header {{status_label}}">
                                     Read: {{{readStatus}}}
+
+                                    {{#ebook_exist}}<span class="badge badge-pill badge-success float-right">Ebook</span>{{/ebook_exist}}
                                 </div>
                                 <div class="card-body">
                                     <blockquote class="blockquote mb-0">
-                                        {{title}} - {{author}}
+                                        {{author}} - {{title}}
                                         <footer>
                                             <br>
 
