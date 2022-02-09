@@ -109,6 +109,7 @@ class BookController extends Controller
         $bookId = $this->bookModel->getBookIdByUid($args['bookUID']);
 
         $bookDetail = $this->bookModel->getBookDetailByBookIdAndPathId($bookId, $pathDetails['id']);
+        $readAmount = $this->bookModel->getReadAmount($bookId, $pathDetails['id']);
 
         if ($pathDetails['status']) {
             $resource['responseCode'] = StatusCode::HTTP_BAD_REQUEST;
@@ -118,16 +119,21 @@ class BookController extends Controller
                 $resource['message'] = "Can't add progress to done books!";
                 $resource['responseCode'] = StatusCode::HTTP_BAD_REQUEST;
             } else {
-                
-                if($params['amount'] > 0){
-                    $this->bookModel->insertProgressRecord($bookId, $pathDetails['id'], $params['amount']);
-                    $resource['responseCode'] = StatusCode::HTTP_OK;
-                    $resource['message'] = "Success!";
-                } else {
-                    $resource['responseCode'] = StatusCode::HTTP_BAD_REQUEST;
-                    $resource['message'] = "Amount must be positive";
-                }
 
+                if (($bookDetail['page_count'] - $readAmount) - $params['amount'] < 0) {
+                    $resource['responseCode'] = StatusCode::HTTP_BAD_REQUEST;
+                    $resource['message'] = "You can't add progress more than remaining amount!";
+                } else {
+                    if($params['amount'] > 0){
+                        $this->bookModel->insertProgressRecord($bookId, $pathDetails['id'], $params['amount']);
+                        $resource['responseCode'] = StatusCode::HTTP_OK;
+                        $resource['message'] = "Success!";
+                    } else {
+                        $resource['responseCode'] = StatusCode::HTTP_BAD_REQUEST;
+                        $resource['message'] = "Amount must be positive";
+                    }
+                }
+                
             }
         }
 
