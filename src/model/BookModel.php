@@ -292,9 +292,10 @@ class BookModel
     {
         $detail = [];
 
-        $sql = 'SELECT *
-                FROM path_books 
-                WHERE book_id=:book_id AND path_id=:path_id';
+        $sql = 'SELECT pb.id, pb.path_id, pb.book_id, pb.status, pb.created, pb.updated, b.page_count
+                FROM path_books pb
+                INNER JOIN books b ON pb.book_id = b.id
+                WHERE pb.book_id=:book_id AND pb.path_id=:path_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
@@ -451,7 +452,8 @@ class BookModel
                                         INNER JOIN author a ON ba.author_id = a.id
                                WHERE ba.book_id = b.id)) AS author,
                        b.title, b.page_count, b.own, b.added_date
-                FROM books b";
+                FROM books b
+                ORDER BY b.id DESC";
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -513,7 +515,8 @@ class BookModel
                        b.title, b.page_count, b.own, b.added_date,
                        (IFNULL((SELECT true FROM books_finished bf WHERE bf.book_id = b.id LIMIT 1), false)) AS is_read
                 FROM books b
-                WHERE b.own = 1";
+                WHERE b.own = 1
+                ORDER BY b.id DESC";
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -558,12 +561,12 @@ class BookModel
 
     public function getBooksPathInside($pathId, $status = false)
     {
-        $sql = "SELECT b.uid AS bookUID, b.title, b.id, b.page_count, b.status AS book_status, pb.status AS path_status, pb.path_id, p.uid AS pathUID, CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ') FROM book_authors ba INNER JOIN author a ON ba.author_id = a.id WHERE ba.book_id = b.id)) AS author
+        $sql = "SELECT b.uid AS bookUID, b.title, b.id, b.page_count, b.pdf, b.epub, b.status AS book_status, pb.status AS path_status, pb.path_id, p.uid AS pathUID, CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ') FROM book_authors ba INNER JOIN author a ON ba.author_id = a.id WHERE ba.book_id = b.id)) AS author
                 FROM books b
                 INNER JOIN path_books pb ON b.id = pb.book_id
                 INNER JOIN paths p ON pb.path_id = p.id
                 WHERE pb.path_id = :path_id
-                ORDER BY pb.status DESC";
+                ORDER BY pb.status DESC, b.page_count";
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':path_id', $pathId, \PDO::PARAM_STR);
@@ -607,6 +610,7 @@ class BookModel
             $row['divId'] = "div-{$row['id']}-" . uniqid();
             $row['status_label'] = 'bg-secondary-dark';
             $row['readStatus'] = "$readAmount / {$row['page_count']}";
+            $row['ebook_exist'] = $row['pdf'] || $row['epub'] ? true : false;
 
             if ($readAmount) {
                 $row['status_label'] = 'bg-warning-dark';
