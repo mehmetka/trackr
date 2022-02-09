@@ -51,26 +51,41 @@
                                             {{#bookmarks}}
                                             <tr>
                                                 <td>
+                                                    {{#startAction}}
+                                                    <span class="badge badge-info">New</span>
+                                                    {{/startAction}}
+
+                                                    {{#doneAction}}
+                                                    <span class="badge badge-warning">Started</span>
+                                                    {{/doneAction}}
+
+                                                    {{#complete}}
+                                                    <span class="badge badge-success">Done</span>
+                                                    {{/complete}}
                                                     <a href="{{bookmark}}" target="_blank">{{title}}</a>
                                                 </td>
                                                 <td>
-
                                                     <button class="btn btn-sm dropdown-toggle more-horizontal"
                                                         type="button" data-toggle="dropdown" aria-haspopup="true"
                                                         aria-expanded="false">
                                                         <span class="text-muted sr-only">Action</span>
                                                     </button>
                                                     <div class="dropdown-menu dropdown-menu-right">
-                                                        <a class="dropdown-item" href="/bookmarks/{{bookmarkUID}}/highlights">Highlights</a>
-                                                        <a class="dropdown-item" href="/bookmarks/{{bookmarkUID}}">Edit</a>
-                                                        {{#startAction}}<a class="dropdown-item btnStatusAction" data-status="1" data-uid="{{bookmarkUID}}"><i class="fe fe-play fe-4"></i> Start Reading</a>{{/startAction}}
-                                                        {{#startAction}}<a class="dropdown-item btnDeleteBookmark" data-uid="{{bookmarkUID}}"><i class="fe fe-trash fe-4"></i> Delete</a>{{/startAction}}
-                                                        {{#doneAction}}<a class="dropdown-item  btnStatusAction" data-status="2" data-uid="{{bookmarkUID}}">Done</a>{{/doneAction}}
+                                                        <a class="dropdown-item"
+                                                            href="/bookmarks/{{bookmarkUID}}/highlights">Highlights</a>
+                                                        <a class="dropdown-item"
+                                                            href="/bookmarks/{{bookmarkUID}}">Edit</a>
+                                                        {{#startAction}}<a class="dropdown-item btnStatusAction"
+                                                            data-status="1" data-uid="{{bookmarkUID}}"><i
+                                                                class="fe fe-play fe-4"></i> Start
+                                                            Reading</a>{{/startAction}}
+                                                        {{#startAction}}<a class="dropdown-item btnDeleteBookmark"
+                                                            data-uid="{{bookmarkUID}}"><i class="fe fe-trash fe-4"></i>
+                                                            Delete</a>{{/startAction}}
+                                                        {{#doneAction}}<a class="dropdown-item  btnStatusAction"
+                                                            data-status="2"
+                                                            data-uid="{{bookmarkUID}}">Done</a>{{/doneAction}}
                                                     </div>
-
-                                                    {{#complete}}
-                                                    <span class="badge badge-success">Done</span>
-                                                    {{/complete}}
                                                 </td>
                                             </tr>
                                             {{/bookmarks}}
@@ -107,6 +122,7 @@
                 var result = ajaxCall('POST', "/bookmarks", "bookmark=" + bookmark + "&category=" + type + "&note=" + note)
 
                 if (result !== false) {
+                    ajaxCall('PUT', "/api/bookmarks/" + result.id + "/title", null)
                     location.reload();
                 }
 
