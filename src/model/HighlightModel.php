@@ -41,6 +41,7 @@ class HighlightModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
+            $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
             $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
             $tags = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
 
