@@ -52,7 +52,7 @@ class BookmarkController extends Controller
             'title' => 'Bookmark\' Highlights | trackr',
             'highlights' => $highlights,
             'activeBookmarks' => 'active',
-            'bookmarkID' => $bookmarkId
+            'bookmarkUID' => $bookmarkUid
         ];
 
         return $this->view->render($response, 'bookmark-highlights.mustache', $data);
@@ -80,12 +80,12 @@ class BookmarkController extends Controller
         $params = $request->getParsedBody();
 
         $bookmarkID = $this->bookmarkModel->createOperations($params['bookmark'], $params['note'], $params['category']);
-        $this->bookmarkModel->getBookmarkTitleAsync($bookmarkID);
-
+        
         $_SESSION['badgeCounts']['bookmarkCount'] += 1;
 
         $resource = [
-            "message" => "Successfully added bookmark"
+            "message" => "Successfully added bookmark",
+            "id" => $bookmarkID
         ];
 
         return $this->response(StatusCode::HTTP_CREATED, $resource);
@@ -185,10 +185,6 @@ class BookmarkController extends Controller
             $this->bookmarkModel->updateTitleByID($bookmarkId, $title);
         }
 
-        $resource = [
-            "message" => "Success!"
-        ];
-
-        return $this->response(StatusCode::HTTP_OK, $resource);
+        return $this->response(StatusCode::HTTP_NO_CONTENT, []);
     }
 }
