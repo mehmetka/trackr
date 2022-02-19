@@ -80,6 +80,8 @@ class BookmarkController extends Controller
         $params = $request->getParsedBody();
 
         $bookmarkID = $this->bookmarkModel->createOperations($params['bookmark'], $params['note'], $params['category']);
+        $cmd = 'php -q ' . __DIR__ . '/../../scripts/update-bookmark-title.php ' . $bookmarkID . ' > /dev/null &';
+        shell_exec($cmd);
         
         $_SESSION['badgeCounts']['bookmarkCount'] += 1;
 
@@ -174,17 +176,4 @@ class BookmarkController extends Controller
         return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
-    public function updateBookmarkTitleAsync(ServerRequestInterface $request, ResponseInterface $response, $args)
-    {
-        $bookmarkId = $args['id'];
-        
-        $bookmarkDetails = $this->bookmarkModel->getBookmarkById($bookmarkId);
-        $title = $this->bookmarkModel->getTitle($bookmarkDetails['bookmark']);
-
-        if($title){
-            $this->bookmarkModel->updateTitleByID($bookmarkId, $title);
-        }
-
-        return $this->response(StatusCode::HTTP_NO_CONTENT, []);
-    }
 }

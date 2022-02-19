@@ -37,6 +37,11 @@ class BookmarkModel
                 $row['title'] = $row['bookmark'];
             }
 
+            if (strlen($row['title']) > 125){
+                $row['title'] = substr($row['title'], 0, 125);
+                $row['title'] .= ' ...';
+            }
+
             $row['created'] = date('Y-m-d H:i:s', $row['created']);
 
             if (!$row['started']) {
@@ -242,20 +247,6 @@ class BookmarkModel
         $title = null;
    
         return $this->create($bookmark, $title, $note, $categoryId);
-    }
-
-    public function getBookmarkTitleAsync($bookmarkID)
-    {
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, "http://127.0.0.1/api/bookmarks/$bookmarkID/title");
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
-        curl_setopt($curl, CURLOPT_POST, 1);
-        curl_setopt($curl, CURLOPT_HEADER, FALSE);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($curl, CURLOPT_TIMEOUT, 1);
-        curl_setopt($curl, CURLOPT_NOSIGNAL, 1);
-        curl_exec($curl);
-        curl_close($curl);
     }
 
     public function addHighlight($bookmarkHighlight)

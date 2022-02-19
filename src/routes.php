@@ -23,7 +23,6 @@ $app->group('', function () {
 // TODO Add authorization
 $app->group('/api', function () {
     $this->post('/bookmarks', BookmarkController::class . ':create');
-    $this->put('/bookmarks/{id:[0-9]+}/title', BookmarkController::class . ':updateBookmarkTitleAsync');
 });
 
 $app->group('', function () {

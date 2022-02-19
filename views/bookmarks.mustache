@@ -122,7 +122,6 @@
                 var result = ajaxCall('POST', "/bookmarks", "bookmark=" + bookmark + "&category=" + type + "&note=" + note)
 
                 if (result !== false) {
-                    ajaxCall('PUT', "/api/bookmarks/" + result.id + "/title", null)
                     location.reload();
                 }
 
