@@ -611,6 +611,7 @@ class BookModel
             $row['status_label'] = 'bg-secondary-dark';
             $row['readStatus'] = "$readAmount / {$row['page_count']}";
             $row['ebook_exist'] = $row['pdf'] || $row['epub'] ? true : false;
+            $row['remove'] = $readAmount ? true : false;
 
             if ($readAmount) {
                 $row['status_label'] = 'bg-warning-dark';
