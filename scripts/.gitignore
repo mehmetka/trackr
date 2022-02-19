@@ -1,0 +1,5 @@
+/vendor/
+.DS_Store
+/.idea/
+conf.ini
+composer.lock
