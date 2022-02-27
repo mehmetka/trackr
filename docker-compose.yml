@@ -8,13 +8,11 @@ services:
             - "3306:3306"
         command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql_mode="TRADITIONAL"
         environment:
-            MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+            MYSQL_ROOT_PASSWORD: "Qwe1092!@"
             MYSQL_DATABASE: trackr
-            MYSQL_USER: trackr
-            MYSQL_PASSWORD: Qwe1092!@
         volumes:
           - mysql-data:/var/lib/mysql
-          - .:/docker-entrypoint-initdb.d
+          - ./database:/docker-entrypoint-initdb.d
         networks:
             trackr:
                 ipv4_address: 192.168.2.2
@@ -25,7 +23,7 @@ services:
         ports: 
           - "80:80"
         volumes:
-          - ..:/var/www/html/trackr
+          - .:/var/www/html/trackr
         depends_on:
           - db
         networks:
