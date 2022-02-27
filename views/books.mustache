@@ -80,6 +80,7 @@
                     var result = ajaxCall('POST', "/books/" + bookUID + "/progress", "amount=" + amount + "&pathUID=" + pathUID)
 
                     if (result !== false) {
+                        $('#' + bookUID).val('');
                         location.reload();
                     }
 

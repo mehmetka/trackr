@@ -122,6 +122,7 @@
                 var result = ajaxCall('POST', "/bookmarks", "bookmark=" + bookmark + "&category=" + type + "&note=" + note)
 
                 if (result !== false) {
+                    $('#bookmark').val('');
                     location.reload();
                 }
 
