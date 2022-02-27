@@ -2,11 +2,9 @@
 
 $container['db'] = function ($container) {
 
-    $settings = $container->get('settings')['db'];
-
-    $dsn = $settings['driver'] . ":host=" . $settings['host'] . ";dbname=" . $settings['database'] . ";charset=" . $settings['charset'];
+    $dsn = "mysql:host=" . $_ENV['MYSQL_HOST'] . ";dbname=" . $_ENV['MYSQL_DATABASE'] . ";charset=utf8mb4";
     try {
-        $db = new \PDO($dsn, $settings['user'], $settings['password']);
+        $db = new \PDO($dsn, $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASSWORD']);
     } catch (\Exception $e) {
         throw new Exception("Database access problem : " . $e->getMessage(), 500);
     }

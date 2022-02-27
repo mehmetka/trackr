@@ -6,3 +6,4 @@
 /.idea/
 conf.ini
 composer.lock
+.env

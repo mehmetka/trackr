@@ -8,8 +8,8 @@ services:
             - "3306:3306"
         command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql_mode="TRADITIONAL"
         environment:
-            MYSQL_ROOT_PASSWORD: "Qwe1092!@"
-            MYSQL_DATABASE: trackr
+            MYSQL_ROOT_PASSWORD: ${MYSQL_PASWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
         volumes:
           - mysql-data:/var/lib/mysql
           - ./database:/docker-entrypoint-initdb.d

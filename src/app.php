@@ -7,10 +7,16 @@ use Slim\App;
 date_default_timezone_set('Europe/Istanbul');
 
 session_name('trackr');
-ini_set( 'session.cookie_httponly', 1 );
+ini_set('session.cookie_httponly', 1);
 session_start();
 
-$settings['settings'] = parse_ini_file(__DIR__ . '/../conf.ini', true);
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
+
+$settings['settings'] = [
+    'displayErrorDetails' => $_ENV['displayErrorDetails'],
+    'debug' => $_ENV['debug']
+];
 
 $app = new App($settings);
 
