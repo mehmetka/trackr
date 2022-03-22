@@ -50,13 +50,15 @@
                                         <tbody>
                                             {{#bookmarks}}
                                             <tr>
-                                                <td>
+                                                <td class="go-to-bookmark-highlight" data-uid="{{bookmarkUID}}">
                                                     {{#startAction}}
-                                                    <span class="badge badge-info">New</span>
+                                                    <span class="badge badge-info btnStatusAction" data-status="1"
+                                                        data-uid="{{bookmarkUID}}">New</span>
                                                     {{/startAction}}
 
                                                     {{#doneAction}}
-                                                    <span class="badge badge-warning">Started</span>
+                                                    <span class="badge badge-warning btnStatusAction" data-status="2"
+                                                        data-uid="{{bookmarkUID}}">Started</span>
                                                     {{/doneAction}}
 
                                                     {{#complete}}
@@ -75,16 +77,21 @@
                                                             href="/bookmarks/{{bookmarkUID}}/highlights">Highlights</a>
                                                         <a class="dropdown-item"
                                                             href="/bookmarks/{{bookmarkUID}}">Edit</a>
-                                                        {{#startAction}}<a class="dropdown-item btnStatusAction"
-                                                            data-status="1" data-uid="{{bookmarkUID}}"><i
-                                                                class="fe fe-play fe-4"></i> Start
-                                                            Reading</a>{{/startAction}}
-                                                        {{#startAction}}<a class="dropdown-item btnDeleteBookmark"
-                                                            data-uid="{{bookmarkUID}}"><i class="fe fe-trash fe-4"></i>
-                                                            Delete</a>{{/startAction}}
+                                                        {{#startAction}}
+                                                        <a class="dropdown-item btnStatusAction" data-status="1"
+                                                            data-uid="{{bookmarkUID}}"><i class="fe fe-play fe-4"></i>
+                                                            Start Reading
+                                                        </a>
+                                                        {{/startAction}}
+                                                        {{#startAction}}
+                                                        <a class="dropdown-item btnDeleteBookmark"
+                                                            data-uid="{{bookmarkUID}}">
+                                                            <i class="fe fe-trash fe-4"></i> Delete
+                                                        </a>
+                                                        {{/startAction}}
                                                         {{#doneAction}}<a class="dropdown-item  btnStatusAction"
-                                                            data-status="2"
-                                                            data-uid="{{bookmarkUID}}">Done</a>{{/doneAction}}
+                                                            data-status="2" data-uid="{{bookmarkUID}}">Done</a>
+                                                        {{/doneAction}}
                                                     </div>
                                                 </td>
                                             </tr>
@@ -127,6 +134,11 @@
                 }
 
                 $(btnContext).delay(3000).removeAttr("disabled").addClass('btn-primary').html('Add');
+            });
+
+            $(".go-to-bookmark-highlight").on('click', function (e) {
+                var bookmarkUID = $(this).data('uid');
+                window.location.replace('/bookmarks/' + bookmarkUID + '/highlights')
             });
 
             $(".btnStatusAction").on('click', function (e) {
