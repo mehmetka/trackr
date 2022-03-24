@@ -20,8 +20,10 @@ MYSQL_HOST=192.168.2.2
 
 6. Create logs directory on project root.
 
-### Theme: 
-https://usebootstrap.com/theme/tinydash
+### Themes and Used Libraries
+- Theme: https://usebootstrap.com/theme/tinydash
+-  Dark Theme: https://github.com/xcatliu/simplemde-theme-dark
+- Simple MDE: https://github.com/sparksuite/simplemde-markdown-editor
 
 ### Contributing
 Please feel free to contribute.

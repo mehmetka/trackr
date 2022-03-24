@@ -3,6 +3,7 @@
 
 <head>
     {{> head }}
+    <link rel="stylesheet" href="https://cdn.rawgit.com/xcatliu/simplemde-theme-dark/master/dist/simplemde-theme-dark.min.css">
 </head>
 
 <body class="vertical dark">
@@ -16,10 +17,8 @@
                             <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">Add New Highlight</h5>
-                                    <div class="input-group input-group-lg">
-                                        <textarea id="highlight" class="form-control  form-control-lg"
-                                            placeholder="Highlight" rows="2"></textarea>
-                                    </div>
+                                    <textarea id="highlight" hidden></textarea>
+                                    
                                     <br>
                                     <div class="input-group input-group-lg">
                                         <input id="author" placeholder="Author" type="text"
@@ -56,7 +55,7 @@
                                 <a role="button" href="/highlights/{{id}}" class="badge badge-primary float-right"><span
                                         class="fe fe-edit fe-8"></a>
                                 <br>
-                                <strong>{{{html}}}</strong>
+                                <strong>{{{highlight}}}</strong>
 
                                 <footer class="blockquote-footer">
                                     {{author}} <cite>{{source}}</cite> ~ {{created_at_formatted}}
@@ -82,11 +81,21 @@
     {{> menu }}
     {{> navbar }}
 
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+
     <script>
         $(document).ready(function () {
+
+            var simplemde = new SimpleMDE({
+                element: $("#highlight")[0],
+                toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview" ],
+            });
+
+            $('#highlight').show();
+
             $('.enterButtonKeyPress').bind('keypress', function (e) {
                 if (e.keyCode == 13) {
-                    var highlight = $('#highlight').val();
+                    var highlight = simplemde.value();
                     var author = $('#author').val();
                     var source = $('#source').val();
                     var page = $('#page').val();
@@ -98,6 +107,7 @@
                     if (result !== false) {
                         location.reload();
                     }
+                    // console.log(simplemde.markdown(highlight));
                 }
             });
         });

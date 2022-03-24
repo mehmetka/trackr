@@ -42,7 +42,6 @@ class HighlightModel
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
             $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
-            $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
             $tags = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
 
             if ($tags) {
@@ -59,7 +58,7 @@ class HighlightModel
     {
         $list = [];
 
-        $sql = 'SELECT h.id, h.highlight, h.html, h.author, h.source
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created
                 FROM highlights h
                 INNER JOIN highlight_tags ht ON h.id = ht.highlight_id
                 INNER JOIN tags t ON ht.tag_id = t.id
@@ -76,7 +75,7 @@ class HighlightModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
-            $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
+            $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
             $tags = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
 
             if ($tags) {
@@ -89,11 +88,11 @@ class HighlightModel
         return $list;
     }
 
-    public function getHighlightsByID($id)
+    public function getHighlightByID($id)
     {
         $list = [];
 
-        $sql = 'SELECT h.id, h.highlight, h.html, h.author, h.source, h.page, h.location, b.bookmark AS link, h.link AS linkID, h.type, h.is_secret, h.created, h.updated
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.page, h.location, b.bookmark AS link, h.link AS linkID, h.type, h.is_secret, h.created, h.updated
                 FROM highlights h
                 LEFT JOIN bookmarks b ON h.link = b.id
                 WHERE h.id = :highlightID';
@@ -106,9 +105,9 @@ class HighlightModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-
             $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
-            $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
+            $row['highlight'] = str_replace("&nbsp;", ' ', $row['highlight']);
+
             $row['tags'] = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
             $row['is_secret'] = $row['is_secret'] ? true : false;
 
@@ -136,9 +135,7 @@ class HighlightModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-
             $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
-            $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
             $tags = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
 
             if ($tags) {
@@ -154,23 +151,20 @@ class HighlightModel
     public function create($params)
     {
         $now = time();
-        $rawHighlight = trim($params['highlight']);
+        $rawHighlight = strip_tags(trim($params['highlight']));
 
         $params['author'] = $params['author'] ? trim($params['author']) : 'trackr';
         $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
-        $html = str_replace(' ', '&nbsp;', $rawHighlight);
-        $html = str_replace("\n", '<br>', $html);
-        $highlight = strip_tags($rawHighlight);
-
-        $sql = 'INSERT INTO highlights (highlight, html, author, source, page, link, created)
-                VALUES(:highlight, :html, :author, :source, :page, :link, :created)';
+        $rawHighlight = str_replace(' ', '&nbsp;', $rawHighlight);
+        
+        $sql = 'INSERT INTO highlights (highlight, author, source, page, link, created)
+                VALUES(:highlight, :author, :source, :page, :link, :created)';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':highlight', $highlight, \PDO::PARAM_STR);
-        $stm->bindParam(':html', $html, \PDO::PARAM_STR);
+        $stm->bindParam(':highlight', $rawHighlight, \PDO::PARAM_STR);
         $stm->bindParam(':author', $params['author'], \PDO::PARAM_STR);
         $stm->bindParam(':source', $params['source'], \PDO::PARAM_STR);
         $stm->bindParam(':page', $params['page'], \PDO::PARAM_INT);
@@ -187,25 +181,25 @@ class HighlightModel
     public function update($highlightID, $params)
     {
         $update = time();
+        $rawHighlight = trim($params['highlight']);
 
         $params['author'] = $params['author'] ? trim($params['author']) : 'trackr';
         $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
-        $html = str_replace(' ', '&nbsp;', trim($params['highlight']));
-        $highlight = str_replace('&nbsp;', ' ', trim($params['highlight']));
-        $highlight = strip_tags($highlight);
+        $rawHighlight = str_replace(' ', '&nbsp;', $rawHighlight);
+        $rawHighlight = str_replace('<br>', "\n", $rawHighlight);
+        $highlight = strip_tags($rawHighlight);
 
         $sql = 'UPDATE highlights 
-                SET highlight = :highlight, html = :html, author = :author, source = :source, page = :page, location = :location, link = :link, is_secret = :is_secret, updated = :updated
+                SET highlight = :highlight, author = :author, source = :source, page = :page, location = :location, link = :link, is_secret = :is_secret, updated = :updated
                 WHERE id = :id';
 
         $stm = $this->dbConnection->prepare($sql);
 
         $stm->bindParam(':id', $highlightID, \PDO::PARAM_INT);
         $stm->bindParam(':highlight', $highlight, \PDO::PARAM_STR);
-        $stm->bindParam(':html', $html, \PDO::PARAM_STR);
         $stm->bindParam(':author', $params['author'], \PDO::PARAM_STR);
         $stm->bindParam(':source', $params['source'], \PDO::PARAM_STR);
         $stm->bindParam(':page', $params['page'], \PDO::PARAM_INT);

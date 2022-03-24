@@ -3,7 +3,8 @@
 
 <head>
     {{> head }}
-    <link href="/css/summernote.css" rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://cdn.rawgit.com/xcatliu/simplemde-theme-dark/master/dist/simplemde-theme-dark.min.css">
 </head>
 
 <body class="vertical dark">
@@ -25,7 +26,7 @@
                                 </div>
                                 <div class="card-body">
                                     {{#detail}}
-                                    <div id="highlight">{{{html}}}</div>
+                                    <textarea id="highlight" hidden>{{#detail}}{{highlight}}{{/detail}}</textarea>
 
                                     <br>
 
@@ -86,8 +87,7 @@
                                 <div class="card-body">
                                     <h5 class="card-title">Add Comment</h5>
                                     <div class="form-group">
-                                        <textarea id="comment" class="form-control form-control-lg"
-                                            placeholder="Comment" rows="4"></textarea>
+                                        <textarea id="comment" hidden></textarea>
                                     </div>
 
                                     <div class="form-group">
@@ -123,7 +123,7 @@
                             <p class="mb-0">{{{highlight}}}</p>
                             <footer class="blockquote-footer">{{author}} <cite title="Source Title">{{source}}</cite>
                                 {{#tags}}
-                                    <br>{{imploded_hashtag_blank}}
+                                <br>{{imploded_hashtag_blank}}
                                 {{/tags}}
                             </footer>
                         </blockquote>
@@ -139,16 +139,27 @@
     {{> menu }}
     {{> navbar }}
 
-    <script src="/js/summernote.js"></script>
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
     <script>
         $(document).ready(function () {
 
-            $('#highlight').summernote('code');
+            var simplemdeHighlight = new SimpleMDE({
+                element: $("#highlight")[0],
+                toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview" ],
+            });
+
+            var simplemdeComment = new SimpleMDE({
+                element: $("#comment")[0],
+                toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview" ],
+            });
+
+            $('#highlight').show();
+            $('#comment').show();
 
             $('#addComment').on('click', function (e) {
 
                 var highlightID = $('#addComment').data('id');
-                var comment = $('#comment').val();
+                var comment = simplemdeComment.value();
                 var source = $('#commentSource').val();
                 var link = $('#commentLink').val();
                 var tags = $('#commentTags').val();
@@ -164,7 +175,7 @@
 
             $('#updateHighlight').on('click', function (e) {
 
-                var highlight = $('#highlight').summernote('code');
+                var highlight = simplemdeHighlight.value();
                 var author = $('#author').val();
                 var source = $('#source').val();
                 var page = $('#page').val();
