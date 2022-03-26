@@ -43,7 +43,6 @@ class HighlightModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['highlight'] = $this->convertMarkdownToHTML($row['highlight']);
-
             $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
             $tags = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
 
@@ -108,9 +107,8 @@ class HighlightModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
             $row['highlight'] = str_replace("&nbsp;", ' ', $row['highlight']);
-
+            $row['highlight'] = str_replace("\n", "   \n", $row['highlight']);
             $row['tags'] = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
             $row['is_secret'] = $row['is_secret'] ? true : false;
 
@@ -162,7 +160,7 @@ class HighlightModel
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
         $rawHighlight = str_replace(' ', '&nbsp;', $rawHighlight);
-
+        
         $sql = 'INSERT INTO highlights (highlight, author, source, page, link, created)
                 VALUES(:highlight, :author, :source, :page, :link, :created)';
 
@@ -192,7 +190,6 @@ class HighlightModel
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
         $rawHighlight = str_replace(' ', '&nbsp;', $rawHighlight);
-        $rawHighlight = str_replace('<br>', "\n", $rawHighlight);
         $highlight = strip_tags($rawHighlight);
 
         $sql = 'UPDATE highlights 
@@ -369,6 +366,7 @@ class HighlightModel
 
     public function convertMarkdownToHTML($str)
     {
+        $str = str_replace("\n", "   \n", $str);
         $this->parseDown->setSafeMode(true);
         return $this->parseDown->text($str);
     }
