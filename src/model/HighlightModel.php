@@ -11,11 +11,13 @@ class HighlightModel
     /** @var \PDO $dbConnection */
     private $dbConnection;
     private $tagModel;
+    private $parseDown;
 
     public function __construct(ContainerInterface $container)
     {
         $this->dbConnection = $container->get('db');
         $this->tagModel = new TagModel($container);
+        $this->parseDown = new \Parsedown();
     }
 
     public function getHighlights($limit = null)
@@ -40,7 +42,8 @@ class HighlightModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
+            $row['highlight'] = $this->convertMarkdownToHTML($row['highlight']);
+
             $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
             $tags = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
 
@@ -74,7 +77,7 @@ class HighlightModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
+            $row['highlight'] = $this->convertMarkdownToHTML($row['highlight']);
             $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
             $tags = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
 
@@ -135,7 +138,7 @@ class HighlightModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
+            $row['highlight'] = $this->convertMarkdownToHTML($row['highlight']);
             $tags = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
 
             if ($tags) {
@@ -159,7 +162,7 @@ class HighlightModel
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
         $rawHighlight = str_replace(' ', '&nbsp;', $rawHighlight);
-        
+
         $sql = 'INSERT INTO highlights (highlight, author, source, page, link, created)
                 VALUES(:highlight, :author, :source, :page, :link, :created)';
 
@@ -303,7 +306,7 @@ class HighlightModel
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':highlight_id', $highlightID, \PDO::PARAM_INT);
-        
+
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
@@ -318,7 +321,7 @@ class HighlightModel
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':highlight_id', $highlightID, \PDO::PARAM_INT);
-        
+
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
@@ -333,7 +336,7 @@ class HighlightModel
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':highlight_id', $highlightID, \PDO::PARAM_INT);
-        
+
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
@@ -364,4 +367,9 @@ class HighlightModel
         return $result;
     }
 
+    public function convertMarkdownToHTML($str)
+    {
+        $this->parseDown->setSafeMode(true);
+        return $this->parseDown->text($str);
+    }
 }

@@ -52,7 +52,7 @@ class HighlightController extends Controller
     {
         $highlightID = $args['id'];
         
-        $detail = $this->highlightModel->getHighlightsByID($highlightID);
+        $detail = $this->highlightModel->getHighlightByID($highlightID);
         $subHighlights = $this->highlightModel->getSubHighlightsByHighlightID($highlightID);
         $nextID = $this->highlightModel->getNextHighlight($highlightID);
         $previousID = $this->highlightModel->getPreviousHighlight($highlightID);

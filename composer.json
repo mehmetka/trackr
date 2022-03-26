@@ -3,7 +3,8 @@
     "slim/slim": "^3.0",
     "andrewslince/slim3-mustache-view": "^1.0",
     "monolog/monolog": "~1.0",
-    "vlucas/phpdotenv": "^5.4"
+    "vlucas/phpdotenv": "^5.4",
+    "erusev/parsedown": "^1.7"
   },
   "autoload": {
     "psr-4": {
