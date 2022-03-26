@@ -55,7 +55,7 @@
                                 <a role="button" href="/highlights/{{id}}" class="badge badge-primary float-right"><span
                                         class="fe fe-edit fe-8"></a>
                                 <br>
-                                <strong>{{{highlight}}}</strong>
+                                {{{highlight}}}
 
                                 <footer class="blockquote-footer">
                                     {{author}} <cite>{{source}}</cite> ~ {{created_at_formatted}}
@@ -107,7 +107,6 @@
                     if (result !== false) {
                         location.reload();
                     }
-                    // console.log(simplemde.markdown(highlight));
                 }
             });
         });
