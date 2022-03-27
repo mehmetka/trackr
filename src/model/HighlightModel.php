@@ -106,9 +106,7 @@ class HighlightModel
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
-        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['highlight'] = str_replace("&nbsp;", ' ', $row['highlight']);
-            $row['highlight'] = str_replace("\n", "   \n", $row['highlight']);
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {;
             $row['tags'] = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
             $row['is_secret'] = $row['is_secret'] ? true : false;
 
@@ -158,8 +156,6 @@ class HighlightModel
         $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
-
-        $rawHighlight = str_replace(' ', '&nbsp;', $rawHighlight);
         
         $sql = 'INSERT INTO highlights (highlight, author, source, page, link, created)
                 VALUES(:highlight, :author, :source, :page, :link, :created)';
@@ -189,7 +185,6 @@ class HighlightModel
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
-        $rawHighlight = str_replace(' ', '&nbsp;', $rawHighlight);
         $highlight = strip_tags($rawHighlight);
 
         $sql = 'UPDATE highlights 
