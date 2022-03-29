@@ -31,16 +31,17 @@ docker exec mysql sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" trackr' 
 ```
 #### Versioning Backup
 ```shell
-# create a git repository named "trackr-backups" and add commands below into a shell script and run it with cron
+# create a git repository(git init) named "trackr-backups" and add commands below into a shell script and run it with cron
 cd trackr-backups
 docker exec mysql sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" trackr' > ./trackr-backup.sql
 git add .
 git commit -m "`date +\%Y-\%m-\%d`"
+# if you have a "remote" then you can "push"
 ```
 
 ### Themes and Used Libraries
 - Theme: https://usebootstrap.com/theme/tinydash
--  Dark Theme: https://github.com/xcatliu/simplemde-theme-dark
+- Simple MDE Dark Theme: https://github.com/xcatliu/simplemde-theme-dark
 - Simple MDE: https://github.com/sparksuite/simplemde-markdown-editor
 
 ### Contributing
