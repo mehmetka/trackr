@@ -20,6 +20,24 @@ MYSQL_HOST=192.168.2.2
 
 6. Create logs directory on project root.
 
+### Appendix
+#### Backup:
+```shell
+# Add to cron:
+# Local
+docker exec mysql sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" trackr' | bzip2 > ~/trackr/backups/`date +\%d-\%m-\%Y`.sql.bz2
+# iCloud folder
+docker exec mysql sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" trackr' | bzip2 > ~/Library/Mobile\ Documents/com\~apple\~CloudDocs/trackr.sql.bz2
+```
+#### Versioning Backup
+```shell
+# create a git repository named "trackr-backups" and add commands below into a shell script and run it with cron
+cd trackr-backups
+docker exec mysql sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" trackr' > ./trackr-backup.sql
+git add .
+git commit -m "`date +\%Y-\%m-\%d`"
+```
+
 ### Themes and Used Libraries
 - Theme: https://usebootstrap.com/theme/tinydash
 -  Dark Theme: https://github.com/xcatliu/simplemde-theme-dark
