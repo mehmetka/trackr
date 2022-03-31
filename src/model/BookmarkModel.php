@@ -255,7 +255,6 @@ class BookmarkModel
 
         $bookmarkHighlight['author'] = $bookmarkHighlight['author'] ? $bookmarkHighlight['author'] : 'trackr';
         $bookmarkHighlight['source'] = $bookmarkHighlight['source'] ? $bookmarkHighlight['source'] : 'trackr';
-        $html = str_replace("\n", '<br>', trim($bookmarkHighlight['highlight']));
         $highlight = strip_tags(trim($bookmarkHighlight['highlight']));
         $page = null;
 
