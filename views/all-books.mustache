@@ -98,66 +98,57 @@
     <script>
         $(document).ready(function () {
 
-            var initBooks = function () {
-                bindingsBooks();
-            };
+            $(".btnAddBookToPath").on('click', function (e) {
 
-            var bindingsBooks = function () {
+                var pathUID = $(this).data("id");
+                var bookUID = $(this).data("book");
 
-                $(".btnAddBookToPath").on('click', function (e) {
+                ajaxCall('POST', "/books/" + bookUID + "/paths", "pathUID=" + pathUID, true)
 
-                    var pathUID = $(this).data("id");
-                    var bookUID = $(this).data("book");
+            });
 
-                    ajaxCall('POST', "/books/" + bookUID + "/paths", "pathUID=" + pathUID, true)
+            $(".btnAddToLibrary").on('click', function (e) {
 
-                });
+                var bookUID = $(this).data("id");
+                var result = ajaxCall('PUT', "/books/" + bookUID + "/add-to-library", null)
 
-                $(".btnAddToLibrary").on('click', function (e) {
+                if (result !== false) {
+                    location.reload();
+                }
 
-                    var bookUID = $(this).data("id");
-                    var result = ajaxCall('PUT', "/books/" + bookUID + "/add-to-library", null)
+            });
+
+            $(".btnResetBook").on('click', function (e) {
+
+                var bookUID = $(this).data("id");
+                var result = ajaxCall('DELETE', "/books/" + bookUID, null)
+
+                if (result !== false) {
+                    location.reload();
+                }
+
+            });
+
+            $('#author').bind('keypress', function (e) {
+                if (e.keyCode == 13) {
+                    var author = $('#author').val();
+                    var result = ajaxCall('POST', "/authors", "author=" + author)
 
                     if (result !== false) {
                         location.reload();
                     }
 
-                });
+                }
+            });
 
-                $(".btnResetBook").on('click', function (e) {
-
-                    var bookUID = $(this).data("id");
-                    var result = ajaxCall('DELETE', "/books/" + bookUID, null)
-
-                    if (result !== false) {
-                        location.reload();
-                    }
-
-                });
-
-                $('#author').bind('keypress', function (e) {
-                    if (e.keyCode == 13) {
-                        var author = $('#author').val();
-                        var result = ajaxCall('POST', "/authors", "author=" + author)
-
-                        if (result !== false) {
-                            location.reload();
-                        }
-
-                    }
-                });
-
-                $('#booksDatatable').DataTable({
-                    autoWidth: true,
-                    "lengthMenu": [
-                        [16, 32, 64, -1],
-                        [16, 32, 64, "All"]
-                    ]
-                });
-
-            };
-
-            initBooks();
+            $('#booksDatatable').DataTable({
+                autoWidth: true,
+                "lengthMenu": [
+                    [32, 64, 128, -1],
+                    [32, 64, 128, "All"]
+                ],
+                "order": [[3, "desc"]]
+            });
 
         });
     </script>
