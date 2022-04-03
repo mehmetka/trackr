@@ -106,7 +106,7 @@ class HighlightModel
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
-        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {;
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['tags'] = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
             $row['is_secret'] = $row['is_secret'] ? true : false;
 
