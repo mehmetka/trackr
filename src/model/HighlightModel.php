@@ -109,6 +109,7 @@ class HighlightModel
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['tags'] = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
             $row['is_secret'] = $row['is_secret'] ? true : false;
+            $row['highlight'] = html_entity_decode($row['highlight']);
 
             $list = $row;
         }
@@ -150,7 +151,7 @@ class HighlightModel
     public function create($params)
     {
         $now = time();
-        $rawHighlight = strip_tags(trim($params['highlight']));
+        $rawHighlight = htmlentities(trim($params['highlight']));
 
         $params['author'] = $params['author'] ? trim($params['author']) : 'trackr';
         $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
@@ -185,7 +186,7 @@ class HighlightModel
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
-        $highlight = strip_tags($rawHighlight);
+        $highlight = htmlentities($rawHighlight);
 
         $sql = 'UPDATE highlights 
                 SET highlight = :highlight, author = :author, source = :source, page = :page, location = :location, link = :link, is_secret = :is_secret, updated = :updated

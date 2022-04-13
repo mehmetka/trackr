@@ -255,7 +255,7 @@ class BookmarkModel
 
         $bookmarkHighlight['author'] = $bookmarkHighlight['author'] ? $bookmarkHighlight['author'] : 'trackr';
         $bookmarkHighlight['source'] = $bookmarkHighlight['source'] ? $bookmarkHighlight['source'] : 'trackr';
-        $highlight = strip_tags(trim($bookmarkHighlight['highlight']));
+        $highlight = htmlentities(trim($bookmarkHighlight['highlight']));
         $page = null;
 
         $sql = 'INSERT INTO highlights (highlight, html, author, source, page, link, created)
