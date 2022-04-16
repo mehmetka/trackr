@@ -32,17 +32,17 @@ class TagModel
 
     public function insertTagByChecking($highlightId, $tag)
     {
-        $tag = trim($tag);
+        $tag = strip_tags(trim($tag));
 
         if ($tag) {
             $tagExist = $this->getTagByTag($tag);
+            $tagId = $tagExist['id'];
 
             if (!$tagExist) {
                 $tagId = $this->createTag($tag);
-                $this->createHighlightTagRecord($highlightId, $tagId);
-            } else {
-                $this->createHighlightTagRecord($highlightId, $tagExist['id']);
             }
+
+            $this->createHighlightTagRecord($highlightId, $tagId);
         }
     }
 
