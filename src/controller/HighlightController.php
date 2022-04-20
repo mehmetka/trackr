@@ -51,7 +51,7 @@ class HighlightController extends Controller
     public function details(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $highlightID = $args['id'];
-        
+
         $detail = $this->highlightModel->getHighlightByID($highlightID);
         $subHighlights = $this->highlightModel->getSubHighlightsByHighlightID($highlightID);
         $nextID = $this->highlightModel->getNextHighlight($highlightID);
@@ -116,13 +116,13 @@ class HighlightController extends Controller
     {
         $params = $request->getParsedBody();
 
-        if(!$params['highlight']){
+        if (!$params['highlight']) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight cannot be null!");
         }
 
         $highlightExist = $this->highlightModel->searchHighlight(trim($params['highlight']));
 
-        if($highlightExist){
+        if ($highlightExist) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight added before.!");
         }
 
@@ -140,15 +140,16 @@ class HighlightController extends Controller
 
         $highlightId = $this->highlightModel->create($params);
 
-        if (strpos($params['tags'], ',') !== false) {
-            $tags = explode(',', $params['tags']);
+        if ($params['tags']) {
+            if (strpos($params['tags'], ',') !== false) {
+                $tags = explode(',', $params['tags']);
 
-            foreach ($tags as $tag) {
-                $this->tagModel->insertTagByChecking($highlightId, trim($tag));
+                foreach ($tags as $tag) {
+                    $this->tagModel->insertTagByChecking($highlightId, trim($tag));
+                }
+            } else {
+                $this->tagModel->insertTagByChecking($highlightId, trim($params['tags']));
             }
-
-        } else {
-            $this->tagModel->insertTagByChecking($highlightId, trim($params['tags']));
         }
 
         $_SESSION['badgeCounts']['highlightsCount'] += 1;
@@ -183,7 +184,6 @@ class HighlightController extends Controller
             foreach ($tags as $tag) {
                 $this->tagModel->insertTagByChecking($subHighlightID, trim($tag));
             }
-
         } else {
             $this->tagModel->insertTagByChecking($subHighlightID, trim($params['tags']));
         }
@@ -206,7 +206,7 @@ class HighlightController extends Controller
         $this->highlightModel->deleteHighlight($highlightID);
         $this->highlightModel->deleteHighlightTagsByHighlightID($highlightID);
         $this->highlightModel->deleteSubHighlightByHighlightID($highlightID);
-        
+
         $_SESSION['badgeCounts']['highlightsCount'] -= 1;
 
         $resource = [
