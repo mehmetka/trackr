@@ -34,8 +34,8 @@ $app->group('', function () {
     $this->get('/books/paths', BookController::class . ':paths')->setName('paths');
     $this->get('/books/paths/{pathUID}', BookController::class . ':booksPathInside');
     $this->get('/books/trackings/graphic-datas', BookController::class . ':getBookTrackingsGraphicData');
-    $this->get('/all-books', BookController::class . ':allBooks');
-    $this->get('/my-books', BookController::class . ':myBooks');
+    $this->get('/books', BookController::class . ':allBooks');
+    $this->get('/books/my-library', BookController::class . ':myBooks');
     $this->put('/books/{bookUID}/add-to-library', BookController::class . ':addToLibrary');
     $this->get('/books/finished', BookController::class . ':finishedBooks');
     $this->post('/books/{bookUID}/progress', BookController::class . ':addProgress');
