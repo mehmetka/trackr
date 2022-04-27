@@ -51,7 +51,6 @@
             var result = ajaxCall('GET', '/books/' + uid + '/reading-history', null, false, false)
 
             if (result !== false) {
-                console.log(result)
                 var template = $('#reading-history-template').html();
                 Mustache.parse(template);
                 var rendered = Mustache.render(template, result);

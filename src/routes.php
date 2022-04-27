@@ -79,6 +79,7 @@ $app->group('', function () {
     $this->put('/highlights/{id:[0-9]+}', HighlightController::class . ':update');
     $this->post('/highlights', HighlightController::class . ':create');
     $this->post('/highlights/{id:[0-9]+}/sub', HighlightController::class . ':createSub');
+    $this->post('/highlights/search', HighlightController::class . ':search');
 
     $this->get('/writings', WritingController::class . ':index');
     $this->post('/writings', WritingController::class . ':create');

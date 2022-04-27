@@ -67,7 +67,7 @@ class HighlightController extends Controller
 
     public function all(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $highlights = $this->highlightModel->getHighlights(100);
+        $highlights = $this->highlightModel->getHighlights(null, 100);
 
         $data = [
             'highlights' => $highlights
@@ -196,7 +196,6 @@ class HighlightController extends Controller
 
     public function delete(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $params = $request->getParsedBody();
         $highlightID = $args['id'];
 
         $this->highlightModel->deleteHighlight($highlightID);
@@ -207,6 +206,19 @@ class HighlightController extends Controller
 
         $resource = [
             "message" => "Success!"
+        ];
+
+        return $this->response(StatusCode::HTTP_OK, $resource);
+    }
+
+    public function search(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $params = $request->getParsedBody();
+
+        $results = $this->highlightModel->searchHighlight($params['searchParam']);
+
+        $resource = [
+            "highlights" => $results
         ];
 
         return $this->response(StatusCode::HTTP_OK, $resource);

@@ -22,6 +22,7 @@ class HighlightModel
 
     public function getHighlights($tag = null, $limit = null)
     {
+        $limit = $limit ? $limit : 500;
         $list = [];
 
         $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created
@@ -33,17 +34,10 @@ class HighlightModel
             $sql .= ' WHERE t.tag = :tag';
         }
 
-        $sql .= ' ORDER BY h.id DESC';
-
-        if ($limit) {
-            $sql .= ' LIMIT :limit';
-        }
+        $sql .= ' ORDER BY h.id DESC LIMIT :limit';
 
         $stm = $this->dbConnection->prepare($sql);
-
-        if ($limit) {
-            $stm->bindParam(':limit', $limit, \PDO::PARAM_INT);
-        }
+        $stm->bindParam(':limit', $limit, \PDO::PARAM_INT);
 
         if ($tag) {
             $stm->bindParam(':tag', $tag, \PDO::PARAM_STR);
@@ -315,27 +309,35 @@ class HighlightModel
         return true;
     }
 
-    public function searchHighlight($highlight)
+    public function searchHighlight($searchParam)
     {
-        $result = [];
-        $highlight = "%$highlight%";
+        $searchParam = "%$searchParam%";
+        $list = [];
 
-        $sql = 'SELECT * 
-                FROM highlights 
-                WHERE highlight LIKE :highlight';
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created
+                FROM highlights h
+                WHERE h.highlight LIKE :searchParam';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':highlight', $highlight, \PDO::PARAM_STR);
+        $stm->bindParam(':searchParam', $searchParam, \PDO::PARAM_STR);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $result[] = $row;
+            $row['highlight'] = $this->convertMarkdownToHTML($row['highlight']);
+            $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
+            $tags = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
+
+            if ($tags) {
+                $row['tags'] = $tags;
+            }
+
+            $list[] = $row;
         }
 
-        return $result;
+        return $list;
     }
 
     public function convertMarkdownToHTML($str)

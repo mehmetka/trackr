@@ -3,57 +3,65 @@
 
 <head>
     {{> head }}
-    <link rel="stylesheet" href="https://cdn.rawgit.com/xcatliu/simplemde-theme-dark/master/dist/simplemde-theme-dark.min.css">
+    <link rel="stylesheet"
+          href="https://cdn.rawgit.com/xcatliu/simplemde-theme-dark/master/dist/simplemde-theme-dark.min.css">
 </head>
 
 <body class="vertical dark">
-    <div class="wrapper">
-        <main role="main" class="main-content">
-            <div class="container-fluid">
-                <div class="row justify-content-center">
-                    <div class="col-12">
+<div class="wrapper">
+    <nav class="topnav navbar navbar-light">
+        <input id="searchHighlights" class="form-control mr-sm-2 bg-transparent border-0 pl-4 text-muted" type="search"
+               placeholder="Search Highlights" aria-label="Search">
+    </nav>
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
 
-                        <div class="card mb-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Add New Highlight</h5>
-                                    <textarea id="highlight" hidden></textarea>
-                                    
-                                    <br>
-                                    <div class="input-group input-group-lg">
-                                        <input id="author" placeholder="Author" type="text"
-                                            class="form-control enterButtonKeyPress">
-                                        <input id="source" placeholder="Source" type="text"
-                                            class="form-control enterButtonKeyPress">
-                                        <input id="page" placeholder="Page" type="number"
-                                            class="form-control enterButtonKeyPress">
-                                    </div>
-                                    <br>
-                                    <div class="input-group input-group-lg">
-                                        <input id="link" placeholder="Link" type="text"
-                                            class="form-control enterButtonKeyPress">
-                                        <input id="tags" placeholder="Tags" type="text"
-                                            class="form-control enterButtonKeyPress">
-                                    </div>
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Add New Highlight</h5>
+                                <textarea id="highlight" hidden></textarea>
+
+                                <br>
+                                <div class="input-group input-group-lg">
+                                    <input id="author" placeholder="Author" type="text"
+                                           class="form-control enterButtonKeyPress">
+                                    <input id="source" placeholder="Source" type="text"
+                                           class="form-control enterButtonKeyPress">
+                                    <input id="page" placeholder="Page" type="number"
+                                           class="form-control enterButtonKeyPress">
+                                </div>
+                                <br>
+                                <div class="input-group input-group-lg">
+                                    <input id="link" placeholder="Link" type="text"
+                                           class="form-control enterButtonKeyPress">
+                                    <input id="tags" placeholder="Tags" type="text"
+                                           class="form-control enterButtonKeyPress">
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div>
-                            {{#headerTags}}
-                            <a role="button" href="/highlights{{#href}}?tag={{href}}{{/href}}" class="badge badge-{{badge}}">
-                                <strong>#{{tag}}</strong>
+                    <div>
+                        {{#headerTags}}
+                        <a role="button" href="/highlights{{#href}}?tag={{href}}{{/href}}" class="badge badge-{{badge}}
+                            ">
+                            <strong>#{{tag}}</strong>
                             </a>
-                            {{/headerTags}}
-                        </div>
+                        {{/headerTags}}
+                    </div>
 
-                        <br>
+                    <br>
 
-                        {{#highlights}}
-                        <div class="card">
+                    <div id="search-results"></div>
+
+                    {{#highlights}}
+                        <div class="card highlightCard">
                             <div class="card-body">
                                 <a role="button" href="/highlights/{{id}}" class="badge badge-primary float-right"><span
-                                        class="fe fe-edit fe-8"></a>
+                                        class="fe fe-edit fe-8"></span></a>
                                 <br>
                                 {{{highlight}}}
 
@@ -68,49 +76,96 @@
 
                             </div>
                         </div>
-                        <br>
-                        {{/highlights}}
+                        <br class="highlightCardBR">
+                    {{/highlights}}
 
-                    </div> <!-- .col-12 -->
-                </div> <!-- .row -->
-            </div> <!-- .container-fluid -->
-        </main> <!-- main -->
-    </div> <!-- .wrapper -->
+                    {{=<% %>=}}
+                    <script id="search-results-template" type="text/x-handlebars-template">
+                        {{#highlights}}
+                        <div class="card highlightCard">
+                            <div class="card-body">
+                                <a role="button" href="/highlights/{{id}}" class="badge badge-primary float-right"><span
+                                        class="fe fe-edit fe-8"></span></a>
+                                <br>
+                                {{{highlight}}}
 
-    {{> include}}
-    {{> menu }}
-    {{> navbar }}
+                                <footer class="blockquote-footer">
+                                    {{author}} <cite>{{source}}</cite> ~ {{created_at_formatted}}
 
-    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+                        {{#tags}}
+                                        <br><br>
+                                        <strong>{{imploded_hashtag_blank}}</strong>
+                                    {{/tags}}
+                                </footer>
 
-    <script>
-        $(document).ready(function () {
+                            </div>
+                        </div>
+                        <br class="highlightCardBR">
+                    {{/highlights}}
+                    </script>
+                    <%={{ }}=%>
 
-            var simplemde = new SimpleMDE({
-                element: $("#highlight")[0],
-                toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview" ],
-            });
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
 
-            $('#highlight').show();
+{{> include}}
+{{> menu }}
+{{> navbar }}
+<script src="/js/mustache.min.js"></script>
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 
-            $('.enterButtonKeyPress').bind('keypress', function (e) {
-                if (e.keyCode == 13) {
-                    var highlight = simplemde.value();
-                    var author = $('#author').val();
-                    var source = $('#source').val();
-                    var page = $('#page').val();
-                    var link = $('#link').val();
-                    var tags = $('#tags').val();
-                    var data = "highlight=" + encodeURIComponent(highlight) + "&author=" + encodeURIComponent(author) + "&source=" + encodeURIComponent(source) + "&page=" + encodeURIComponent(page) + "&link=" + encodeURIComponent(link) + "&tags=" + encodeURIComponent(tags);
-                    var result = ajaxCall('POST', "/highlights", data)
+<script>
+    $(document).ready(function () {
+
+        var simplemde = new SimpleMDE({
+            element: $("#highlight")[0],
+            toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
+        });
+
+        $('#highlight').show();
+
+        $('#searchHighlights').bind('keypress', function (e) {
+            if (e.keyCode == 13) {
+
+                var searchParam = $('#searchHighlights').val();
+
+                if(searchParam !== '') {
+                    var result = ajaxCall('POST', "/highlights/search", 'searchParam=' + searchParam, false, false)
 
                     if (result !== false) {
-                        location.reload();
+                        $('.highlightCard').remove();
+                        $('.highlightCardBR').remove();
+
+                        var template = $('#search-results-template').html();
+                        Mustache.parse(template);
+                        var rendered = Mustache.render(template, result);
+                        $("#search-results").html(rendered);
                     }
                 }
-            });
+            }
         });
-    </script>
+
+        $('.enterButtonKeyPress').bind('keypress', function (e) {
+            if (e.keyCode == 13) {
+                var highlight = simplemde.value();
+                var author = $('#author').val();
+                var source = $('#source').val();
+                var page = $('#page').val();
+                var link = $('#link').val();
+                var tags = $('#tags').val();
+                var data = "highlight=" + encodeURIComponent(highlight) + "&author=" + encodeURIComponent(author) + "&source=" + encodeURIComponent(source) + "&page=" + encodeURIComponent(page) + "&link=" + encodeURIComponent(link) + "&tags=" + encodeURIComponent(tags);
+                var result = ajaxCall('POST', "/highlights", data)
+
+                if (result !== false) {
+                    location.reload();
+                }
+            }
+        });
+    });
+</script>
 </body>
 
 </html>
