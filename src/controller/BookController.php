@@ -266,6 +266,20 @@ class BookController extends Controller
         return $this->response($resource['responseCode'], $resource);
     }
 
+    public function rateBook(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $bookUID = $args['bookUID'];
+        $bookId = $this->bookModel->getBookIdByUid($bookUID);
+        $params = $request->getParsedBody();
+        
+        $this->bookModel->rateBook($bookId, $params['rate']);
+
+        $resource['message'] = "Successfully rated!";
+        $resource['responseCode'] = StatusCode::HTTP_OK;
+
+        return $this->response($resource['responseCode'], $resource);
+    }
+
     public function getBookTrackingsGraphicData(ServerRequestInterface $request, ResponseInterface $response)
     {
         $graphicDatas = $this->bookModel->getBookTrackingsGraphicData();

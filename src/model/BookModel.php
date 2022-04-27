@@ -539,7 +539,7 @@ class BookModel
 
     public function finishedBooks()
     {
-        $sql = "SELECT bf.id, bf.book_id, b.title, b.page_count, b.status, bf.start_date, bf.finish_date, 
+        $sql = "SELECT bf.id, b.uid, bf.book_id, b.title, b.page_count, b.status, bf.start_date, bf.finish_date, bf.rate, 
                         CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ') FROM book_authors ba INNER JOIN author a ON ba.author_id = a.id WHERE ba.book_id = b.id)) AS author
                 FROM books_finished bf
                 LEFT JOIN books b ON bf.book_id = b.id
@@ -1059,5 +1059,22 @@ class BookModel
         }
 
         return $bookCount;
+    }
+
+    public function rateBook($bookID, $rating)
+    {
+        $sql = 'UPDATE books_finished
+                SET rate = :rate
+                WHERE book_id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':id', $bookID, \PDO::PARAM_INT);
+        $stm->bindParam(':rate', $rating, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
     }
 }

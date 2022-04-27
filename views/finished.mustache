@@ -1,61 +1,95 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     {{> head }}
 </head>
+
 <body class="vertical dark">
-<div class="wrapper">
-    <main role="main" class="main-content">
-        <div class="container-fluid">
-            <div class="row justify-content-center">
-                <div class="col-12">
+    <div class="wrapper">
+        <main role="main" class="main-content">
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-12">
 
-                    <!-- simple table -->
-                    <div class="card mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Finished Books</h5>
-                                <table class="table table-striped table-bordered" id="booksDatatable" width="100%">
-                                    <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Author</th>
-                                        <th>Title</th>
-                                        <th>Page</th>
-                                        <th>Started</th>
-                                        <th>Finished</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {{#books}}
-                                        <tr>
-                                            <td>{{id}}</td>
-                                            <td>{{author}}</td>
-                                            <td>{{title}}</td>
-                                            <td>{{page_count}}</td>
-                                            <td>{{start_date}}</td>
-                                            <td>{{finish_date}}</td>
-                                        </tr>
-                                    {{/books}}
-                                    </tbody>
-                                </table>
+                        <!-- simple table -->
+                        <div class="card mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Finished Books</h5>
+                                    <table class="table table-striped table-bordered" id="booksDatatable" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Author</th>
+                                                <th>Title</th>
+                                                <th>Page</th>
+                                                <th>Started</th>
+                                                <th>Finished</th>
+                                                <th>Rate</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {{#books}}
+                                            <tr>
+                                                <td>{{author}}</td>
+                                                <td>{{title}}</td>
+                                                <td>{{page_count}}</td>
+                                                <td>{{start_date}}</td>
+                                                <td>{{finish_date}}</td>
+                                                <td>
+                                                    {{#rate}}
+                                                    {{rate}}
+                                                    {{/rate}}
+                                                    {{^rate}}
+                                                    <div class="dropdown" id="rate">
+                                                        <button class="btn btn-secondary dropdown-toggle" type="button"
+                                                            id="rateButton" data-toggle="dropdown" aria-haspopup="true"
+                                                            aria-expanded="false">
+                                                            Rate
+                                                        </button>
+                                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                            <a class="dropdown-item rateBook" data-uid="{{uid}}">1</a>
+                                                            <a class="dropdown-item rateBook" data-uid="{{uid}}">2</a>
+                                                            <a class="dropdown-item rateBook" data-uid="{{uid}}">3</a>
+                                                            <a class="dropdown-item rateBook" data-uid="{{uid}}">4</a>
+                                                            <a class="dropdown-item rateBook" data-uid="{{uid}}">5</a>
+                                                        </div>
+                                                    </div>
+                                                    {{/rate}}
+                                                </td>
+                                            </tr>
+                                            {{/books}}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
-                    </div> <!-- simple table -->
-                </div> <!-- .col-12 -->
-            </div> <!-- .row -->
-        </div> <!-- .container-fluid -->
-    </main> <!-- main -->
-</div> <!-- .wrapper -->
+                        </div> <!-- simple table -->
+                    </div> <!-- .col-12 -->
+                </div> <!-- .row -->
+            </div> <!-- .container-fluid -->
+        </main> <!-- main -->
+    </div> <!-- .wrapper -->
 
-{{> include}}
-{{> menu }}
-{{> navbar }}
+    {{> include}}
+    {{> menu }}
+    {{> navbar }}
 
-<script>
-    $(document).ready(function () {
+    <script>
+        $(document).ready(function () {
 
-    });
-</script>
+            $(".rateBook").on('click', function (e) {
+                var bookUID = $(this).data('uid');
+                var rating = $(this).text();
+
+                var result = ajaxCall('PUT', "/books/rate/" + bookUID, "rate=" + rating)
+
+                if (result !== false) {
+                    location.reload();
+                }
+            });
+
+        });
+    </script>
 </body>
+
 </html>
