@@ -20,15 +20,23 @@ class HighlightModel
         $this->parseDown = new \Parsedown();
     }
 
-    public function getHighlights($limit = null)
+    public function getHighlights($tag = null, $limit = null)
     {
         $list = [];
 
-        $sql = 'SELECT * 
-                FROM highlights ORDER BY id DESC ';
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created
+                FROM highlights h
+                INNER JOIN highlight_tags ht ON h.id = ht.highlight_id
+                INNER JOIN tags t ON ht.tag_id = t.id';
+
+        if ($tag) {
+            $sql .= ' WHERE t.tag = :tag';
+        }
+
+        $sql .= ' ORDER BY h.id DESC';
 
         if ($limit) {
-            $sql .= 'LIMIT :limit';
+            $sql .= ' LIMIT :limit';
         }
 
         $stm = $this->dbConnection->prepare($sql);
@@ -37,38 +45,9 @@ class HighlightModel
             $stm->bindParam(':limit', $limit, \PDO::PARAM_INT);
         }
 
-        if (!$stm->execute()) {
-            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        if ($tag) {
+            $stm->bindParam(':tag', $tag, \PDO::PARAM_STR);
         }
-
-        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['highlight'] = $this->convertMarkdownToHTML($row['highlight']);
-            $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
-            $tags = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
-
-            if ($tags) {
-                $row['tags'] = $tags;
-            }
-
-            $list[] = $row;
-        }
-
-        return $list;
-    }
-
-    public function getHighlightsByTag($tag)
-    {
-        $list = [];
-
-        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created
-                FROM highlights h
-                INNER JOIN highlight_tags ht ON h.id = ht.highlight_id
-                INNER JOIN tags t ON ht.tag_id = t.id
-                WHERE t.tag = :tag
-                ORDER BY h.id DESC';
-
-        $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':tag', $tag, \PDO::PARAM_STR);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
@@ -156,7 +135,7 @@ class HighlightModel
         $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
-        
+
         $sql = 'INSERT INTO highlights (highlight, author, source, page, link, created)
                 VALUES(:highlight, :author, :source, :page, :link, :created)';
 
