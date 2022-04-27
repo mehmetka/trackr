@@ -16,16 +16,25 @@ class BookmarkModel
         $this->dbConnection = $container->get('db');
     }
 
-    public function getBookmarks()
+    public function getBookmarks($category = null)
     {
         $bookmarks = [];
 
         $sql = 'SELECT b.id, b.uid AS bookmarkUID, b.bookmark, b.title, b.note, b.categoryId, c.name AS categoryName, b.status, b.created, b.started, b.done
                 FROM bookmarks b
-                INNER JOIN categories c ON b.categoryId = c.id
-                ORDER BY FIELD(status, 1, 0, 2), orderNumber DESC, id DESC';
+                INNER JOIN categories c ON b.categoryId = c.id';
+
+        if ($category) {
+            $sql .= ' WHERE c.name = :categoryName';
+        }
+
+        $sql .= ' ORDER BY FIELD(status, 1, 0, 2), orderNumber DESC, id DESC';
 
         $stm = $this->dbConnection->prepare($sql);
+
+        if ($category) {
+            $stm->bindParam(':categoryName', $category, \PDO::PARAM_STR);
+        }
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -37,7 +46,7 @@ class BookmarkModel
                 $row['title'] = $row['bookmark'];
             }
 
-            if (strlen($row['title']) > 125){
+            if (strlen($row['title']) > 125) {
                 $row['title'] = substr($row['title'], 0, 125);
                 $row['title'] .= ' ...';
             }
@@ -245,7 +254,7 @@ class BookmarkModel
         }
 
         $title = null;
-   
+
         return $this->create($bookmark, $title, $note, $categoryId);
     }
 

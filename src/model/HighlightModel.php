@@ -65,8 +65,7 @@ class HighlightModel
                 INNER JOIN highlight_tags ht ON h.id = ht.highlight_id
                 INNER JOIN tags t ON ht.tag_id = t.id
                 WHERE t.tag = :tag
-                ORDER BY h.id DESC
-                LIMIT 100';
+                ORDER BY h.id DESC';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':tag', $tag, \PDO::PARAM_STR);

@@ -45,6 +45,36 @@ class CategoryModel
         return $list;
     }
 
+    public function getBookmarkCategoriesAsHTML($category = null)
+    {
+        $sql = 'SELECT DISTINCT c.id, c.name
+                FROM bookmarks b
+                INNER JOIN categories c ON b.categoryId = c.id';
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        $list = [];
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+
+            $row['badge'] = 'info';
+            $row['href'] = $row['name'];
+
+            if ($category !== null && $category == $row['name']) {
+                $row['href'] = '';
+                $row['badge'] = 'primary';
+            }
+
+            $list[] = $row;
+        }
+
+        return $list;
+    }
+
     public function createCategory($categoryName)
     {
         $created = time();

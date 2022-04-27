@@ -36,6 +36,16 @@
                             </div>
                         </div>
 
+                        <div>
+                            {{#bookmarkCategories}}
+                            <a role="button" href="/bookmarks{{#href}}?category={{href}}{{/href}}" class="badge badge-{{badge}}">
+                                <strong>#{{name}}</strong>
+                            </a>
+                            {{/bookmarkCategories}}
+                        </div>
+
+                        <br>
+
                         <!-- simple table -->
                         <div class="card mb-4">
                             <div class="card">

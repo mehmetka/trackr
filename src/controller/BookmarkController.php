@@ -27,13 +27,18 @@ class BookmarkController extends Controller
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $highlights = $this->bookmarkModel->getBookmarks();
-        $categories = $this->categoryModel->getCategories();
+        $queryString = $request->getQueryParams();
+
+        $bookmarks = $this->bookmarkModel->getBookmarks($queryString['category']);
+        
+        $allCategories = $this->categoryModel->getCategories();
+        $bookmarkCategories = $this->categoryModel->getBookmarkCategoriesAsHTML($queryString['category']);
 
         $data = [
             'title' => 'Bookmarks | trackr',
-            'categories' => $categories,
-            'bookmarks' => $highlights,
+            'categories' => $allCategories,
+            'bookmarkCategories' => $bookmarkCategories,
+            'bookmarks' => $bookmarks,
             'activeBookmarks' => 'active'
         ];
 

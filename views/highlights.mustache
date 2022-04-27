@@ -41,7 +41,7 @@
 
                         <div>
                             {{#headerTags}}
-                            <a role="button" href="/highlights?tag={{href}}" class="badge badge-{{badge}}">
+                            <a role="button" href="/highlights{{#href}}?tag={{href}}{{/href}}" class="badge badge-{{badge}}">
                                 <strong>#{{tag}}</strong>
                             </a>
                             {{/headerTags}}
