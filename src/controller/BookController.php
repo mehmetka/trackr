@@ -280,6 +280,17 @@ class BookController extends Controller
         return $this->response($resource['responseCode'], $resource);
     }
 
+    public function getReadingHistory(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $bookUID = $args['bookUID'];
+        $bookId = $this->bookModel->getBookIdByUid($bookUID);
+
+        $resource['data'] = $this->bookModel->getReadingHistory($bookId);
+        $resource['responseCode'] = StatusCode::HTTP_OK;
+
+        return $this->response($resource['responseCode'], $resource);
+    }
+
     public function getBookTrackingsGraphicData(ServerRequestInterface $request, ResponseInterface $response)
     {
         $graphicDatas = $this->bookModel->getBookTrackingsGraphicData();

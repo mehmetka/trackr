@@ -1077,4 +1077,28 @@ class BookModel
 
         return true;
     }
+
+    public function getReadingHistory($bookID)
+    {
+        $history = [];
+
+        $sql = "SELECT p.name AS pathName, bt.record_date, bt.amount
+                FROM book_trackings bt
+                INNER JOIN paths p ON bt.path_id = p.id
+                WHERE book_id = :bookID";
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':bookID', $bookID, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $row['record_date'] = date('Y-m-d H:i:s', $row['record_date']);
+            $history[] = $row;
+        }
+
+        return $history;
+    }
 }
