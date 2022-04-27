@@ -50,7 +50,7 @@
                         <div class="card mb-4">
                             <div class="card">
                                 <div class="card-body">
-                                    <table class="table datatables" id="bookmarksDatatable" width="100%">
+                                    <table class="table table-striped table-bordered" id="bookmarksDatatable">
                                         <thead>
                                             <tr>
                                                 <th scope="col">Status</th>
@@ -178,15 +178,6 @@
                     location.reload();
                 }
 
-            });
-
-            $('#bookmarksDatatable').DataTable({
-                autoWidth: true,
-                "lengthMenu": [
-                    [16, 32, 64, -1],
-                    [16, 32, 64, "All"]
-                ],
-                "order": [[ 2, "desc" ]]
             });
 
         });
