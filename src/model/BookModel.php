@@ -1037,7 +1037,7 @@ class BookModel
     {
         $bookCount = 0;
 
-        if($status == 'active') {
+        if ($status == 'active') {
             $status = 'status < 2';
         } else {
             $status = 'status = 2';
@@ -1078,17 +1078,30 @@ class BookModel
         return true;
     }
 
-    public function getReadingHistory($bookID)
+    public function getReadingHistory($bookID = null)
     {
         $history = [];
 
-        $sql = "SELECT p.name AS pathName, bt.record_date, bt.amount
+        $sql = "SELECT p.name AS pathName, bt.record_date, bt.amount, b.title, 
+                        CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ')
+                               FROM book_authors ba
+                                        INNER JOIN author a ON ba.author_id = a.id
+                               WHERE ba.book_id = b.id)) AS author
                 FROM book_trackings bt
                 INNER JOIN paths p ON bt.path_id = p.id
-                WHERE book_id = :bookID";
+                INNER JOIN books b ON bt.book_id = b.id";
+
+        if ($bookID) {
+            $sql .= ' WHERE bt.book_id = :bookID';
+        }
+
+        $sql .= ' ORDER BY bt.id DESC';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':bookID', $bookID, \PDO::PARAM_INT);
+
+        if ($bookID) {
+            $stm->bindParam(':bookID', $bookID, \PDO::PARAM_INT);
+        }
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));

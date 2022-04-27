@@ -101,6 +101,19 @@ class BookController extends Controller
         return $this->view->render($response, 'finished.mustache', $data);
     }
 
+    public function readingHistory(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $readingHistory = $this->bookModel->getReadingHistory();
+
+        $data = [
+            'title' => 'Reading History | trackr',
+            'readingHistory' => $readingHistory,
+            'activeReadingHistory' => 'active'
+        ];
+
+        return $this->view->render($response, 'reading-history.mustache', $data);
+    }
+
     public function addProgress(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $params = $request->getParsedBody();

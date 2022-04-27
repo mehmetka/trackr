@@ -47,6 +47,7 @@ $app->group('', function () {
     $this->post('/books', BookController::class . ':saveBook');
     $this->put('/books/rate/{bookUID}', BookController::class . ':rateBook');
     $this->get('/books/{bookUID}/reading-history', BookController::class . ':getReadingHistory');
+    $this->get('/books/reading-history', BookController::class . ':readingHistory');
 
     $this->get('/categories', CategoryController::class . ':index');
     $this->post('/categories', CategoryController::class . ':create');
