@@ -267,12 +267,11 @@ class BookmarkModel
         $highlight = htmlentities(trim($bookmarkHighlight['highlight']));
         $page = null;
 
-        $sql = 'INSERT INTO highlights (highlight, html, author, source, page, link, created)
-                VALUES(:highlight, :html, :author, :source, :page, :link, :created)';
+        $sql = 'INSERT INTO highlights (highlight, author, source, page, link, created)
+                VALUES(:highlight, :author, :source, :page, :link, :created)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':highlight', $highlight, \PDO::PARAM_STR);
-        $stm->bindParam(':html', $html, \PDO::PARAM_STR);
         $stm->bindParam(':author', $bookmarkHighlight['author'], \PDO::PARAM_STR);
         $stm->bindParam(':source', $bookmarkHighlight['source'], \PDO::PARAM_STR);
         $stm->bindParam(':page', $page, \PDO::PARAM_INT);
