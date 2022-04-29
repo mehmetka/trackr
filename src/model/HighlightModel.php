@@ -26,12 +26,12 @@ class HighlightModel
         $list = [];
 
         $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created
-                FROM highlights h
-                INNER JOIN highlight_tags ht ON h.id = ht.highlight_id
-                INNER JOIN tags t ON ht.tag_id = t.id';
+                FROM highlights h';
 
         if ($tag) {
-            $sql .= ' WHERE t.tag = :tag';
+            $sql .= ' LEFT JOIN highlight_tags ht ON h.id = ht.highlight_id
+                LEFT JOIN tags t ON ht.tag_id = t.id
+                WHERE t.tag = :tag';
         }
 
         $sql .= ' ORDER BY h.id DESC LIMIT :limit';
