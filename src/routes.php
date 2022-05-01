@@ -45,7 +45,7 @@ $app->group('', function () {
     $this->post('/books/paths', BookController::class . ':createPath');
     $this->post('/books/paths/{pathUID}/extend', BookController::class . ':extendPathFinish');
     $this->post('/books', BookController::class . ':saveBook');
-    $this->put('/books/rate/{bookUID}', BookController::class . ':rateBook');
+    $this->put('/books/rate/{finishedBookId:[0-9]+}', BookController::class . ':rateBook');
     $this->get('/books/{bookUID}/reading-history', BookController::class . ':getReadingHistory');
     $this->get('/books/reading-history', BookController::class . ':readingHistory');
 

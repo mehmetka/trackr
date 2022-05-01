@@ -539,10 +539,11 @@ class BookModel
 
     public function finishedBooks()
     {
-        $sql = "SELECT bf.id, b.uid, bf.book_id, b.title, b.page_count, b.status, bf.start_date, bf.finish_date, bf.rate, 
+        $sql = "SELECT bf.id, b.uid, bf.book_id, b.title, b.page_count, b.status, bf.start_date, bf.finish_date, bf.rate, p.name AS pathName,
                         CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ') FROM book_authors ba INNER JOIN author a ON ba.author_id = a.id WHERE ba.book_id = b.id)) AS author
                 FROM books_finished bf
                 LEFT JOIN books b ON bf.book_id = b.id
+                INNER JOIN paths p ON bf.path_id = p.id
                 ORDER BY finish_date DESC";
         $stm = $this->dbConnection->prepare($sql);
 
@@ -557,6 +558,28 @@ class BookModel
         }
 
         return $books;
+    }
+
+    public function finishedBookByID($finishedBookId)
+    {
+        $book = [];
+
+        $sql = "SELECT * 
+                FROM books_finished
+                WHERE id = :id";
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':id', $finishedBookId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $book = $row;
+        }
+
+        return $book;
     }
 
     public function getBooksPathInside($pathId, $status = false)
@@ -749,14 +772,14 @@ class BookModel
         return true;
     }
 
-    public function getPathByUid($pathUid)
+    public function getPathById($pathId)
     {
         $sql = 'SELECT id, name, start, finish, status
                 FROM paths 
-                WHERE uid = :uid';
+                WHERE id = :id';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':uid', $pathUid, \PDO::PARAM_STR);
+        $stm->bindParam(':id', $pathId, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -774,15 +797,15 @@ class BookModel
         return $path;
     }
 
-    public function extendFinishDate($pathUid, $extendedFinishDate)
+    public function extendFinishDate($pathId, $extendedFinishDate)
     {
         $sql = 'UPDATE paths 
                 SET finish = :finish 
-                WHERE uid = :uid';
+                WHERE id = :id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':finish', $extendedFinishDate, \PDO::PARAM_INT);
-        $stm->bindParam(':uid', $pathUid, \PDO::PARAM_STR);
+        $stm->bindParam(':uid', $pathId, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -852,7 +875,7 @@ class BookModel
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
         }
 
-        return true;
+        return $this->dbConnection->lastInsertId();
     }
 
     public function deleteBookTrackingsByPath($bookId, $pathId)
@@ -1061,14 +1084,14 @@ class BookModel
         return $bookCount;
     }
 
-    public function rateBook($bookID, $rating)
+    public function rateBook($finishedBookID, $rating)
     {
         $sql = 'UPDATE books_finished
                 SET rate = :rate
-                WHERE book_id = :id';
+                WHERE id = :finishedBookID';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':id', $bookID, \PDO::PARAM_INT);
+        $stm->bindParam(':finishedBookID', $finishedBookID, \PDO::PARAM_INT);
         $stm->bindParam(':rate', $rating, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
@@ -1113,5 +1136,25 @@ class BookModel
         }
 
         return $history;
+    }
+
+    public function addActivityLog($pathID, $bookID, $activity)
+    {
+        $timestamp = time();
+
+        $sql = 'INSERT INTO activity_logs (path_id, book_id, activity, timestamp) 
+                VALUES (:path_id, :book_id, :activity, :timestamp)';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':path_id', $pathID, \PDO::PARAM_INT);
+        $stm->bindParam(':book_id', $bookID, \PDO::PARAM_INT);
+        $stm->bindParam(':activity', $activity, \PDO::PARAM_STR);
+        $stm->bindParam(':timestamp', $timestamp, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
     }
 }
