@@ -7,11 +7,7 @@ use App\controller\BookController;
 use App\controller\BookmarkController;
 use App\controller\CategoryController;
 use App\controller\DateTrackingController;
-use App\controller\TrackingController;
-use App\controller\VideoController;
 use App\controller\HighlightController;
-use App\controller\WritingController;
-use App\controller\TodoController;
 
 $app->group('', function () {
     $this->get('/login', AuthController::class . ':loginPage')->setName('login');
@@ -65,13 +61,6 @@ $app->group('', function () {
     $this->put('/bookmarks/{uid}', BookmarkController::class . ':update');
     $this->delete('/bookmarks/{uid}', BookmarkController::class . ':delete');
 
-    $this->get('/trackings', TrackingController::class . ':index');
-    $this->post('/trackings', TrackingController::class . ':add');
-
-    $this->get('/videos', VideoController::class . ':index');
-    $this->post('/videos', VideoController::class . ':create');
-    $this->put('/videos/{id:[0-9]+}/status', VideoController::class . ':changeStatus');
-
     $this->get('/highlights', HighlightController::class . ':index');
     $this->get('/highlights/{id:[0-9]+}', HighlightController::class . ':details');
     $this->delete('/highlights/{id:[0-9]+}', HighlightController::class . ':delete');
@@ -80,18 +69,6 @@ $app->group('', function () {
     $this->post('/highlights', HighlightController::class . ':create');
     $this->post('/highlights/{id:[0-9]+}/sub', HighlightController::class . ':createSub');
     $this->post('/highlights/search', HighlightController::class . ':search');
-
-    $this->get('/writings', WritingController::class . ':index');
-    $this->post('/writings', WritingController::class . ':create');
-
-    $this->get('/todos', TodoController::class . ':index');
-    $this->get('/all-todos', TodoController::class . ':allTodos');
-    $this->post('/todos', TodoController::class . ':add');
-    $this->get('/todos/{id:[0-9]+}', TodoController::class . ':get');
-    $this->put('/todos/{id:[0-9]+}', TodoController::class . ':update');
-    // $this->delete('/todos/{id:[0-9]+}', TodoController::class . ':delete');
-    $this->put('/todos/{id:[0-9]+}/status', TodoController::class . ':changeStatus');
-    $this->put('/todos/{id:[0-9]+}/escalate', TodoController::class . ':escalateTodo');
 
     $this->get('/logout', AuthController::class . ':logout');
 
