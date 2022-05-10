@@ -17,56 +17,12 @@
                     <span class="ml-3 item-text">Home</span>
                 </a>
             </li>
-        </ul>
-        <p class="text-muted nav-heading mt-4 mb-1">
-            <span>Books</span>
-        </p>
-        <ul class="navbar-nav flex-fill w-100 mb-2">
             <li class="nav-item dropdown {{activeBookPaths}}">
                 <a href="/books/paths" class="nav-link">
                     <i class="fe fe-list fe-16"></i>
-                    <span class="ml-3 item-text">Paths</span>
+                    <span class="ml-3 item-text">Reading Paths</span>
                 </a>
             </li>
-            <li class="nav-item dropdown {{activeAllBooks}}">
-                <a href="/books" class="nav-link">
-                    <i class="fe fe-book-open fe-16"></i>
-                    <span class="ml-3 item-text">All Books</span>
-                    <span id="allBooksBadgeCount" class="badge badge-pill badge-warning"></span>
-                </a>
-            </li>
-            <li class="nav-item dropdown {{activeMyBooks}}">
-                <a href="/books/my-library" class="nav-link">
-                    <i class="fe fe-book fe-16"></i>
-                    <span class="ml-3 item-text">My Books</span>
-                    <span id="myBooksBadgeCount" class="badge badge-pill badge-warning"></span>
-                </a>
-            </li>
-            <li class="nav-item dropdown {{activeFinished}}">
-                <a href="/books/finished" class="nav-link">
-                    <i class="fe fe-archive fe-16"></i>
-                    <span class="ml-3 item-text">Finished</span>
-                    <span id="finishedBooksBadgeCount" class="badge badge-pill badge-warning"></span>
-                </a>
-            </li>
-            <li class="nav-item dropdown {{activeReadingHistory}}">
-                <a href="/books/reading-history" class="nav-link">
-                    <i class="fe fe-activity fe-16"></i>
-                    <span class="ml-3 item-text">Reading History</span>
-                </a>
-            </li>
-            <li class="nav-item dropdown {{activeCategories}}">
-                <a href="/categories" class="nav-link">
-                    <i class="fe fe-layers fe-16"></i>
-                    <span class="ml-3 item-text">Categories</span>
-                </a>
-            </li>
-        </ul>
-
-        <p class="text-muted nav-heading mt-4 mb-1">
-            <span>Trackings</span>
-        </p>
-        <ul class="navbar-nav flex-fill w-100 mb-2">
             <li class="nav-item dropdown {{activeBookmarks}}">
                 <a href="/bookmarks" class="nav-link">
                     <i class="fe fe-bookmark fe-16"></i>
@@ -81,36 +37,37 @@
                     <span id="highlightsBadgeCount" class="badge badge-pill badge-warning"></span>
                 </a>
             </li>
-            <li class="nav-item dropdown {{activeTrackings}}">
-                <a href="/trackings" class="nav-link">
-                    <i class="fe fe-navigation fe-16"></i>
-                    <span class="ml-3 item-text">Trackings</span>
-                </a>
-            </li>
-            <!-- <li class="nav-item dropdown {{activeVideos}}">
-                <a href="/videos" class="nav-link">
-                    <i class="fe fe-video fe-16"></i>
-                    <span class="ml-3 item-text">Videos</span>
-                    <span id="videosBadgeCount" class="badge badge-pill badge-warning"></span>
-                </a>
-            </li> -->
-            <li class="nav-item dropdown {{activeWritings}}">
-                <a href="/writings" class="nav-link">
-                    <i class="fe fe-pen-tool fe-16"></i>
-                    <span class="ml-3 item-text">Writings</span>
-                </a>
-            </li>
-            <!-- <li class="nav-item dropdown {{activeTodos}}">
-                <a href="/todos" class="nav-link">
-                    <i class="fe fe-list fe-16"></i>
-                    <span class="ml-3 item-text">TODOs</span>
-                    <span id="todosBadgeCount" class="badge badge-pill badge-warning"></span>
-                </a>
-            </li> -->
-            <li class="nav-item dropdown {{activeOneListToRuleThemAll}}">
-                <a href="/all-todos" class="nav-link">
+            <li class="nav-item dropdown {{activeCategories}}">
+                <a href="/categories" class="nav-link">
                     <i class="fe fe-layers fe-16"></i>
-                    <span class="ml-3 item-text">All TODOs</span>
+                    <span class="ml-3 item-text">Categories</span>
+                </a>
+            </li>
+            <li class="nav-item dropdown {{activeFinished}}">
+                <a href="/books/finished" class="nav-link">
+                    <i class="fe fe-archive fe-16"></i>
+                    <span class="ml-3 item-text">Finished Books</span>
+                    <span id="finishedBooksBadgeCount" class="badge badge-pill badge-warning"></span>
+                </a>
+            </li>
+            <li class="nav-item dropdown {{activeReadingHistory}}">
+                <a href="/books/reading-history" class="nav-link">
+                    <i class="fe fe-activity fe-16"></i>
+                    <span class="ml-3 item-text">Reading History</span>
+                </a>
+            </li>
+            <li class="nav-item dropdown {{activeAllBooks}}">
+                <a href="/books" class="nav-link">
+                    <i class="fe fe-book-open fe-16"></i>
+                    <span class="ml-3 item-text">All Books</span>
+                    <span id="allBooksBadgeCount" class="badge badge-pill badge-warning"></span>
+                </a>
+            </li>
+            <li class="nav-item dropdown {{activeMyBooks}}">
+                <a href="/books/my-library" class="nav-link">
+                    <i class="fe fe-book fe-16"></i>
+                    <span class="ml-3 item-text">My Books</span>
+                    <span id="myBooksBadgeCount" class="badge badge-pill badge-warning"></span>
                 </a>
             </li>
         </ul>
