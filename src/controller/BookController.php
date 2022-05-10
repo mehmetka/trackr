@@ -4,7 +4,7 @@ namespace App\controller;
 
 use App\exception\CustomException;
 use App\model\BookModel;
-use App\model\CategoryModel;
+use App\model\TagModel;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
@@ -12,14 +12,15 @@ use Slim\Http\StatusCode;
 
 class BookController extends Controller
 {
+    public const SOURCE_TYPE = 3;
     private $bookModel;
-    private $categoryModel;
+    private $tagModel;
 
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
         $this->bookModel = new BookModel($container);
-        $this->categoryModel = new CategoryModel($container);
+        $this->tagModel = new TagModel($container);
     }
 
     public function booksPathInside(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -40,7 +41,8 @@ class BookController extends Controller
             'activeBookPaths' => 'active'
         ];
 
-        return $this->view->render($response, 'books.mustache', $data);
+        // TODO give a decent name
+        return $this->view->render($response, 'books/books.mustache', $data);
     }
 
     public function paths(ServerRequestInterface $request, ResponseInterface $response)
@@ -53,26 +55,24 @@ class BookController extends Controller
             'activeBookPaths' => 'active'
         ];
 
-        return $this->view->render($response, 'paths.mustache', $data);
+        return $this->view->render($response, 'books/paths.mustache', $data);
     }
 
     public function allBooks(ServerRequestInterface $request, ResponseInterface $response)
     {
         $authors = $this->bookModel->getAuthors();
-        $categories = $this->categoryModel->getCategories();
         $publishers = $this->bookModel->getPublishers();
         $books = $this->bookModel->getAllBooks();
 
         $data = [
             'title' => 'All Books | trackr',
-            'categories' => $categories,
             'authors' => $authors,
             'books' => $books,
             'publishers' => $publishers,
             'activeAllBooks' => 'active'
         ];
 
-        return $this->view->render($response, 'all-books.mustache', $data);
+        return $this->view->render($response, 'books/all.mustache', $data);
     }
 
     public function myBooks(ServerRequestInterface $request, ResponseInterface $response)
@@ -85,7 +85,7 @@ class BookController extends Controller
             'activeMyBooks' => 'active'
         ];
 
-        return $this->view->render($response, 'my-books.mustache', $data);
+        return $this->view->render($response, 'books/my.mustache', $data);
     }
 
     public function finishedBooks(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -98,7 +98,7 @@ class BookController extends Controller
             'activeFinished' => 'active'
         ];
 
-        return $this->view->render($response, 'finished.mustache', $data);
+        return $this->view->render($response, 'books/finished.mustache', $data);
     }
 
     public function readingHistory(ServerRequestInterface $request, ResponseInterface $response)
@@ -111,7 +111,7 @@ class BookController extends Controller
             'activeReadingHistory' => 'active'
         ];
 
-        return $this->view->render($response, 'reading-history.mustache', $data);
+        return $this->view->render($response, 'books/reading-history.mustache', $data);
     }
 
     public function addProgress(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -240,6 +240,10 @@ class BookController extends Controller
         $params = $request->getParsedBody();
         $bookId = $this->bookModel->saveBook($params);
         $authors = $params['authors'];
+
+        if ($params['tags']) {
+            $this->tagModel->updateSourceTags($params['tags'], $bookId, self::SOURCE_TYPE);
+        }
 
         foreach ($authors as $author) {
             $this->bookModel->insertBookAuthor($bookId, $author);

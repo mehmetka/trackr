@@ -5,7 +5,6 @@ use App\controller\AuthController;
 use App\controller\HomeController;
 use App\controller\BookController;
 use App\controller\BookmarkController;
-use App\controller\CategoryController;
 use App\controller\DateTrackingController;
 use App\controller\HighlightController;
 
@@ -45,11 +44,6 @@ $app->group('', function () {
     $this->get('/books/{bookUID}/reading-history', BookController::class . ':getReadingHistory');
     $this->get('/books/reading-history', BookController::class . ':readingHistory');
 
-    $this->get('/categories', CategoryController::class . ':index');
-    $this->post('/categories', CategoryController::class . ':create');
-    $this->delete('/categories/{categoryId:[0-9]+}', CategoryController::class . ':delete');
-    $this->put('/categories/{categoryId:[0-9]+}', CategoryController::class . ':setDefault');
-
     $this->post('/datetrackings', DateTrackingController::class . ':create');
 
     $this->get('/bookmarks', BookmarkController::class . ':index');
@@ -62,13 +56,14 @@ $app->group('', function () {
     $this->delete('/bookmarks/{uid}', BookmarkController::class . ':delete');
 
     $this->get('/highlights', HighlightController::class . ':index');
-    $this->get('/highlights/{id:[0-9]+}', HighlightController::class . ':details');
-    $this->delete('/highlights/{id:[0-9]+}', HighlightController::class . ':delete');
-    $this->get('/highlights-all', HighlightController::class . ':all');
-    $this->put('/highlights/{id:[0-9]+}', HighlightController::class . ':update');
     $this->post('/highlights', HighlightController::class . ':create');
+    $this->get('/highlights/{id:[0-9]+}', HighlightController::class . ':details');
+    $this->put('/highlights/{id:[0-9]+}', HighlightController::class . ':update');
+    $this->delete('/highlights/{id:[0-9]+}', HighlightController::class . ':delete');
+
     $this->post('/highlights/{id:[0-9]+}/sub', HighlightController::class . ':createSub');
     $this->post('/highlights/search', HighlightController::class . ':search');
+    $this->get('/highlights-all', HighlightController::class . ':all');
 
     $this->get('/logout', AuthController::class . ':logout');
 

@@ -819,8 +819,8 @@ class BookModel
         $now = time();
         $status = $this->pathStatusInfos['not_started']['id'];
 
-        $sql = 'INSERT INTO books (uid, title, publisher, pdf, epub, notes, category, added_date, own, page_count, status)
-                VALUES(UUID(), :title,:publisher,:pdf,:epub,:notes,:category,:added_date,:own,:page_count, :status)';
+        $sql = 'INSERT INTO books (uid, title, publisher, pdf, epub, notes, added_date, own, page_count, status)
+                VALUES(UUID(), :title,:publisher,:pdf,:epub,:notes,:added_date,:own,:page_count, :status)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':title', $params['bookTitle'], \PDO::PARAM_STR);
@@ -828,7 +828,6 @@ class BookModel
         $stm->bindParam(':pdf', $params['pdf'], \PDO::PARAM_INT);
         $stm->bindParam(':epub', $params['epub'], \PDO::PARAM_INT);
         $stm->bindParam(':notes', $params['notes'], \PDO::PARAM_STR);
-        $stm->bindParam(':category', $params['category'], \PDO::PARAM_INT);
         $stm->bindParam(':added_date', $now, \PDO::PARAM_INT);
         $stm->bindParam(':own', $params['own'], \PDO::PARAM_INT);
         $stm->bindParam(':page_count', $params['pageCount'], \PDO::PARAM_INT);
@@ -902,23 +901,6 @@ class BookModel
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':bookId', $bookId, \PDO::PARAM_INT);
         $stm->bindParam(':pathId', $pathId, \PDO::PARAM_INT);
-
-        if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
-        }
-
-        return true;
-    }
-
-    public function changeBooksCategoryByGivenCategory($oldCategory, $newCategory)
-    {
-        $sql = 'UPDATE books 
-                SET category = :newCategory
-                WHERE category = :oldCategory';
-
-        $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':oldCategory', $oldCategory, \PDO::PARAM_INT);
-        $stm->bindParam(':newCategory', $newCategory, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
