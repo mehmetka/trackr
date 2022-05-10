@@ -13,6 +13,7 @@ use \Psr\Http\Message\ServerRequestInterface;
 
 class HighlightController extends Controller
 {
+    public const SOURCE_TYPE = 1;
     private $highlightModel;
     private $bookmarkModel;
     private $tagModel;
@@ -31,7 +32,7 @@ class HighlightController extends Controller
 
         $highlights = $this->highlightModel->getHighlights($queryString['tag'], 500);
 
-        $tags = $this->tagModel->getHighlightTagsAsHTML($queryString['tag']);
+        $tags = $this->tagModel->getSourceTagsByType(self::SOURCE_TYPE, $queryString['tag']);
 
         $data = [
             'title' => 'Highlights | trackr',
@@ -41,7 +42,7 @@ class HighlightController extends Controller
             'activeHighlights' => 'active'
         ];
 
-        return $this->view->render($response, 'highlights.mustache', $data);
+        return $this->view->render($response, 'highlights/index.mustache', $data);
     }
 
     public function details(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -62,7 +63,7 @@ class HighlightController extends Controller
             'previousID' => $previousID,
         ];
 
-        return $this->view->render($response, 'highlight-details.mustache', $data);
+        return $this->view->render($response, 'highlights/details.mustache', $data);
     }
 
     public function all(ServerRequestInterface $request, ResponseInterface $response)
@@ -73,7 +74,7 @@ class HighlightController extends Controller
             'highlights' => $highlights
         ];
 
-        return $this->view->render($response, 'highlights-all.mustache', $data);
+        return $this->view->render($response, 'highlights/all.mustache', $data);
     }
 
     public function update(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -97,8 +98,8 @@ class HighlightController extends Controller
             $params['link'] = null;
         }
 
-        $this->tagModel->deleteTagsByHighlightID($highlightID);
-        $this->tagModel->updateHighlightTags($params['tags'], $highlightID);
+        $this->tagModel->deleteTagsBySourceId($highlightID, self::SOURCE_TYPE);
+        $this->tagModel->updateSourceTags($params['tags'], $highlightID, self::SOURCE_TYPE);
         $this->highlightModel->update($highlightID, $params);
 
         $resource = [
@@ -137,15 +138,7 @@ class HighlightController extends Controller
         $highlightId = $this->highlightModel->create($params);
 
         if ($params['tags']) {
-            if (strpos($params['tags'], ',') !== false) {
-                $tags = explode(',', $params['tags']);
-
-                foreach ($tags as $tag) {
-                    $this->tagModel->insertTagByChecking($highlightId, trim($tag));
-                }
-            } else {
-                $this->tagModel->insertTagByChecking($highlightId, trim($params['tags']));
-            }
+            $this->tagModel->updateSourceTags($params['tags'], $highlightId, self::SOURCE_TYPE);
         }
 
         $_SESSION['badgeCounts']['highlightsCount'] += 1;
@@ -174,14 +167,8 @@ class HighlightController extends Controller
 
         $subHighlightID = $this->highlightModel->create($params);
 
-        if (strpos($params['tags'], ',') !== false) {
-            $tags = explode(',', $params['tags']);
-
-            foreach ($tags as $tag) {
-                $this->tagModel->insertTagByChecking($subHighlightID, trim($tag));
-            }
-        } else {
-            $this->tagModel->insertTagByChecking($subHighlightID, trim($params['tags']));
+        if ($params['tags']) {
+            $this->tagModel->updateSourceTags($params['tags'], $subHighlightID, self::SOURCE_TYPE);
         }
 
         $this->highlightModel->createSubHighlight($highlightID, $subHighlightID);

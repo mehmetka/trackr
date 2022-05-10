@@ -2,6 +2,7 @@
 
 namespace App\model;
 
+use App\controller\HighlightController;
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
 use Slim\Http\StatusCode;
@@ -29,9 +30,9 @@ class HighlightModel
                 FROM highlights h';
 
         if ($tag) {
-            $sql .= ' LEFT JOIN highlight_tags ht ON h.id = ht.highlight_id
-                LEFT JOIN tags t ON ht.tag_id = t.id
-                WHERE t.tag = :tag';
+            $sql .= ' LEFT JOIN tag_relationships tr ON h.id = tr.source_id
+                LEFT JOIN tags t ON tr.tag_id = t.id
+                WHERE t.tag = :tag AND tr.type = 1';
         }
 
         $sql .= ' ORDER BY h.id DESC LIMIT :limit';
@@ -50,7 +51,7 @@ class HighlightModel
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['highlight'] = $this->convertMarkdownToHTML($row['highlight']);
             $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
-            $tags = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
+            $tags = $this->tagModel->getTagsBySourceId($row['id'], HighlightController::SOURCE_TYPE);
 
             if ($tags) {
                 $row['tags'] = $tags;
@@ -79,7 +80,7 @@ class HighlightModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['tags'] = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
+            $row['tags'] = $this->tagModel->getTagsBySourceId($row['id'], HighlightController::SOURCE_TYPE);
             $row['is_secret'] = $row['is_secret'] ? true : false;
             $row['highlight'] = html_entity_decode($row['highlight']);
 
@@ -108,7 +109,7 @@ class HighlightModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['highlight'] = $this->convertMarkdownToHTML($row['highlight']);
-            $tags = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
+            $tags = $this->tagModel->getTagsBySourceId($row['id'], HighlightController::SOURCE_TYPE);
 
             if ($tags) {
                 $row['tags'] = $tags;
@@ -281,11 +282,11 @@ class HighlightModel
 
     public function deleteHighlightTagsByHighlightID($highlightID)
     {
-        $sql = 'DELETE FROM highlight_tags
-                WHERE highlight_id = :highlight_id';
+        $sql = 'DELETE FROM tag_relationships
+                WHERE source_id = :source_id AND type = 1';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':highlight_id', $highlightID, \PDO::PARAM_INT);
+        $stm->bindParam(':source_id', $highlightID, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
@@ -328,7 +329,7 @@ class HighlightModel
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['highlight'] = $this->convertMarkdownToHTML($row['highlight']);
             $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
-            $tags = $this->tagModel->getHighlightTagsByHighlightId($row['id']);
+            $tags = $this->tagModel->getTagsBySourceId($row['id'], HighlightController::SOURCE_TYPE);
 
             if ($tags) {
                 $row['tags'] = $tags;

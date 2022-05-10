@@ -2,6 +2,7 @@
 
 namespace App\model;
 
+use App\controller\BookmarkController;
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
 use Slim\Http\StatusCode;
@@ -10,30 +11,33 @@ class BookmarkModel
 {
     /** @var \PDO $dbConnection */
     private $dbConnection;
+    private $tagModel;
 
     public function __construct(ContainerInterface $container)
     {
         $this->dbConnection = $container->get('db');
+        $this->tagModel = new TagModel($container);
     }
 
-    public function getBookmarks($category = null)
+    public function getBookmarks($tag = null)
     {
         $bookmarks = [];
 
-        $sql = 'SELECT b.id, b.uid AS bookmarkUID, b.bookmark, b.title, b.note, b.categoryId, c.name AS categoryName, b.status, b.created, b.started, b.done
-                FROM bookmarks b
-                INNER JOIN categories c ON b.categoryId = c.id';
+        $sql = 'SELECT b.id, b.uid AS bookmarkUID, b.bookmark, b.title, b.note, b.status, b.created, b.started, b.done
+                FROM bookmarks b';
 
-        if ($category) {
-            $sql .= ' WHERE c.name = :categoryName';
+        if ($tag) {
+            $sql .= ' INNER JOIN tag_relationships tr ON b.id = tr.source_id
+                      INNER JOIN tags t ON tr.tag_id = t.id 
+                      WHERE t.tag = :tag';
         }
 
-        $sql .= ' ORDER BY FIELD(status, 1, 0, 2), orderNumber DESC, id DESC';
+        $sql .= ' ORDER BY FIELD(b.status, 1, 0, 2), b.orderNumber DESC, b.id DESC';
 
         $stm = $this->dbConnection->prepare($sql);
 
-        if ($category) {
-            $stm->bindParam(':categoryName', $category, \PDO::PARAM_STR);
+        if ($tag) {
+            $stm->bindParam(':tag', $tag, \PDO::PARAM_STR);
         }
 
         if (!$stm->execute()) {
@@ -165,7 +169,7 @@ class BookmarkModel
     {
         $list = [];
 
-        $sql = 'SELECT b.id, b.uid, b.bookmark, b.title, b.note, b.categoryId, b.status, h.highlight, h.author, h.source
+        $sql = 'SELECT b.id, b.uid, b.bookmark, b.title, b.note, b.status, h.highlight, h.author, h.source
                 FROM bookmarks b
                 LEFT JOIN highlights h ON b.id = h.link
                 WHERE b.id = :id';
@@ -178,6 +182,12 @@ class BookmarkModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+
+            $tags = $this->tagModel->getTagsBySourceId($row['id'], BookmarkController::SOURCE_TYPE);
+
+            if ($tags) {
+                $row['tags'] = $tags;
+            }
 
             if ($row['status'] == 0) {
                 $row['selectedNew'] = true;
@@ -214,18 +224,17 @@ class BookmarkModel
         return $uncompleteCount;
     }
 
-    public function create($bookmark, $title, $note, $categoryId)
+    public function create($bookmark, $title, $note)
     {
         $now = time();
 
-        $sql = 'INSERT INTO bookmarks (uid, bookmark, title, note, categoryId, orderNumber, created)
-                VALUES(UUID(), :bookmark, :title, :note, :categoryId, :orderNumber, :created)';
+        $sql = 'INSERT INTO bookmarks (uid, bookmark, title, note, orderNumber, created)
+                VALUES(UUID(), :bookmark, :title, :note, :orderNumber, :created)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':bookmark', $bookmark, \PDO::PARAM_STR);
         $stm->bindParam(':note', $note, \PDO::PARAM_STR);
         $stm->bindParam(':title', $title, \PDO::PARAM_STR);
-        $stm->bindParam(':categoryId', $categoryId, \PDO::PARAM_INT);
         $stm->bindParam(':orderNumber', $now, \PDO::PARAM_INT);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
 
@@ -236,7 +245,7 @@ class BookmarkModel
         return $this->dbConnection->lastInsertId();
     }
 
-    public function createOperations($bookmark, $note, $categoryId)
+    public function createOperations($bookmark, $note)
     {
         if (!$bookmark) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark cannot be empty!');
@@ -249,13 +258,9 @@ class BookmarkModel
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
         }
 
-        if (!$categoryId) {
-            $categoryId = 6665;
-        }
-
         $title = null;
 
-        return $this->create($bookmark, $title, $note, $categoryId);
+        return $this->create($bookmark, $title, $note);
     }
 
     public function addHighlight($bookmarkHighlight)
@@ -412,14 +417,13 @@ class BookmarkModel
     public function updateBookmark($bookmarkID, $details)
     {
         $sql = 'UPDATE bookmarks 
-                SET bookmark = :bookmark, title = :title, note = :note, categoryId = :categoryId, status = :status
+                SET bookmark = :bookmark, title = :title, note = :note, status = :status
                 WHERE id = :id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':bookmark', $details['bookmark'], \PDO::PARAM_STR);
         $stm->bindParam(':title', $details['title'], \PDO::PARAM_STR);
         $stm->bindParam(':note', $details['note'], \PDO::PARAM_STR);
-        $stm->bindParam(':categoryId', $details['categoryId'], \PDO::PARAM_INT);
         $stm->bindParam(':status', $details['status'], \PDO::PARAM_INT);
         $stm->bindParam(':id', $bookmarkID, \PDO::PARAM_INT);
 

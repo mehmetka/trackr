@@ -15,22 +15,22 @@ class TagModel
         $this->dbConnection = $container->get('db');
     }
 
-    public function updateHighlightTags($tags, $highlightID) {
+    public function updateSourceTags($tags, $sourceId, $sourceType) {
         
         if (strpos($tags, ',') !== false) {
             $tags = explode(',', $tags);
 
             foreach ($tags as $tag) {
-                $this->insertTagByChecking($highlightID, $tag);
+                $this->insertTagByChecking($sourceId, $tag, $sourceType);
             }
 
         } else {
-            $this->insertTagByChecking($highlightID, $tags);
+            $this->insertTagByChecking($sourceId, $tags, $sourceType);
         }
 
     }
 
-    public function insertTagByChecking($highlightId, $tag)
+    public function insertTagByChecking($sourceId, $tag, $sourceType)
     {
         $tag = strip_tags(trim($tag));
 
@@ -42,7 +42,7 @@ class TagModel
                 $tagId = $this->createTag($tag);
             }
 
-            $this->createHighlightTagRecord($highlightId, $tagId);
+            $this->createTagRelationship($sourceId, $tagId, $sourceType);
         }
     }
 
@@ -64,15 +64,16 @@ class TagModel
         return $this->dbConnection->lastInsertId();
     }
 
-    public function createHighlightTagRecord($highlightId, $tagId)
+    public function createTagRelationship($sourceId, $tagId, $sourceType)
     {
         $now = time();
 
-        $sql = 'INSERT INTO highlight_tags (highlight_id, tag_id, created)
-                VALUES(:highlight_id, :tag_id, :created)';
+        $sql = 'INSERT INTO tag_relationships (source_id, tag_id, type, created)
+                VALUES(:source_id, :tag_id, :type, :created)';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':highlight_id', $highlightId, \PDO::PARAM_INT);
+        $stm->bindParam(':source_id', $sourceId, \PDO::PARAM_INT);
+        $stm->bindParam(':type', $sourceType, \PDO::PARAM_INT);
         $stm->bindParam(':tag_id', $tagId, \PDO::PARAM_INT);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
 
@@ -83,13 +84,14 @@ class TagModel
         return true;
     }
 
-    public function deleteTagsByHighlightID($highlightId)
+    public function deleteTagsBySourceId($sourceId, $type)
     {
-        $sql = 'DELETE FROM highlight_tags
-                WHERE highlight_id = :highlight_id';
+        $sql = 'DELETE FROM tag_relationships
+                WHERE source_id = :source_id AND type = :type';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':highlight_id', $highlightId, \PDO::PARAM_INT);
+        $stm->bindParam(':source_id', $sourceId, \PDO::PARAM_INT);
+        $stm->bindParam(':type', $type, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -98,13 +100,15 @@ class TagModel
         return true;
     }
 
-    public function getHighlightTagsAsHTML($tag = null)
+    public function getSourceTagsByType($type, $tag = null)
     {
         $sql = 'SELECT DISTINCT t.tag, t.id
-                FROM highlight_tags ht
-                INNER JOIN tags t ON ht.tag_id = t.id';
+                FROM tag_relationships tr
+                INNER JOIN tags t ON tr.tag_id = t.id
+                WHERE tr.type = :sourceType';
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':sourceType', $type, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -128,18 +132,19 @@ class TagModel
         return $list;
     }
 
-    public function getHighlightTagsByHighlightId($highlightId)
+    public function getTagsBySourceId($sourceId, $sourceType)
     {
         $tags = [];
         $hashtags = [];
 
         $sql = "SELECT t.id, t.tag, CONCAT('#', t.tag) AS hashtag, CONCAT('<span class=\"badge badge-info\">', t.tag, '</span>') AS html
-        FROM highlight_tags ht
-        INNER JOIN tags t ON ht.tag_id = t.id
-        WHERE ht.highlight_id = :highlight_id";
+                FROM tag_relationships tr
+                INNER JOIN tags t ON tr.tag_id = t.id
+                WHERE tr.source_id = :source_id AND tr.type = :source_type";
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':highlight_id', $highlightId, \PDO::PARAM_INT);
+        $stm->bindParam(':source_id', $sourceId, \PDO::PARAM_INT);
+        $stm->bindParam(':source_type', $sourceType, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));

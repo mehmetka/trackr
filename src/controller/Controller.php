@@ -4,6 +4,7 @@ namespace App\controller;
 
 use Psr\Container\ContainerInterface;
 use Slim\Http\Response;
+use Slim\Http\StatusCode;
 
 
 class Controller
@@ -24,7 +25,7 @@ class Controller
         }
     }
 
-    public function response($status = 200, $data = [], $allow = [])
+    public function response($status = StatusCode::HTTP_OK, $data = [], $allow = [])
     {
         if (!isset($this->response)) {
             $this->response = new  Response($status);
