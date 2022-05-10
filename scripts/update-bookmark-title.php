@@ -31,7 +31,6 @@ function getBookmarkByID($bookmarkID)
     $bookmark = [];
 
     while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-        print_r($row);
         $bookmark = $row;
     }
 
