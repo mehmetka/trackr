@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    {{> head }}
+</head>
+
+<body class="vertical dark">
+<div class="wrapper">
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Add New Bookmark</h5>
+                                <div class="form-group">
+                                    <input type="text" id="bookmark" placeholder="Bookmark" class="form-control">
+                                </div>
+                                <div class="form-group ">
+                                    <input type="text" id="note" placeholder="Note" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <input id="tags" placeholder="Tags" type="text"
+                                           class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <button id="addBookmark" type="button" class="btn btn-primary">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        {{#bookmarkCategories}}
+                        <a role="button" href="/bookmarks{{#href}}?tag={{tag}}{{/href}}" class="badge badge-{{badge}}">
+                            <strong>#{{tag}}</strong>
+                            </a>
+                        {{/bookmarkCategories}}
+                    </div>
+
+                    <br>
+
+                    <!-- simple table -->
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <table class="table table-striped table-bordered" id="bookmarksDatatable">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Bookmark</th>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {{#bookmarks}}
+                                        <tr>
+                                            <td>
+                                                {{#startAction}}
+                                                    <span class="badge badge-info btnStatusAction" data-status="1"
+                                                          data-uid="{{bookmarkUID}}">New</span>
+                                                {{/startAction}}
+
+                                                {{#doneAction}}
+                                                    <span class="badge badge-warning btnStatusAction" data-status="2"
+                                                          data-uid="{{bookmarkUID}}">Started</span>
+                                                {{/doneAction}}
+
+                                                {{#complete}}
+                                                    <span class="badge badge-success">Done</span>
+                                                {{/complete}}
+                                            </td>
+                                            <td class="go-to-bookmark-highlight" data-uid="{{bookmarkUID}}">
+                                                <a href="{{bookmark}}" target="_blank">{{title}}</a>
+                                            </td>
+                                            <td>
+                                                {{created}}
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm dropdown-toggle more-horizontal"
+                                                        type="button" data-toggle="dropdown" aria-haspopup="true"
+                                                        aria-expanded="false">
+                                                    <span class="text-muted sr-only">Action</span>
+                                                </button>
+                                                <div class="dropdown-menu dropdown-menu-right">
+                                                    <a class="dropdown-item"
+                                                       href="/bookmarks/{{bookmarkUID}}/highlights">Highlights</a>
+                                                    <a class="dropdown-item"
+                                                       href="/bookmarks/{{bookmarkUID}}">Edit</a>
+                                                    {{#startAction}}
+                                                        <a class="dropdown-item btnStatusAction" data-status="1"
+                                                           data-uid="{{bookmarkUID}}"><i class="fe fe-play fe-4"></i>
+                                                            Start Reading
+                                                        </a>
+                                                    {{/startAction}}
+                                                    {{#startAction}}
+                                                        <a class="dropdown-item btnDeleteBookmark"
+                                                           data-uid="{{bookmarkUID}}">
+                                                            <i class="fe fe-trash fe-4"></i> Delete
+                                                        </a>
+                                                    {{/startAction}}
+                                                    {{#doneAction}}<a class="dropdown-item  btnStatusAction"
+                                                                      data-status="2"
+                                                                      data-uid="{{bookmarkUID}}">Done</a>
+                                                    {{/doneAction}}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {{/bookmarks}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div> <!-- simple table -->
+
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
+
+{{> include}}
+{{> menu }}
+{{> navbar }}
+
+<script>
+    $(document).ready(function () {
+
+        $("#addBookmark").on('click', function (e) {
+
+            var bookmark = $('#bookmark').val();
+            var tags = $('#tags').val();
+            var note = $('#note').val();
+            var btnContext = this;
+
+            $(btnContext).prop("disabled", true);
+            $(btnContext).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...');
+
+            var result = ajaxCall('POST', "/bookmarks", "bookmark=" + bookmark + "&tags=" + tags + "&note=" + note)
+
+            if (result !== false) {
+                $('#bookmark').val('');
+                location.reload();
+            }
+
+            $(btnContext).delay(3000).removeAttr("disabled").addClass('btn-primary').html('Add');
+        });
+
+        // $(".go-to-bookmark-highlight").on('click', function (e) {
+        //     var bookmarkUID = $(this).data('uid');
+        //     window.location.replace('/bookmarks/' + bookmarkUID + '/highlights')
+        // });
+
+        $(".btnStatusAction").on('click', function (e) {
+
+            var uid = $(this).data('uid');
+            var status = $(this).data('status');
+            var result = ajaxCall('PUT', "/bookmarks/" + uid + "/status", "status=" + status)
+
+            if (result !== false) {
+                location.reload();
+            }
+
+        });
+
+        $(".btnDeleteBookmark").on('click', function (e) {
+
+            var uid = $(this).data('uid');
+            var result = ajaxCall('DELETE', "/bookmarks/" + uid, null)
+
+            if (result !== false) {
+                location.reload();
+            }
+
+        });
+
+    });
+</script>
+</body>
+
+</html>

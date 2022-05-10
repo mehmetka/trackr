@@ -31,12 +31,10 @@
                                             value="{{note}}">
                                     </div>
                                     <div class="form-group">
-                                        <select id="category" class="form-control">
-                                            {{#categories}}
-                                            <option value="{{id}}" {{#selected}}selected="selected" {{/selected}}>
-                                                {{name}}</option>
-                                            {{/categories}}
-                                        </select>
+                                        <div class="form-group">
+                                            <input id="tags" placeholder="Tags" type="text" class="form-control"
+                                                   value="{{#tags}}{{imploded_comma}}{{/tags}}">
+                                        </div>
                                     </div>
                                     <div class="form-group">
                                         <select id="status" class="form-control">
@@ -81,7 +79,7 @@
             $('#updateBookmark').on('click', function (e) {
 
                 var bookmarkUID = $(this).data('uid');
-                var data = "bookmark=" + encodeURIComponent($('#bookmark').val()) + "&title=" + encodeURIComponent($('#title').val()) + "&note=" + $('#note').val() + "&categoryId=" + $('#category').val() + "&status=" + $('#status').val();
+                var data = "bookmark=" + encodeURIComponent($('#bookmark').val()) + "&title=" + encodeURIComponent($('#title').val()) + "&note=" + $('#note').val() + "&tags=" + $('#tags').val() + "&status=" + $('#status').val();
                 var result = ajaxCall('PUT', "/bookmarks/" + bookmarkUID, data)
 
                 if (result !== false) {
