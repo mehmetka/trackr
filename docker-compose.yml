@@ -17,7 +17,7 @@ services:
             trackr:
                 ipv4_address: 192.168.2.2
     trackr:
-        container_name: trackr
+        container_name: trackr-web
         build: .
         image: phpdev
         ports:
@@ -38,6 +38,20 @@ services:
         networks:
             trackr:
               ipv4_address: 192.168.2.4
+    rabbitmq_consumer:
+        container_name: trackr-amqp-consumer
+        build: ./src/rabbitmq
+        image: trackr-amqp-consumer
+        entrypoint: ['php', '/trackr/src/rabbitmq/consumer.php']
+        volumes:
+          - .:/trackr
+        restart: on-failure
+        depends_on:
+          - rabbitmq
+          - db
+        networks:
+          trackr:
+            ipv4_address: 192.168.2.5
 networks:
   trackr:
     ipam:

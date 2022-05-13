@@ -5,6 +5,7 @@ namespace App\controller;
 use App\exception\CustomException;
 use App\model\BookmarkModel;
 use App\model\TagModel;
+use App\rabbitmq\AmqpJobPublisher;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
@@ -26,6 +27,7 @@ class BookmarkController extends Controller
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
         $queryString = $request->getQueryParams();
+        $defaultTag = 'technical-uncategorized';
 
         $bookmarks = $this->bookmarkModel->getBookmarks($queryString['tag']);
 
@@ -35,7 +37,8 @@ class BookmarkController extends Controller
             'title' => 'Bookmarks | trackr',
             'bookmarkCategories' => $bookmarkCategories,
             'bookmarks' => $bookmarks,
-            'activeBookmarks' => 'active'
+            'activeBookmarks' => 'active',
+            'defaultTag' => $defaultTag
         ];
 
         return $this->view->render($response, 'bookmarks/index.mustache', $data);
@@ -76,6 +79,7 @@ class BookmarkController extends Controller
 
     public function create(ServerRequestInterface $request, ResponseInterface $response)
     {
+        $rabbitmq = new AmqpJobPublisher();
         $params = $request->getParsedBody();
 
         $bookmarkID = $this->bookmarkModel->createOperations($params['bookmark'], $params['note']);
@@ -84,8 +88,7 @@ class BookmarkController extends Controller
             $this->tagModel->updateSourceTags($params['tags'], $bookmarkID, self::SOURCE_TYPE);
         }
 
-        $cmd = 'php -q ' . __DIR__ . '/../../scripts/update-bookmark-title.php ' . $bookmarkID . ' > /dev/null &';
-        shell_exec($cmd);
+        $rabbitmq->publishBookmarkTitleJob($bookmarkID);
 
         $_SESSION['badgeCounts']['bookmarkCount'] += 1;
 
