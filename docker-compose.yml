@@ -4,7 +4,7 @@ services:
     db:
         container_name: mysql
         image: mysql:5.7.34
-        ports: 
+        ports:
             - "3306:3306"
         command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql_mode="TRADITIONAL"
         environment:
@@ -20,7 +20,7 @@ services:
         container_name: trackr
         build: .
         image: phpdev
-        ports: 
+        ports:
           - "80:80"
         volumes:
           - .:/var/www/html/trackr
@@ -29,6 +29,15 @@ services:
         networks:
             trackr:
                 ipv4_address: 192.168.2.3
+    rabbitmq:
+        image: rabbitmq:3-management-alpine
+        container_name: "rabbitmq"
+        ports:
+          - "5672:5672"
+          - "15672:15672"
+        networks:
+            trackr:
+              ipv4_address: 192.168.2.4
 networks:
   trackr:
     ipam:
