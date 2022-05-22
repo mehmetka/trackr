@@ -19,7 +19,7 @@
 
                                     <div class="form-group">
                                         <input id="bookmark" placeholder="Bookmark" type="text" class="form-control"
-                                            value="{{bookmark}}">
+                                            value="{{bookmark}}" disabled>
                                     </div>
 
                                     <div class="form-group">
@@ -79,7 +79,7 @@
             $('#updateBookmark').on('click', function (e) {
 
                 var bookmarkUID = $(this).data('uid');
-                var data = "bookmark=" + encodeURIComponent($('#bookmark').val()) + "&title=" + encodeURIComponent($('#title').val()) + "&note=" + $('#note').val() + "&tags=" + $('#tags').val() + "&status=" + $('#status').val();
+                var data = "title=" + encodeURIComponent($('#title').val()) + "&note=" + $('#note').val() + "&tags=" + $('#tags').val() + "&status=" + $('#status').val();
                 var result = ajaxCall('PUT', "/bookmarks/" + bookmarkUID, data)
 
                 if (result !== false) {
