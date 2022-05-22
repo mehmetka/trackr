@@ -47,8 +47,8 @@ services:
           - .:/trackr
         restart: on-failure
         depends_on:
-          - rabbitmq
           - db
+          - rabbitmq
         networks:
           trackr:
             ipv4_address: 192.168.2.5
