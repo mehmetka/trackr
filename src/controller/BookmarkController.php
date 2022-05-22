@@ -102,6 +102,7 @@ class BookmarkController extends Controller
 
     public function update(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
+        $rabbitmq = new AmqpJobPublisher();
         $bookmarkUid = $args['uid'];
         $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
         $params = $request->getParsedBody();
@@ -113,6 +114,8 @@ class BookmarkController extends Controller
         if ($params['tags']) {
             $this->tagModel->updateSourceTags($params['tags'], $bookmarkId, self::SOURCE_TYPE);
         }
+
+        $rabbitmq->publishBookmarkTitleJob($bookmarkId);
 
         $resource = [
             "message" => "Success!"
