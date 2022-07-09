@@ -75,7 +75,7 @@ function process_message($message)
             $metadata = RequestUtil::getUrlMetadata($bookmarkDetails['bookmark']);
 
             if ($metadata['title']) {
-                $title = strip_tags(trim($metadata['title']));
+                $title = utf8_decode(strip_tags(trim($metadata['title'])));
                 $bookmarkModel->updateTitleByID($bookmarkDetails['id'], $title);
                 echo "Completed 'get_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title\n";
             } else {
