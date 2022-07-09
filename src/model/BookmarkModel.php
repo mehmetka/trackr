@@ -12,6 +12,8 @@ class BookmarkModel
     /** @var \PDO $dbConnection */
     private $dbConnection;
     private $tagModel;
+    public const DELETED = 1;
+    public const NOT_DELETED = 0;
 
     public function __construct(ContainerInterface $container)
     {
@@ -29,7 +31,9 @@ class BookmarkModel
         if ($tag) {
             $sql .= ' INNER JOIN tag_relationships tr ON b.id = tr.source_id
                       INNER JOIN tags t ON tr.tag_id = t.id 
-                      WHERE t.tag = :tag';
+                      WHERE b.is_deleted = 0 AND t.tag = :tag';
+        } else {
+            $sql .= ' WHERE b.is_deleted = 0';
         }
 
         $sql .= ' ORDER BY FIELD(b.status, 1, 0, 2), b.orderNumber DESC, b.id DESC';
@@ -77,11 +81,12 @@ class BookmarkModel
 
         $sql = 'SELECT * 
                 FROM highlights
-                WHERE link = :link';
+                WHERE link = :link AND user_id = :user_id';
 
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':link', $bookmarkId, \PDO::PARAM_STR);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -89,7 +94,6 @@ class BookmarkModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
-            $row['html'] = $row['html'] ? $row['html'] : $row['highlight'];
 
             $list[] = $row;
         }
@@ -209,7 +213,7 @@ class BookmarkModel
 
         $sql = 'SELECT COUNT(*) AS uncompleteBookmarksCount
                 FROM bookmarks
-                WHERE status < 2';
+                WHERE is_deleted = 0 AND status < 2';
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -224,17 +228,18 @@ class BookmarkModel
         return $uncompleteCount;
     }
 
-    public function create($bookmark, $title, $note)
+    public function create($bookmark, $note)
     {
         $now = time();
+        $note = htmlspecialchars($note);
+        $bookmark = htmlspecialchars($bookmark);
 
-        $sql = 'INSERT INTO bookmarks (uid, bookmark, title, note, orderNumber, created)
-                VALUES(UUID(), :bookmark, :title, :note, :orderNumber, :created)';
+        $sql = 'INSERT INTO bookmarks (uid, bookmark, note, orderNumber, created)
+                VALUES(UUID(), :bookmark, :note, :orderNumber, :created)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':bookmark', $bookmark, \PDO::PARAM_STR);
         $stm->bindParam(':note', $note, \PDO::PARAM_STR);
-        $stm->bindParam(':title', $title, \PDO::PARAM_STR);
         $stm->bindParam(':orderNumber', $now, \PDO::PARAM_INT);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
 
@@ -255,12 +260,11 @@ class BookmarkModel
 
         if ($bookmarkExist) {
             $this->updateOrderNumber($bookmarkExist['id']);
+            $this->updateIsDeletedStatus($bookmarkExist['id'], self::NOT_DELETED);
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
         }
 
-        $title = null;
-
-        return $this->create($bookmark, $title, $note);
+        return $this->create($bookmark, $note);
     }
 
     public function addHighlight($bookmarkHighlight)
@@ -272,8 +276,8 @@ class BookmarkModel
         $highlight = htmlentities(trim($bookmarkHighlight['highlight']));
         $page = null;
 
-        $sql = 'INSERT INTO highlights (highlight, author, source, page, link, created)
-                VALUES(:highlight, :author, :source, :page, :link, :created)';
+        $sql = 'INSERT INTO highlights (highlight, author, source, page, link, created, user_id)
+                VALUES(:highlight, :author, :source, :page, :link, :created, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':highlight', $highlight, \PDO::PARAM_STR);
@@ -282,6 +286,7 @@ class BookmarkModel
         $stm->bindParam(':page', $page, \PDO::PARAM_INT);
         $stm->bindParam(':link', $bookmarkHighlight['id'], \PDO::PARAM_INT);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -316,30 +321,11 @@ class BookmarkModel
         if (is_array($http_response_header)) {
             $parts = explode(' ', $http_response_header[0]);
             if (count($parts) > 1) //HTTP/1.0 <code> <text>
-                return intval($parts[1]); //Get code
+            {
+                return intval($parts[1]);
+            } //Get code
         }
         return 0;
-    }
-
-    public function updateStartedDate($id)
-    {
-        $now = time();
-        $status = 1;
-
-        $sql = 'UPDATE bookmarks 
-                SET status = :status, started = :started 
-                WHERE id = :id';
-
-        $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':status', $status, \PDO::PARAM_INT);
-        $stm->bindParam(':id', $id, \PDO::PARAM_INT);
-        $stm->bindParam(':started', $now, \PDO::PARAM_INT);
-
-        if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
-        }
-
-        return true;
     }
 
     public function updateTitleByID($id, $title)
@@ -378,13 +364,22 @@ class BookmarkModel
         return true;
     }
 
-    public function deleteBookmark($id)
+    public function updateIsDeletedStatus($id, $status)
     {
-        $sql = 'DELETE FROM bookmarks 
+        if ($status == self::NOT_DELETED) {
+            $now = null;
+        } else {
+            $now = time();
+        }
+
+        $sql = 'UPDATE bookmarks 
+                SET is_deleted = :is_deleted, deleted_at = :deleted_at 
                 WHERE id = :id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stm->bindParam(':deleted_at', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':is_deleted', $status, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -393,19 +388,32 @@ class BookmarkModel
         return true;
     }
 
-    public function updateDoneDate($id)
+    public function updateDoneDate($id, $doneDate)
     {
-        $now = time();
-        $status = 2;
-
         $sql = 'UPDATE bookmarks 
-                SET status = :status, done = :done 
+                SET done = :done 
                 WHERE id = :id';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':status', $status, \PDO::PARAM_INT);
         $stm->bindParam(':id', $id, \PDO::PARAM_INT);
-        $stm->bindParam(':done', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':done', $doneDate, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function updateStartedDate($id, $started)
+    {
+        $sql = 'UPDATE bookmarks 
+                SET started = :started 
+                WHERE id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stm->bindParam(':started', $started, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -416,15 +424,34 @@ class BookmarkModel
 
     public function updateBookmark($bookmarkID, $details)
     {
+        $title = $details['title']; //htmlspecialchars($details['title']);
+        $note = htmlspecialchars($details['note']);
+
         $sql = 'UPDATE bookmarks 
-                SET bookmark = :bookmark, title = :title, note = :note, status = :status
+                SET title = :title, note = :note, status = :status
                 WHERE id = :id';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':bookmark', $details['bookmark'], \PDO::PARAM_STR);
-        $stm->bindParam(':title', $details['title'], \PDO::PARAM_STR);
-        $stm->bindParam(':note', $details['note'], \PDO::PARAM_STR);
+        $stm->bindParam(':title', $title, \PDO::PARAM_STR);
+        $stm->bindParam(':note', $note, \PDO::PARAM_STR);
         $stm->bindParam(':status', $details['status'], \PDO::PARAM_INT);
+        $stm->bindParam(':id', $bookmarkID, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function updateBookmarkStatus($bookmarkID, $status)
+    {
+        $sql = 'UPDATE bookmarks 
+                SET status = :status
+                WHERE id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':status', $status, \PDO::PARAM_INT);
         $stm->bindParam(':id', $bookmarkID, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {

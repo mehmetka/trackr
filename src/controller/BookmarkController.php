@@ -27,7 +27,7 @@ class BookmarkController extends Controller
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
         $queryString = $request->getQueryParams();
-        $defaultTag = 'technical-uncategorized';
+        $defaultTag = 'technical';
 
         $bookmarks = $this->bookmarkModel->getBookmarks($queryString['tag']);
 
@@ -53,7 +53,7 @@ class BookmarkController extends Controller
         $_SESSION['bookmarks']['highlights']['bookmarkID'] = $bookmarkId;
 
         $data = [
-            'title' => 'Bookmark\' Highlights | trackr',
+            'title' => 'Bookmark\'s Highlights | trackr',
             'highlights' => $highlights,
             'activeBookmarks' => 'active',
             'bookmarkUID' => $bookmarkUid
@@ -102,20 +102,28 @@ class BookmarkController extends Controller
 
     public function update(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $rabbitmq = new AmqpJobPublisher();
+        //$rabbitmq = new AmqpJobPublisher();
         $bookmarkUid = $args['uid'];
         $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
         $params = $request->getParsedBody();
+        $params['title'] = urldecode($params['title']);
 
         $this->bookmarkModel->updateBookmark($bookmarkId, $params);
 
         $this->tagModel->deleteTagsBySourceId($bookmarkId, self::SOURCE_TYPE);
 
+        if ($params['status'] == 0) {
+            $this->bookmarkModel->updateStartedDate($bookmarkId, null);
+            $this->bookmarkModel->updateDoneDate($bookmarkId, null);
+            $this->bookmarkModel->updateBookmarkStatus($bookmarkId, 0);
+            $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
+        }
+
         if ($params['tags']) {
             $this->tagModel->updateSourceTags($params['tags'], $bookmarkId, self::SOURCE_TYPE);
         }
 
-        $rabbitmq->publishBookmarkTitleJob($bookmarkId);
+        //$rabbitmq->publishBookmarkTitleJob($bookmarkId);
 
         $resource = [
             "message" => "Success!"
@@ -145,10 +153,11 @@ class BookmarkController extends Controller
         $highlightId = $this->bookmarkModel->addHighlight($bookmarkDetail);
 
         if ($params['tags']) {
-            $this->tagModel->updateSourceTags($params['tags'], $highlightId, self::SOURCE_TYPE);
+            $this->tagModel->updateSourceTags($params['tags'], $highlightId, HighlightController::SOURCE_TYPE);
         }
 
-        $this->bookmarkModel->updateStartedDate($bookmarkId);
+        $this->bookmarkModel->updateStartedDate($bookmarkId, time());
+        $this->bookmarkModel->updateBookmarkStatus($bookmarkId, 1);
 
         $resource = [
             "message" => "Successfully added highlight"
@@ -166,9 +175,11 @@ class BookmarkController extends Controller
         $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
 
         if ($params['status'] == 1) {
-            $this->bookmarkModel->updateStartedDate($bookmarkId);
+            $this->bookmarkModel->updateStartedDate($bookmarkId, time());
+            $this->bookmarkModel->updateBookmarkStatus($bookmarkId, 1);
         } elseif ($params['status'] == 2) {
-            $this->bookmarkModel->updateDoneDate($bookmarkId);
+            $this->bookmarkModel->updateDoneDate($bookmarkId, time());
+            $this->bookmarkModel->updateBookmarkStatus($bookmarkId, 2);
             $_SESSION['badgeCounts']['bookmarkCount'] -= 1;
         }
 
@@ -184,8 +195,8 @@ class BookmarkController extends Controller
         $bookmarkUid = $args['uid'];
         $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
 
-        $this->bookmarkModel->deleteBookmark($bookmarkId);
-        $this->tagModel->deleteTagsBySourceId($bookmarkId, self::SOURCE_TYPE);
+        $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::DELETED);
+        //$this->tagModel->deleteTagsBySourceId($bookmarkId, self::SOURCE_TYPE);
 
         $_SESSION['badgeCounts']['bookmarkCount'] -= 1;
 
@@ -195,5 +206,21 @@ class BookmarkController extends Controller
 
         return $this->response(StatusCode::HTTP_OK, $resource);
     }
+
+    public function updateTitle(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $rabbitmq = new AmqpJobPublisher();
+        $bookmarkUid = $args['uid'];
+        $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
+
+        $rabbitmq->publishBookmarkTitleJob($bookmarkId);
+
+        $resource = [
+            "message" => "Title update request added to queue!"
+        ];
+
+        return $this->response(StatusCode::HTTP_OK, $resource);
+    }
+
 
 }

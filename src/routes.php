@@ -51,6 +51,7 @@ $app->group('', function () {
     $this->post('/bookmarks/{uid}/highlights', BookmarkController::class . ':addHighlight');
     $this->post('/bookmarks', BookmarkController::class . ':create');
     $this->put('/bookmarks/{uid}/status', BookmarkController::class . ':changeStatus');
+    $this->put('/bookmarks/{uid}/title', BookmarkController::class . ':updateTitle');
     $this->get('/bookmarks/{uid}', BookmarkController::class . ':details');
     $this->put('/bookmarks/{uid}', BookmarkController::class . ':update');
     $this->delete('/bookmarks/{uid}', BookmarkController::class . ':delete');
