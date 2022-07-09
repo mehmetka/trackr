@@ -2,7 +2,7 @@
 
 namespace App\model;
 
-use App\util\Util;
+use App\util\TimeUtil;
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
 
@@ -50,7 +50,7 @@ class DateTrackingModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['diff'] = Util::calculateAge($today, $row['start']);
+            $row['diff'] = TimeUtil::calculateAge($today, $row['start']);
             $row['start'] = date('d/m/Y', strtotime($row['start']));
             $list[] = $row;
         }

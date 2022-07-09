@@ -2,7 +2,7 @@
 
 namespace App\model;
 
-use App\util\Util;
+use App\util\TimeUtil;
 use App\exception\CustomException;
 use Psr\Container\ContainerInterface;
 
@@ -156,7 +156,7 @@ class BookModel
         $start = $this->getStartOfReadings();
         $start = $start ? $start : time();
         $from = time();
-        $diff = Util::epochDateDiff($from, $start);
+        $diff = TimeUtil::epochDateDiff($from, $start);
         $diff = $diff ? $diff : 1;
         $total = $this->getReadingTotal();
 
@@ -189,8 +189,8 @@ class BookModel
             }
 
             $path['remaining_page'] = $this->getBooksRemainingPageCount($path['path_id']);
-            $path['day_diff'] = Util::epochDateDiff($path['finish_epoch'], $today);
-            $path['path_day_count'] = Util::epochDateDiff($path['finish_epoch'], $path['start_epoch']);
+            $path['day_diff'] = TimeUtil::epochDateDiff($path['finish_epoch'], $today);
+            $path['path_day_count'] = TimeUtil::epochDateDiff($path['finish_epoch'], $path['start_epoch']);
             $path['ratio'] = '%' . round((($path['path_day_count'] - $path['day_diff']) / $path['path_day_count']) * 100);
             $path['ratioBadgeColor'] = 'warning';
             $path['today_processed'] = $this->getBookPathsDailyRemainings($path['path_id']);
