@@ -5,6 +5,13 @@
     {{> head }}
     <link rel="stylesheet"
           href="https://cdn.rawgit.com/xcatliu/simplemde-theme-dark/master/dist/simplemde-theme-dark.min.css">
+
+    <style>
+        img {
+            height: 300px;
+            width: 300px;
+        }
+    </style>
 </head>
 
 <body class="vertical dark">
@@ -29,6 +36,8 @@
                                     <input id="author" placeholder="Author" type="text"
                                            class="form-control enterButtonKeyPress">
                                     <input id="source" placeholder="Source" type="text"
+                                           class="form-control enterButtonKeyPress">
+                                    <input id="filename" placeholder="File Name" type="text"
                                            class="form-control enterButtonKeyPress">
                                     <input id="page" placeholder="Page" type="number"
                                            class="form-control enterButtonKeyPress">
@@ -102,6 +111,7 @@
                         </div>
                         <br class="highlightCardBR">
                     {{/highlights}}
+
                     </script>
                     <%={{ }}=%>
 
@@ -132,7 +142,7 @@
 
                 var searchParam = $('#searchHighlights').val();
 
-                if(searchParam !== '') {
+                if (searchParam !== '') {
                     var result = ajaxCall('POST', "/highlights/search", 'searchParam=' + searchParam, false, false)
 
                     if (result !== false) {
@@ -153,10 +163,11 @@
                 var highlight = simplemde.value();
                 var author = $('#author').val();
                 var source = $('#source').val();
+                var fileName = $('#filename').val();
                 var page = $('#page').val();
                 var link = $('#link').val();
                 var tags = $('#tags').val();
-                var data = "highlight=" + encodeURIComponent(highlight) + "&author=" + encodeURIComponent(author) + "&source=" + encodeURIComponent(source) + "&page=" + encodeURIComponent(page) + "&link=" + encodeURIComponent(link) + "&tags=" + encodeURIComponent(tags);
+                var data = "highlight=" + encodeURIComponent(highlight) + "&author=" + encodeURIComponent(author) + "&source=" + encodeURIComponent(source) + "&page=" + encodeURIComponent(page) + "&link=" + encodeURIComponent(link) + "&tags=" + encodeURIComponent(tags) + "&filename=" + encodeURIComponent(fileName);
                 var result = ajaxCall('POST', "/highlights", data)
 
                 if (result !== false) {

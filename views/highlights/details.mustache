@@ -4,56 +4,60 @@
 <head>
     {{> head }}
     <link rel="stylesheet"
-        href="https://cdn.rawgit.com/xcatliu/simplemde-theme-dark/master/dist/simplemde-theme-dark.min.css">
+          href="https://cdn.rawgit.com/xcatliu/simplemde-theme-dark/master/dist/simplemde-theme-dark.min.css">
 </head>
 
 <body class="vertical dark">
-    <div class="wrapper">
-        <main role="main" class="main-content">
-            <div class="container-fluid">
+<div class="wrapper">
+    <main role="main" class="main-content">
+        <div class="container-fluid">
 
-                <div class="row justify-content-center">
-                    <div class="col-12">
-                        <div class="card mb-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <a type="button" class="btn btn-sm btn-primary"
-                                        href="/highlights/{{previousID}}"><span
-                                            class="fe fe-arrow-left fe-16 mr-2"></span> Previous Highlight</a>
-                                    <a type="button" class="btn btn-sm btn-primary float-right"
-                                        href="/highlights/{{nextID}}">Next Highlight <span
-                                            class="fe fe-arrow-right fe-16 mr-2"></span></a>
-                                </div>
-                                <div class="card-body">
-                                    {{#detail}}
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <a type="button" class="btn btn-sm btn-primary"
+                                   href="/highlights/{{previousID}}"><span
+                                        class="fe fe-arrow-left fe-16 mr-2"></span> Previous Highlight</a>
+                                <a type="button" class="btn btn-sm btn-primary float-right"
+                                   href="/highlights/{{nextID}}">Next Highlight <span
+                                        class="fe fe-arrow-right fe-16 mr-2"></span></a>
+                            </div>
+                            <div class="card-body">
+                                {{#detail}}
                                     <textarea id="highlight" hidden>{{#detail}}{{highlight}}{{/detail}}</textarea>
 
                                     <br>
 
                                     <div class="form-group">
                                         <input id="author" placeholder="Author" type="text" class="form-control"
-                                            value="{{author}}">
+                                               value="{{author}}">
                                     </div>
 
                                     <div class="form-group">
                                         <input id="source" placeholder="Source" type="text" class="form-control"
-                                            value="{{source}}">
+                                               value="{{source}}">
                                     </div>
                                     <div class="form-group">
                                         <input id="page" placeholder="Page" type="number" class="form-control"
-                                            value="{{page}}">
+                                               value="{{page}}">
                                     </div>
                                     <div class="form-group">
                                         <input id="location" placeholder="Location" type="text" class="form-control"
-                                            value="{{location}}">
+                                               value="{{location}}">
                                     </div>
                                     <div class="form-group">
                                         <input id="link" placeholder="Link" type="text" class="form-control"
-                                            value="{{link}}">
+                                               value="{{link}}">
+                                    </div>
+                                    <div class="form-group">
+                                        <input id="filename" placeholder="File Name" type="text" class="form-control"
+                                               value="{{file_name}}">
                                     </div>
                                     <div class="form-group">
                                         <input id="tags" placeholder="Tags" type="text" class="form-control"
-                                            value="{{#tags}}{{imploded_comma}}{{/tags}}">
+                                               value="{{#tags}}{{imploded_comma}}{{/tags}}">
                                     </div>
                                     <div class="form-group custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input" id="is_secret"
@@ -63,150 +67,151 @@
 
                                     <div class="form-group">
                                         <button id="updateHighlight" type="button" class="btn btn-primary"
-                                            data-id="{{id}}">
+                                                data-id="{{id}}">
                                             Update
                                         </button>
 
                                         <button id="deleteHighlight" type="button" class="btn btn-danger float-right"
-                                            data-id="{{id}}">
+                                                data-id="{{id}}">
                                             Delete
                                         </button>
                                     </div>
+                                {{/detail}}
+                            </div>
+                        </div>
+                    </div>
+
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Add Comment</h5>
+                                <div class="form-group">
+                                    <textarea id="comment" hidden></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <input id="commentSource" placeholder="Source" type="text" class="form-control"
+                                           value="{{#detail}}{{source}}{{/detail}}">
+                                </div>
+
+                                <div class="form-group">
+                                    <input id="commentLink" placeholder="Link" type="text" class="form-control">
+                                </div>
+
+                                <div class="form-group">
+                                    <input id="commentTags" placeholder="Tags" type="text" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    {{#detail}}
+                                        <button id="addComment" type="button" class="btn btn-primary" data-id="{{id}}">
+                                            Add
+                                        </button>
                                     {{/detail}}
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                    </div> <!-- .col-12 -->
-                </div> <!-- .row -->
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
 
-                <div class="row justify-content-center">
-                    <div class="col-12">
-                        <div class="card mb-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Add Comment</h5>
-                                    <div class="form-group">
-                                        <textarea id="comment" hidden></textarea>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <input id="commentSource" placeholder="Source" type="text" class="form-control"
-                                            value="{{#detail}}{{source}}{{/detail}}">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <input id="commentLink" placeholder="Link" type="text" class="form-control">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <input id="commentTags" placeholder="Tags" type="text" class="form-control">
-                                    </div>
-                                    <div class="form-group">
-                                        {{#detail}}
-                                        <button id="addComment" type="button" class="btn btn-primary" data-id="{{id}}">
-                                            Add
-                                        </button>
-                                        {{/detail}}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div> <!-- .col-12 -->
-                </div> <!-- .row -->
-
-                <div class="row">
-                    <div class="col-md-12">
-                        {{#subHighlights}}
+            <div class="row">
+                <div class="col-md-12">
+                    {{#subHighlights}}
                         <blockquote class="blockquote">
                             <p class="mb-0">{{{highlight}}}</p>
                             <footer class="blockquote-footer">{{author}} <cite title="Source Title">{{source}}</cite>
                                 {{#tags}}
-                                <br>{{imploded_hashtag_blank}}
+                                    <br>{{imploded_hashtag_blank}}
                                 {{/tags}}
                             </footer>
                         </blockquote>
-                        {{/subHighlights}}
-                    </div>
+                    {{/subHighlights}}
                 </div>
+            </div>
 
-            </div> <!-- .container-fluid -->
-        </main> <!-- main -->
-    </div> <!-- .wrapper -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
 
-    {{> include}}
-    {{> menu }}
-    {{> navbar }}
+{{> include}}
+{{> menu }}
+{{> navbar }}
 
-    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
-    <script>
-        $(document).ready(function () {
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script>
+    $(document).ready(function () {
 
-            var simplemdeHighlight = new SimpleMDE({
-                element: $("#highlight")[0],
-                toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview" ],
-            });
+        var simplemdeHighlight = new SimpleMDE({
+            element: $("#highlight")[0],
+            toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
+        });
 
-            var simplemdeComment = new SimpleMDE({
-                element: $("#comment")[0],
-                toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview" ],
-            });
+        var simplemdeComment = new SimpleMDE({
+            element: $("#comment")[0],
+            toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
+        });
 
-            $('#highlight').show();
-            $('#comment').show();
+        $('#highlight').show();
+        $('#comment').show();
 
-            $('#addComment').on('click', function (e) {
+        $('#addComment').on('click', function (e) {
 
-                var highlightID = $('#addComment').data('id');
-                var comment = simplemdeComment.value();
-                var source = $('#commentSource').val();
-                var link = $('#commentLink').val();
-                var tags = $('#commentTags').val();
+            var highlightID = $('#addComment').data('id');
+            var comment = simplemdeComment.value();
+            var source = $('#commentSource').val();
+            var link = $('#commentLink').val();
+            var tags = $('#commentTags').val();
 
-                var data = "highlight=" + encodeURIComponent(comment) + "&source=" + encodeURIComponent(source) + "&link=" + encodeURIComponent(link) + "&tags=" + encodeURIComponent(tags);
-                var result = ajaxCall('POST', "/highlights/" + highlightID + "/sub", data)
+            var data = "highlight=" + encodeURIComponent(comment) + "&source=" + encodeURIComponent(source) + "&link=" + encodeURIComponent(link) + "&tags=" + encodeURIComponent(tags);
+            var result = ajaxCall('POST', "/highlights/" + highlightID + "/sub", data)
 
-                if (result !== false) {
-                    location.reload();
-                }
-
-            });
-
-            $('#updateHighlight').on('click', function (e) {
-
-                var highlight = simplemdeHighlight.value();
-                var author = $('#author').val();
-                var source = $('#source').val();
-                var page = $('#page').val();
-                var highlightLocation = $('#location').val();
-                var link = $('#link').val();
-                var tags = $('#tags').val();
-                var highlightID = $(this).data('id');
-                var is_secret = $('#is_secret').is(":checked") ? 1 : 0;
-                var data = "highlight=" + encodeURIComponent(highlight) + "&author=" + encodeURIComponent(author) + "&source=" + encodeURIComponent(source) + "&page=" + page + "&location=" + highlightLocation + "&link=" + link + "&tags=" + tags + "&is_secret=" + is_secret;
-
-                var result = ajaxCall('PUT', "/highlights/" + highlightID, data)
-
-                if (result !== false) {
-                    location.reload();
-                }
-
-            });
-
-            $('#deleteHighlight').on('click', function (e) {
-
-                var highlightID = $(this).data('id');
-                var result = ajaxCall('DELETE', "/highlights/" + highlightID, null);
-
-                if (result !== false) {
-                    window.location.replace('/highlights/{{nextID}}')
-                }
-
-            });
+            if (result !== false) {
+                location.reload();
+            }
 
         });
-    </script>
+
+        $('#updateHighlight').on('click', function (e) {
+
+            var highlight = simplemdeHighlight.value();
+            var author = $('#author').val();
+            var source = $('#source').val();
+            var page = $('#page').val();
+            var highlightLocation = $('#location').val();
+            var link = $('#link').val();
+            var fileName = $('#filename').val();
+            var tags = $('#tags').val();
+            var highlightID = $(this).data('id');
+            var is_secret = $('#is_secret').is(":checked") ? 1 : 0;
+            var data = "highlight=" + encodeURIComponent(highlight) + "&author=" + encodeURIComponent(author) + "&source=" + encodeURIComponent(source) + "&page=" + page + "&location=" + highlightLocation + "&link=" + link +  "&filename=" + encodeURIComponent(fileName) + "&tags=" + tags + "&is_secret=" + is_secret;
+
+            var result = ajaxCall('PUT', "/highlights/" + highlightID, data)
+
+            if (result !== false) {
+                location.reload();
+            }
+
+        });
+
+        $('#deleteHighlight').on('click', function (e) {
+
+            var highlightID = $(this).data('id');
+            var result = ajaxCall('DELETE', "/highlights/" + highlightID, null);
+
+            if (result !== false) {
+                window.location.replace('/highlights/{{nextID}}')
+            }
+
+        });
+
+    });
+</script>
 </body>
 
 </html>
