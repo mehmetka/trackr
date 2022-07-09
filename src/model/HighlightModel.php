@@ -31,14 +31,20 @@ class HighlightModel
 
         if ($tag) {
             $sql .= ' LEFT JOIN tag_relationships tr ON h.id = tr.source_id
-                LEFT JOIN tags t ON tr.tag_id = t.id
-                WHERE t.tag = :tag AND tr.type = 1';
+                LEFT JOIN tags t ON tr.tag_id = t.id';
+        }
+
+        $sql .= ' WHERE h.is_deleted = 0 AND h.user_id = :user_id';
+
+        if ($tag) {
+            $sql .= ' AND t.tag = :tag AND tr.type = 1';
         }
 
         $sql .= ' ORDER BY h.id DESC LIMIT :limit';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':limit', $limit, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if ($tag) {
             $stm->bindParam(':tag', $tag, \PDO::PARAM_STR);
@@ -67,13 +73,14 @@ class HighlightModel
     {
         $list = [];
 
-        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.page, h.location, b.bookmark AS link, h.link AS linkID, h.type, h.is_secret, h.created, h.updated
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.page, h.location, b.bookmark AS link, h.link AS linkID, h.file_name, h.type, h.is_secret, h.created, h.updated
                 FROM highlights h
                 LEFT JOIN bookmarks b ON h.link = b.id
-                WHERE h.id = :highlightID';
+                WHERE h.id = :highlightID AND h.user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':highlightID', $id, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
@@ -98,10 +105,11 @@ class HighlightModel
         $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.page, h.location, h.link, h.type, h.created, h.updated
                 FROM highlights h
                 INNER JOIN sub_highlights sh ON h.id = sh.sub_highlight_id
-                WHERE sh.highlight_id = :highlightID';
+                WHERE sh.highlight_id = :highlightID AND h.user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':highlightID', $highlightID, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
@@ -131,8 +139,8 @@ class HighlightModel
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
-        $sql = 'INSERT INTO highlights (highlight, author, source, page, link, created)
-                VALUES(:highlight, :author, :source, :page, :link, :created)';
+        $sql = 'INSERT INTO highlights (highlight, author, source, page, link, file_name, created, user_id)
+                VALUES(:highlight, :author, :source, :page, :link, :file_name, :created, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':highlight', $rawHighlight, \PDO::PARAM_STR);
@@ -140,7 +148,9 @@ class HighlightModel
         $stm->bindParam(':source', $params['source'], \PDO::PARAM_STR);
         $stm->bindParam(':page', $params['page'], \PDO::PARAM_INT);
         $stm->bindParam(':link', $params['link'], \PDO::PARAM_INT);
+        $stm->bindParam(':file_name', $params['filename'], \PDO::PARAM_STR);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
@@ -162,8 +172,8 @@ class HighlightModel
         $highlight = htmlentities($rawHighlight);
 
         $sql = 'UPDATE highlights 
-                SET highlight = :highlight, author = :author, source = :source, page = :page, location = :location, link = :link, is_secret = :is_secret, updated = :updated
-                WHERE id = :id';
+                SET highlight = :highlight, author = :author, source = :source, page = :page, location = :location, link = :link, file_name = :file_name, is_secret = :is_secret, updated = :updated
+                WHERE id = :id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -174,8 +184,10 @@ class HighlightModel
         $stm->bindParam(':page', $params['page'], \PDO::PARAM_INT);
         $stm->bindParam(':location', $params['location'], \PDO::PARAM_INT);
         $stm->bindParam(':link', $params['link'], \PDO::PARAM_INT);
+        $stm->bindParam(':file_name', $params['filename'], \PDO::PARAM_STR);
         $stm->bindParam(':is_secret', $params['is_secret'], \PDO::PARAM_INT);
         $stm->bindParam(':updated', $update, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
@@ -208,9 +220,10 @@ class HighlightModel
         $count = 0;
 
         $sql = 'SELECT COUNT(*) AS count
-                FROM highlights';
+                FROM highlights WHERE is_deleted = 0 AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
@@ -228,10 +241,11 @@ class HighlightModel
         $next = $id;
 
         $sql = 'SELECT * FROM highlights 
-                WHERE id = (SELECT min(id) FROM highlights WHERE id > :id)';
+                WHERE id = (SELECT min(id) FROM highlights WHERE id > :id AND user_id = :user_id) AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
@@ -249,10 +263,11 @@ class HighlightModel
         $previous = $id;
 
         $sql = 'SELECT * FROM highlights 
-                WHERE id = (SELECT max(id) FROM highlights WHERE id < :id)';
+                WHERE id = (SELECT max(id) FROM highlights WHERE id < :id AND user_id = :user_id) AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
@@ -267,11 +282,15 @@ class HighlightModel
 
     public function deleteHighlight($highlightID)
     {
-        $sql = 'DELETE FROM highlights
-                WHERE id = :highlight_id';
+        $deletedAt = time();
+
+        $sql = 'UPDATE highlights SET is_deleted = 1, deleted_at = :deleted_at
+                WHERE id = :highlight_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':highlight_id', $highlightID, \PDO::PARAM_INT);
+        $stm->bindParam(':deleted_at', $deletedAt, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
@@ -317,10 +336,11 @@ class HighlightModel
 
         $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created
                 FROM highlights h
-                WHERE h.highlight LIKE :searchParam';
+                WHERE h.highlight LIKE :searchParam AND h.user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':searchParam', $searchParam, \PDO::PARAM_STR);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));

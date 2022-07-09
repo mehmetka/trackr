@@ -30,7 +30,7 @@ class HighlightController extends Controller
     {
         $queryString = $request->getQueryParams();
 
-        $highlights = $this->highlightModel->getHighlights($queryString['tag'], 500);
+        $highlights = $this->highlightModel->getHighlights($queryString['tag'], 100);
 
         $tags = $this->tagModel->getSourceTagsByType(self::SOURCE_TYPE, $queryString['tag']);
 
@@ -88,7 +88,7 @@ class HighlightController extends Controller
                 if ($bookmarkExist) {
                     $params['link'] = $bookmarkExist['id'];
                 } else {
-                    $bookmarkId = $this->bookmarkModel->createOperations($params['link'], null, 6665);
+                    $bookmarkId = $this->bookmarkModel->createOperations($params['link'], null);
                     $params['link'] = $bookmarkId;
                 }
             } else {
@@ -128,7 +128,7 @@ class HighlightController extends Controller
             if ($bookmarkExist) {
                 $params['link'] = $bookmarkExist['id'];
             } else {
-                $bookmarkId = $this->bookmarkModel->createOperations($params['link'], null, 6665);
+                $bookmarkId = $this->bookmarkModel->createOperations($params['link'], null);
                 $params['link'] = $bookmarkId;
             }
         } else {
@@ -137,9 +137,10 @@ class HighlightController extends Controller
 
         $highlightId = $this->highlightModel->create($params);
 
-        if ($params['tags']) {
-            $this->tagModel->updateSourceTags($params['tags'], $highlightId, self::SOURCE_TYPE);
+        if (!$params['tags']) {
+            $params['tags'] = 'general';
         }
+        $this->tagModel->updateSourceTags($params['tags'], $highlightId, self::SOURCE_TYPE);
 
         $_SESSION['badgeCounts']['highlightsCount'] += 1;
 
@@ -152,33 +153,40 @@ class HighlightController extends Controller
 
     public function createSub(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
+        $resource = [];
         $params = $request->getParsedBody();
         $highlightID = $args['id'];
 
-        if ($params['link']) {
-            $bookmarkExist = $this->bookmarkModel->getBookmarkByBookmark($params['link']);
-            if ($bookmarkExist) {
-                $params['link'] = $bookmarkExist['id'];
-            } else {
-                $bookmarkId = $this->bookmarkModel->createOperations($params['link'], null, 6665);
-                $params['link'] = $bookmarkId;
+        $parentHighlightDetails = $this->highlightModel->getHighlightByID($highlightID);
+
+        if($parentHighlightDetails) {
+            if ($params['link']) {
+                $bookmarkExist = $this->bookmarkModel->getBookmarkByBookmark($params['link']);
+                if ($bookmarkExist) {
+                    $params['link'] = $bookmarkExist['id'];
+                } else {
+                    $bookmarkId = $this->bookmarkModel->createOperations($params['link'], null);
+                    $params['link'] = $bookmarkId;
+                }
             }
+
+            $subHighlightID = $this->highlightModel->create($params);
+
+            if ($params['tags']) {
+                $this->tagModel->updateSourceTags($params['tags'], $subHighlightID, self::SOURCE_TYPE);
+            }
+
+            $this->highlightModel->createSubHighlight($highlightID, $subHighlightID);
+            $_SESSION['badgeCounts']['highlightsCount'] += 1;
+
+            $resource['message'] = 'sub-highlight successfully added!';
+
+            return $this->response(StatusCode::HTTP_OK, $resource);
         }
 
-        $subHighlightID = $this->highlightModel->create($params);
+        $resource['message'] = 'parent highlight not found!';
 
-        if ($params['tags']) {
-            $this->tagModel->updateSourceTags($params['tags'], $subHighlightID, self::SOURCE_TYPE);
-        }
-
-        $this->highlightModel->createSubHighlight($highlightID, $subHighlightID);
-        $_SESSION['badgeCounts']['highlightsCount'] += 1;
-
-        $resource = [
-            "message" => "Success!"
-        ];
-
-        return $this->response(StatusCode::HTTP_OK, $resource);
+        return $this->response(StatusCode::HTTP_BAD_REQUEST, $resource);
     }
 
     public function delete(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -186,8 +194,8 @@ class HighlightController extends Controller
         $highlightID = $args['id'];
 
         $this->highlightModel->deleteHighlight($highlightID);
-        $this->highlightModel->deleteHighlightTagsByHighlightID($highlightID);
-        $this->highlightModel->deleteSubHighlightByHighlightID($highlightID);
+        //$this->highlightModel->deleteHighlightTagsByHighlightID($highlightID);
+        //$this->highlightModel->deleteSubHighlightByHighlightID($highlightID);
 
         $_SESSION['badgeCounts']['highlightsCount'] -= 1;
 

@@ -45,11 +45,13 @@ class BookModel
         $start = null;
 
         $sql = 'SELECT record_date 
-                FROM book_trackings 
+                FROM book_trackings
+                WHERE user_id = :user_id
                 ORDER BY id ASC
                 LIMIT 1';
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -67,9 +69,11 @@ class BookModel
         $total = 0;
 
         $sql = 'SELECT SUM(amount) AS total 
-                FROM book_trackings';
+                FROM book_trackings
+                WHERE user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -88,10 +92,11 @@ class BookModel
 
         $sql = 'SELECT id 
                 FROM paths
-                WHERE uid = :uid';
+                WHERE uid = :uid AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':uid', $uid, \PDO::PARAM_STR);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -271,11 +276,12 @@ class BookModel
 
         $sql = 'SELECT sum(amount) AS total 
                 FROM book_trackings 
-                WHERE book_id=:book_id AND path_id=:path_id';
+                WHERE book_id=:book_id AND path_id=:path_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
         $stm->bindParam(':path_id', $pathId, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -316,8 +322,8 @@ class BookModel
     {
         $now = date("Y-m-d H:i:s");
 
-        $sql = 'INSERT INTO books_finished (book_id, path_id, start_date, finish_date)
-                VALUES(:book_id,:path_id,:start_date,:finish_date)';
+        $sql = 'INSERT INTO books_finished (book_id, path_id, start_date, finish_date, user_id)
+                VALUES(:book_id,:path_id,:start_date,:finish_date, :user_id)';
 
         $startDate = $this->findStartDateOfBook($bookId);
         $startDate = date("Y-m-d H:i:s", $startDate);
@@ -327,6 +333,7 @@ class BookModel
         $stm->bindParam(':path_id', $pathId, \PDO::PARAM_INT);
         $stm->bindParam(':start_date', $startDate, \PDO::PARAM_STR);
         $stm->bindParam(':finish_date', $now, \PDO::PARAM_STR);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -341,11 +348,12 @@ class BookModel
 
         $sql = 'SELECT record_date 
                 FROM book_trackings 
-                WHERE book_id=:book_id 
+                WHERE book_id=:book_id AND user_id = :user_id
                 ORDER BY record_date ASC LIMIT 1;';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -380,11 +388,12 @@ class BookModel
     {
         $sql = 'UPDATE paths 
                 SET status = :status 
-                WHERE id = :id';
+                WHERE id = :id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':status', $status, \PDO::PARAM_INT);
         $stm->bindParam(':id', $pathId, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -403,12 +412,13 @@ class BookModel
         $sql = 'SELECT sum(bt.amount) AS amount
                 FROM book_trackings bt
                 INNER JOIN path_books pb ON bt.book_id = pb.book_id
-                WHERE pb.path_id = :path_id AND (bt.record_date > :today && bt.record_date < :tomorrow)';
+                WHERE pb.path_id = :path_id AND (bt.record_date > :today && bt.record_date < :tomorrow) AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':path_id', $pathId, \PDO::PARAM_INT);
         $stm->bindParam(':today', $today, \PDO::PARAM_INT);
         $stm->bindParam(':tomorrow', $tomorrow, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -482,9 +492,11 @@ class BookModel
     {
         $sql = 'SELECT id AS path_id, uid AS pathUID, name AS path_name, start, finish 
                 FROM paths
+                WHERE user_id = :user_id
                 ORDER BY id DESC';
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -513,12 +525,13 @@ class BookModel
                                         INNER JOIN author a ON ba.author_id = a.id
                                WHERE ba.book_id = b.id)) AS author,
                        b.title, b.page_count, b.own, b.added_date,
-                       (IFNULL((SELECT true FROM books_finished bf WHERE bf.book_id = b.id LIMIT 1), false)) AS is_read
+                       (IFNULL((SELECT true FROM books_finished bf WHERE bf.book_id = b.id AND bf.user_id = :user_id LIMIT 1), false)) AS is_read
                 FROM books b
                 WHERE b.own = 1
                 ORDER BY b.id DESC";
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -544,8 +557,10 @@ class BookModel
                 FROM books_finished bf
                 LEFT JOIN books b ON bf.book_id = b.id
                 INNER JOIN paths p ON bf.path_id = p.id
+                WHERE bf.user_id = :user_id
                 ORDER BY finish_date DESC";
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -566,10 +581,11 @@ class BookModel
 
         $sql = "SELECT * 
                 FROM books_finished
-                WHERE id = :id";
+                WHERE id = :id AND user_id = :user_id";
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':id', $finishedBookId, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -588,11 +604,12 @@ class BookModel
                 FROM books b
                 INNER JOIN path_books pb ON b.id = pb.book_id
                 INNER JOIN paths p ON pb.path_id = p.id
-                WHERE pb.path_id = :path_id
+                WHERE pb.path_id = :path_id AND p.user_id = :user_id
                 ORDER BY pb.status DESC, b.page_count";
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':path_id', $pathId, \PDO::PARAM_STR);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -670,14 +687,15 @@ class BookModel
 
         $this->setBookPathStatus($pathId, $bookId, $this->pathStatusInfos['reading']['id']);
 
-        $sql = 'INSERT INTO book_trackings (book_id, path_id, record_date, amount)
-                VALUES(:book_id,:path_id,:record_date,:amount)';
+        $sql = 'INSERT INTO book_trackings (book_id, path_id, record_date, amount, user_id)
+                VALUES(:book_id,:path_id,:record_date,:amount, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
         $stm->bindParam(':path_id', $pathId, \PDO::PARAM_INT);
         $stm->bindParam(':record_date', $now, \PDO::PARAM_INT);
         $stm->bindParam(':amount', $amount, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -745,10 +763,11 @@ class BookModel
     public function deleteBookTrackings($bookId)
     {
         $sql = 'DELETE FROM book_trackings
-                WHERE BOOK_ID = :bookId';
+                WHERE BOOK_ID = :bookId AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':bookId', $bookId, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -776,10 +795,11 @@ class BookModel
     {
         $sql = 'SELECT id, name, start, finish, status
                 FROM paths 
-                WHERE id = :id';
+                WHERE id = :id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':id', $pathId, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -801,11 +821,12 @@ class BookModel
     {
         $sql = 'UPDATE paths 
                 SET finish = :finish 
-                WHERE id = :id';
+                WHERE id = :id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':finish', $extendedFinishDate, \PDO::PARAM_INT);
         $stm->bindParam(':uid', $pathId, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -862,13 +883,14 @@ class BookModel
         $now = time();
         $finish = strtotime($finish);
 
-        $sql = 'INSERT INTO paths (uid, name, start, finish)
-                VALUES(UUID(), :name, :start, :finish)';
+        $sql = 'INSERT INTO paths (uid, name, start, finish, user_id)
+                VALUES(UUID(), :name, :start, :finish, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':name', $name, \PDO::PARAM_STR);
         $stm->bindParam(':start', $now, \PDO::PARAM_INT);
         $stm->bindParam(':finish', $finish, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -880,11 +902,12 @@ class BookModel
     public function deleteBookTrackingsByPath($bookId, $pathId)
     {
         $sql = 'DELETE FROM book_trackings
-                WHERE BOOK_ID = :bookId AND PATH_ID = :pathId';
+                WHERE BOOK_ID = :bookId AND PATH_ID = :pathId AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':bookId', $bookId, \PDO::PARAM_INT);
         $stm->bindParam(':pathId', $pathId, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -930,10 +953,11 @@ class BookModel
 
         $sql = "SELECT FROM_UNIXTIME(record_date, '%m/%d/%Y GMT') AS date, amount
                 FROM book_trackings
-                WHERE path_id = :pathID";
+                WHERE path_id = :pathID AND user_id = :user_id";
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':pathID', $pathID, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -1023,9 +1047,11 @@ class BookModel
         $finishedBookCount = 0;
 
         $sql = "SELECT COUNT(*) AS finishedBookCount
-                FROM books_finished";
+                FROM books_finished
+                WHERE user_id = :user_id";
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -1043,17 +1069,19 @@ class BookModel
         $bookCount = 0;
 
         if ($status == 'active') {
-            $status = 'status < 2';
+            $status = 'pb.status < 2';
         } else {
-            $status = 'status = 2';
+            $status = 'pb.status = 2';
         }
 
         $sql = "SELECT count(*) AS path_book_count 
-                FROM path_books 
-                WHERE path_id = :pathID AND $status";
+                FROM path_books pb
+                INNER JOIN paths p ON pb.path_id = p.id
+                WHERE pb.path_id = :pathID AND $status AND p.user_id = :user_id";
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':pathID', $pathID, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -1070,11 +1098,12 @@ class BookModel
     {
         $sql = 'UPDATE books_finished
                 SET rate = :rate
-                WHERE id = :finishedBookID';
+                WHERE id = :finishedBookID AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':finishedBookID', $finishedBookID, \PDO::PARAM_INT);
         $stm->bindParam(':rate', $rating, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -1094,15 +1123,17 @@ class BookModel
                                WHERE ba.book_id = b.id)) AS author
                 FROM book_trackings bt
                 INNER JOIN paths p ON bt.path_id = p.id
-                INNER JOIN books b ON bt.book_id = b.id";
+                INNER JOIN books b ON bt.book_id = b.id
+                WHERE bt.user_id = :user_id";
 
         if ($bookID) {
-            $sql .= ' WHERE bt.book_id = :bookID';
+            $sql .= ' AND bt.book_id = :bookID';
         }
 
         $sql .= ' ORDER BY bt.id DESC';
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if ($bookID) {
             $stm->bindParam(':bookID', $bookID, \PDO::PARAM_INT);
@@ -1124,12 +1155,13 @@ class BookModel
     {
         $timestamp = time();
 
-        $sql = 'INSERT INTO activity_logs (path_id, book_id, activity, timestamp) 
-                VALUES (:path_id, :book_id, :activity, :timestamp)';
+        $sql = 'INSERT INTO activity_logs (path_id, book_id, activity, timestamp, user_id) 
+                VALUES (:path_id, :book_id, :activity, :timestamp, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':path_id', $pathID, \PDO::PARAM_INT);
         $stm->bindParam(':book_id', $bookID, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
         $stm->bindParam(':activity', $activity, \PDO::PARAM_STR);
         $stm->bindParam(':timestamp', $timestamp, \PDO::PARAM_INT);
 
