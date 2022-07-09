@@ -20,7 +20,7 @@ class AmqpJobPublisher
         $this->connection->close();
     }
 
-    public function publishBookmarkTitleJob($id)
+    public function publishBookmarkTitleJob($id, $retryCount = 0)
     {
         $jobType = 'get_bookmark_title';
         $exchange = 'router';
@@ -33,7 +33,8 @@ class AmqpJobPublisher
 
         $messageBody = [
             'job_type' => $jobType,
-            'id' => $id
+            'id' => $id,
+            'retry_count' => $retryCount
         ];
         $message = new AMQPMessage(serialize($messageBody), array('content_type' => 'text/plain', 'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT));
         $channel->basic_publish($message, $exchange);
