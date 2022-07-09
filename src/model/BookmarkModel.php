@@ -69,6 +69,10 @@ class BookmarkModel
                 $row['complete'] = true;
             }
 
+            $row['title'] = htmlspecialchars($row['title']);
+            $row['note'] = htmlspecialchars($row['note']);
+            $row['bookmark'] = htmlspecialchars($row['bookmark']);
+
             $bookmarks[] = $row;
         }
 
@@ -294,38 +298,6 @@ class BookmarkModel
 
         $_SESSION['badgeCounts']['highlightsCount'] += 1;
         return $this->dbConnection->lastInsertId();
-    }
-
-    public function getTitle($url)
-    {
-        try {
-            $data = @file_get_contents($url);
-            $code = $this->getHttpCode($http_response_header);
-
-            if ($code === 404) {
-                return '404 Not Found';
-            }
-        } catch (\Exception $exception) {
-            return null;
-        }
-
-        if (preg_match('/<title[^>]*>(.*?)<\/title>/ims', $data, $matches)) {
-            return mb_check_encoding($matches[1], 'UTF-8') ? $matches[1] : utf8_encode($matches[1]);
-        }
-
-        return null;
-    }
-
-    function getHttpCode($http_response_header)
-    {
-        if (is_array($http_response_header)) {
-            $parts = explode(' ', $http_response_header[0]);
-            if (count($parts) > 1) //HTTP/1.0 <code> <text>
-            {
-                return intval($parts[1]);
-            } //Get code
-        }
-        return 0;
     }
 
     public function updateTitleByID($id, $title)
