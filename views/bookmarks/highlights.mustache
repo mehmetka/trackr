@@ -3,63 +3,72 @@
 
 <head>
     {{> head }}
+    <link rel="stylesheet"
+          href="https://cdn.rawgit.com/xcatliu/simplemde-theme-dark/master/dist/simplemde-theme-dark.min.css">
+
 </head>
 
 <body class="vertical dark">
-    <div class="wrapper">
-        <main role="main" class="main-content">
-            <div class="container-fluid">
-                <div class="row justify-content-center">
-                    <div class="col-12">
+<div class="wrapper">
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
 
-                        <div class="card mb-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Add New Highlight</h5>
-                                    <div class="input-group input-group-lg">
-                                        <textarea id="highlight" class="form-control form-control-lg"
-                                            placeholder="Highlight" rows="2"></textarea>
-                                    </div>
-                                    <br>
-                                    <div class="input-group input-group-lg">
-                                        <input id="tags" placeholder="Tags" type="text"
-                                            class="form-control enterButtonKeyPress">
-                                    </div>
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Add New Highlight</h5>
+                                <textarea id="highlight" hidden></textarea>
+
+                                <div class="input-group input-group-lg">
+                                    <input id="tags" placeholder="Tags" type="text"
+                                           class="form-control enterButtonKeyPress">
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <ul>
-                            {{#highlights}}
+                    <ul>
+                        {{#highlights}}
                             <li>{{{highlight}}}</li>
-                            {{/highlights}}
-                        </ul>
+                        {{/highlights}}
+                    </ul>
 
-                    </div> <!-- .col-12 -->
-                </div> <!-- .row -->
-            </div> <!-- .container-fluid -->
-        </main> <!-- main -->
-    </div> <!-- .wrapper -->
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
 
-    {{> include}}
-    {{> menu }}
-    {{> navbar }}
-    <script>
-        $(document).ready(function () {
-            $('.enterButtonKeyPress').bind('keypress', function (e) {
-                if (e.keyCode == 13) {
-                    var highlight = $('#highlight').val();
-                    var tags = $('#tags').val();
-                    var data = "highlight=" + encodeURIComponent(highlight) + "&tags=" + encodeURIComponent(tags);
-                    var result = ajaxCall('POST', "/bookmarks/{{bookmarkUID}}/highlights", data)
+{{> include}}
+{{> menu }}
+{{> navbar }}
+<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script>
+    $(document).ready(function () {
 
-                    if (result !== false) {
-                        location.reload();
-                    }
-                }
-            });
+        var simplemde = new SimpleMDE({
+            element: $("#highlight")[0],
+            toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
         });
-    </script>
+
+        $('#highlight').show();
+
+        $('.enterButtonKeyPress').bind('keypress', function (e) {
+            if (e.keyCode == 13) {
+                var highlight = simplemde.value();
+                var tags = $('#tags').val();
+                var data = "highlight=" + encodeURIComponent(highlight) + "&tags=" + encodeURIComponent(tags);
+                var result = ajaxCall('POST', "/bookmarks/{{bookmarkUID}}/highlights", data)
+
+                if (result !== false) {
+                    location.reload();
+                }
+            }
+        });
+    });
+</script>
 </body>
 
 </html>
