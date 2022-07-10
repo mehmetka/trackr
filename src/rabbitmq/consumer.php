@@ -66,25 +66,32 @@ function process_message($message)
         $bookmarkModel = new BookmarkModel($container);
         $bookmarkDetails = $bookmarkModel->getBookmarkById($messageBody['id']);
 
-        if (TwitterUtil::isTwitterUrl($bookmarkDetails['bookmark'])) {
-            $username = TwitterUtil::getUsernameFromUrl($bookmarkDetails['bookmark']);
-            $title = 'Twitter - ' . strip_tags(trim($username));
-            $bookmarkModel->updateTitleByID($bookmarkDetails['id'], $title);
-            echo "Completed 'get_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title (twitter-title)\n";
-        } else {
-            $metadata = RequestUtil::getUrlMetadata($bookmarkDetails['bookmark']);
-
-            if ($metadata['title']) {
-                $title = utf8_decode(strip_tags(trim($metadata['title'])));
+        if (!$bookmarkDetails['is_title_edited']) {
+            if (TwitterUtil::isTwitterUrl($bookmarkDetails['bookmark'])) {
+                $username = TwitterUtil::getUsernameFromUrl($bookmarkDetails['bookmark']);
+                $title = 'Twitter - ' . strip_tags(trim($username));
                 $bookmarkModel->updateTitleByID($bookmarkDetails['id'], $title);
-                echo "Completed 'get_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title\n";
+                echo "completed 'get_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title (twitter-title)\n";
             } else {
-                if ($messageBody['retry_count'] < 5) {
-                    echo "Retry count: {$messageBody['retry_count']}\n";
-                    $messageBody['retry_count']++;
-                    $amqpPublisher = new AmqpJobPublisher();
-                    $amqpPublisher->publishBookmarkTitleJob($bookmarkDetails['id'], $messageBody['retry_count']);
-                    echo "Trigged again 'get_bookmark_title' job for: {$bookmarkDetails['id']}, retry_count: {$messageBody['retry_count']}\n";
+                $metadata = RequestUtil::getUrlMetadata($bookmarkDetails['bookmark']);
+
+                if ($metadata['title']) {
+                    $title = utf8_decode(strip_tags(trim($metadata['title'])));
+
+                    if($title !== $bookmarkDetails['title']){
+                        $bookmarkModel->updateTitleByID($bookmarkDetails['id'], $title);
+                        $bookmarkModel->updateHighlightAuthor($bookmarkDetails['id'], $title);
+                        echo "completed 'get_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title\n";
+                    }
+
+                } else {
+                    if ($messageBody['retry_count'] < 5) {
+                        echo "Retry count: {$messageBody['retry_count']}\n";
+                        $messageBody['retry_count']++;
+                        $amqpPublisher = new AmqpJobPublisher();
+                        $amqpPublisher->publishBookmarkTitleJob($bookmarkDetails['id'], $messageBody['retry_count']);
+                        echo "trigged again 'get_bookmark_title' job for: {$bookmarkDetails['id']}, retry_count: {$messageBody['retry_count']}\n";
+                    }
                 }
             }
         }

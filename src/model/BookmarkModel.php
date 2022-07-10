@@ -14,6 +14,8 @@ class BookmarkModel
     private $tagModel;
     public const DELETED = 1;
     public const NOT_DELETED = 0;
+    public const TITLE_EDITED = 1;
+    public const NOT_TITLE_EDITED = 0;
 
     public function __construct(ContainerInterface $container)
     {
@@ -177,13 +179,51 @@ class BookmarkModel
     {
         $list = [];
 
-        $sql = 'SELECT b.id, b.uid, b.bookmark, b.title, b.note, b.status, h.highlight, h.author, h.source
+        $sql = 'SELECT b.id, b.uid, b.bookmark, b.title, b.note, b.status, h.highlight, h.author, h.source, b.is_title_edited
                 FROM bookmarks b
                 LEFT JOIN highlights h ON b.id = h.link
                 WHERE b.id = :id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':id', $bookmarkId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+
+            $tags = $this->tagModel->getTagsBySourceId($row['id'], BookmarkController::SOURCE_TYPE);
+
+            if ($tags) {
+                $row['tags'] = $tags;
+            }
+
+            if ($row['status'] == 0) {
+                $row['selectedNew'] = true;
+            } elseif ($row['status'] == 1) {
+                $row['selectedStarted'] = true;
+            } elseif ($row['status'] == 2) {
+                $row['selectedDone'] = true;
+            }
+
+            $list = $row;
+        }
+
+        return $list;
+    }
+
+    public function getBookmarkByUid($bookmarkUid)
+    {
+        $list = [];
+
+        $sql = 'SELECT b.id, b.uid, b.bookmark, b.title, b.note, b.status, h.highlight, h.author, h.source
+                FROM bookmarks b
+                LEFT JOIN highlights h ON b.id = h.link
+                WHERE b.uid = :uid';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':uid', $bookmarkUid, \PDO::PARAM_STR);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -298,6 +338,22 @@ class BookmarkModel
 
         $_SESSION['badgeCounts']['highlightsCount'] += 1;
         return $this->dbConnection->lastInsertId();
+    }
+
+    public function updateHighlightAuthor($bookmarkId, $title)
+    {
+        $sql = 'UPDATE highlights SET author = :author WHERE link = :bookmarkId AND user_id = :user_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':bookmarkId', $bookmarkId, \PDO::PARAM_INT);
+        $stm->bindParam(':author', $title, \PDO::PARAM_STR);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
     }
 
     public function updateTitleByID($id, $title)
@@ -424,6 +480,23 @@ class BookmarkModel
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':status', $status, \PDO::PARAM_INT);
+        $stm->bindParam(':id', $bookmarkID, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function updateIsTitleEditedStatus($bookmarkID, $status)
+    {
+        $sql = 'UPDATE bookmarks 
+                SET is_title_edited = :is_title_edited
+                WHERE id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':is_title_edited', $status, \PDO::PARAM_INT);
         $stm->bindParam(':id', $bookmarkID, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {

@@ -6,6 +6,7 @@ use App\exception\CustomException;
 use App\model\BookmarkModel;
 use App\model\TagModel;
 use App\rabbitmq\AmqpJobPublisher;
+use App\util\TwitterUtil;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
@@ -102,15 +103,20 @@ class BookmarkController extends Controller
 
     public function update(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        //$rabbitmq = new AmqpJobPublisher();
         $bookmarkUid = $args['uid'];
-        $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
+        $bookmarkDetails = $this->bookmarkModel->getBookmarkByUid($bookmarkUid);
+        $bookmarkId = $bookmarkDetails['id'];
         $params = $request->getParsedBody();
         $params['title'] = urldecode($params['title']);
 
         $this->bookmarkModel->updateBookmark($bookmarkId, $params);
 
         $this->tagModel->deleteTagsBySourceId($bookmarkId, self::SOURCE_TYPE);
+
+        if ($params['title'] !== $bookmarkDetails['title']) {
+            $this->bookmarkModel->updateIsTitleEditedStatus($bookmarkId, BookmarkModel::TITLE_EDITED);
+            $this->bookmarkModel->updateHighlightAuthor($bookmarkId, $params['title']);
+        }
 
         if ($params['status'] == 0) {
             $this->bookmarkModel->updateStartedDate($bookmarkId, null);
@@ -123,8 +129,6 @@ class BookmarkController extends Controller
             $this->tagModel->updateSourceTags($params['tags'], $bookmarkId, self::SOURCE_TYPE);
         }
 
-        //$rabbitmq->publishBookmarkTitleJob($bookmarkId);
-
         $resource = [
             "message" => "Success!"
         ];
@@ -135,7 +139,8 @@ class BookmarkController extends Controller
     public function addHighlight(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $bookmarkUid = $args['uid'];
-        $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
+        $bookmarkDetail = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
+        $bookmarkId = $bookmarkDetail['id'];
         $params = $request->getParsedBody();
 
         if (!$params['highlight']) {
@@ -143,13 +148,21 @@ class BookmarkController extends Controller
         }
 
         if (!isset($_SESSION['bookmarks']['highlights']['bookmarkID']) || $bookmarkId != $_SESSION['bookmarks']['highlights']['bookmarkID']) {
-            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Inconsistency! You're trying to add highlight for different bookmark!");
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST,
+                "Inconsistency! You're trying to add highlight for different bookmark!");
         }
 
-        $bookmarkDetail = $this->bookmarkModel->getBookmarkById($_SESSION['bookmarks']['highlights']['bookmarkID']);
         $bookmarkDetail['highlight'] = $params['highlight'];
-        $bookmarkDetail['author'] = $bookmarkDetail['title'] ? $bookmarkDetail['title'] : null;
-        $bookmarkDetail['source'] = 'Bookmark Highlight';
+
+        if(TwitterUtil::isTwitterUrl($bookmarkDetail['bookmark'])){
+            $username = TwitterUtil::getUsernameFromUrl($bookmarkDetail['bookmark']);
+            $bookmarkDetail['author'] = $username;
+            $bookmarkDetail['source'] = 'Twitter';
+        } else {
+            $bookmarkDetail['author'] = $bookmarkDetail['title'] ? $bookmarkDetail['title'] : null;
+            $bookmarkDetail['source'] = 'Bookmark Highlight';
+        }
+
         $highlightId = $this->bookmarkModel->addHighlight($bookmarkDetail);
 
         if ($params['tags']) {
@@ -196,7 +209,7 @@ class BookmarkController extends Controller
         $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
 
         $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::DELETED);
-        //$this->tagModel->deleteTagsBySourceId($bookmarkId, self::SOURCE_TYPE);
+        $this->tagModel->updateIsDeletedStatusBySourceId(BookmarkController::SOURCE_TYPE, $bookmarkId, BookmarkModel::DELETED);
 
         $_SESSION['badgeCounts']['bookmarkCount'] -= 1;
 

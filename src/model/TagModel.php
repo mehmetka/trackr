@@ -15,8 +15,9 @@ class TagModel
         $this->dbConnection = $container->get('db');
     }
 
-    public function updateSourceTags($tags, $sourceId, $sourceType) {
-        
+    public function updateSourceTags($tags, $sourceId, $sourceType)
+    {
+
         if (strpos($tags, ',') !== false) {
             $tags = explode(',', $tags);
 
@@ -105,7 +106,7 @@ class TagModel
         $sql = 'SELECT DISTINCT t.tag, t.id
                 FROM tag_relationships tr
                 INNER JOIN tags t ON tr.tag_id = t.id
-                WHERE tr.type = :sourceType';
+                WHERE tr.type = :sourceType AND tr.is_deleted = 0';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':sourceType', $type, \PDO::PARAM_INT);
@@ -158,13 +159,13 @@ class TagModel
             $list['tags'][] = $row;
         }
 
-        if($tags){
+        if ($tags) {
             $list['imploded_blank'] = implode(' ', $tags);
             $list['imploded_comma'] = implode(', ', $tags);
             $list['imploded_hashtag_blank'] = implode(' ', $hashtags);
             $list['imploded_hashtag_comma'] = implode(', ', $hashtags);
         }
-        
+
         return $list;
     }
 
@@ -188,6 +189,31 @@ class TagModel
         }
 
         return $list;
+    }
+
+    public function updateIsDeletedStatusBySourceId($type, $sourceId, $status)
+    {
+        if($status){
+            $now = time();
+        } else {
+            $now = null;
+        }
+
+        $sql = 'UPDATE tag_relationships 
+                SET is_deleted = :status, deleted_at = :deleted_at 
+                WHERE source_id = :sourceId AND type = :type';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':status', $status, \PDO::PARAM_INT);
+        $stm->bindParam(':deleted_at', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':source_id', $sourceId, \PDO::PARAM_INT);
+        $stm->bindParam(':type', $type, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
     }
 
 }
