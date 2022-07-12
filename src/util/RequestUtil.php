@@ -4,6 +4,11 @@ namespace App\util;
 
 class RequestUtil
 {
+    const HTTP_GET = 'GET';
+    const HTTP_PUT = 'PUT';
+    const HTTP_POST = 'POST';
+    const HTTP_DELETE = 'DELETE';
+
     /**
      * @param $url
      * @return mixed|string|null
@@ -79,5 +84,28 @@ class RequestUtil
         curl_close($ch);
 
         return $html;
+    }
+
+    static function makeHttpRequest($url, $httpMethod, $body, $headers)
+    {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => $httpMethod,
+            CURLOPT_POSTFIELDS => $body,
+            CURLOPT_HTTPHEADER => $headers,
+        ));
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+
+        return json_decode($response, true);
     }
 }

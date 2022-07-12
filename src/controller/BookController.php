@@ -5,6 +5,7 @@ namespace App\controller;
 use App\exception\CustomException;
 use App\model\BookModel;
 use App\model\TagModel;
+use App\util\RequestUtil;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
@@ -138,17 +139,18 @@ class BookController extends Controller
                     $resource['responseCode'] = StatusCode::HTTP_BAD_REQUEST;
                     $resource['message'] = "You can't add progress more than remaining amount!";
                 } else {
-                    if($params['amount'] > 0){
+                    if ($params['amount'] > 0) {
                         $this->bookModel->insertProgressRecord($bookId, $pathDetails['id'], $params['amount']);
                         $resource['responseCode'] = StatusCode::HTTP_OK;
                         $resource['message'] = "Success!";
-                        $this->bookModel->addActivityLog($pathDetails['id'], $bookId, "read {$params['amount']} page(s)");
+                        $this->bookModel->addActivityLog($pathDetails['id'], $bookId,
+                            "read {$params['amount']} page(s)");
                     } else {
                         $resource['responseCode'] = StatusCode::HTTP_BAD_REQUEST;
                         $resource['message'] = "Amount must be positive";
                     }
                 }
-                
+
             }
         }
 
@@ -238,6 +240,78 @@ class BookController extends Controller
     public function saveBook(ServerRequestInterface $request, ResponseInterface $response)
     {
         $params = $request->getParsedBody();
+
+        $params['published_date'] = null;
+        $params['description'] = null;
+        $params['thumbnail'] = null;
+        $params['thumbnail_small'] = null;
+        $params['info_link'] = null;
+
+        if (isset($params['isbn']) && $params['isbn']) {
+
+            $params['isbn'] = str_replace("-", "", $params['isbn']);
+            $bookDetail = $this->bookModel->getBookByISBN($params['isbn']);
+
+            if ($bookDetail) {
+                throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST,
+                    "Book already exist: " . htmlspecialchars($bookDetail['title']));
+            }
+
+            $url = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' . $params['isbn'];
+            $bookResponse = RequestUtil::makeHttpRequest($url, RequestUtil::HTTP_GET, [], []);
+
+            if (!$bookResponse['totalItems']) {
+                throw CustomException::clientError(StatusCode::HTTP_NOT_FOUND, "Book not found");
+            }
+
+            $params['bookTitle'] = $bookResponse['items'][0]['volumeInfo']['title'];
+
+            if (isset($bookResponse['items'][0]['volumeInfo']['subtitle'])) {
+                $params['bookTitle'] .= ': ' . $bookResponse['items'][0]['volumeInfo']['subtitle'];
+            }
+
+            $publisherDetails = $this->bookModel->getPublisher($bookResponse['items'][0]['volumeInfo']['publisher']);
+            if (!$publisherDetails) {
+                $params['publisher'] = $this->bookModel->insertPublisher($bookResponse['items'][0]['volumeInfo']['publisher']);
+            } else {
+                $params['publisher'] = $publisherDetails['id'];
+            }
+
+            $params['pdf'] = $bookResponse['items'][0]['accessInfo']['epub']['isAvailable'] ? 1 : 0;
+            $params['epub'] = $bookResponse['items'][0]['accessInfo']['pdf']['isAvailable'] ? 1 : 0;
+            $params['notes'] = '';
+            $params['own'] = 0;
+            $params['pageCount'] = $bookResponse['items'][0]['volumeInfo']['pageCount'];
+            $params['published_date'] = $bookResponse['items'][0]['volumeInfo']['publishedDate'];
+            $params['thumbnail'] = $bookResponse['items'][0]['volumeInfo']['imageLinks']['thumbnail'] ?: null;
+            $params['thumbnail_small'] = $bookResponse['items'][0]['volumeInfo']['imageLinks']['smallThumbnail'] ?: null;
+            $params['info_link'] = $bookResponse['items'][0]['volumeInfo']['infoLink'] ?: null;
+
+            if ($bookResponse['items'][0]['volumeInfo']['description']) {
+                $params['description'] = $bookResponse['items'][0]['volumeInfo']['description'];
+            } elseif ($bookResponse['items'][0]['searchInfo']['textSnippet']) {
+                $params['description'] = $bookResponse['items'][0]['searchInfo']['textSnippet'];
+            } else {
+                $params['description'] = null;
+            }
+
+            $params['tags'] = '';
+
+            foreach ($bookResponse['items'][0]['volumeInfo']['authors'] as $author) {
+                $authorDetails = $this->bookModel->getAuthorByName($author);
+
+                if ($authorDetails) {
+                    $params['authors'][] = $authorDetails['id'];
+                } else {
+                    $author = trim($author);
+                    $lastInsertAuthorId = $this->bookModel->createAuthor($author);
+                    $this->bookModel->addActivityLog(null, null, "add new author: $author");
+                    $params['authors'][] = $lastInsertAuthorId;
+                }
+            }
+
+        }
+
         $bookId = $this->bookModel->saveBook($params);
         $authors = $params['authors'];
 
@@ -245,18 +319,18 @@ class BookController extends Controller
             $this->tagModel->updateSourceTags($params['tags'], $bookId, self::SOURCE_TYPE);
         }
 
-        foreach ($authors as $author) {
-            $this->bookModel->insertBookAuthor($bookId, $author);
+        foreach ($authors as $authorId) {
+            $this->bookModel->insertBookAuthor($bookId, $authorId);
         }
 
         $_SESSION['badgeCounts']['allBookCount'] += 1;
 
-        if($params['own']){
+        if ($params['own']) {
             $_SESSION['badgeCounts']['myBookCount'] += 1;
         }
 
         $this->bookModel->addActivityLog(null, $bookId, 'created new book');
-    
+
         $resource = [
             "message" => "Successfully created new book!"
         ];
@@ -309,7 +383,8 @@ class BookController extends Controller
         $finishedBookDetails = $this->bookModel->finishedBookByID($finishedBookId);
 
         $this->bookModel->rateBook($finishedBookId, $params['rate']);
-        $this->bookModel->addActivityLog($finishedBookDetails['path_id'], $finishedBookDetails['book_id'], "rated {$params['rate']}");
+        $this->bookModel->addActivityLog($finishedBookDetails['path_id'], $finishedBookDetails['book_id'],
+            "rated {$params['rate']}");
 
         $resource['message'] = "Successfully rated!";
         $resource['responseCode'] = StatusCode::HTTP_OK;

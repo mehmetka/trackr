@@ -6,152 +6,152 @@
 </head>
 
 <body class="vertical  dark">
-    <div class="wrapper">
-        <main role="main" class="main-content">
-            <div class="container-fluid">
-                <div class="row justify-content-center">
-                    <div class="col-12">
+<div class="wrapper">
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
 
-                        <div class="card mb-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Add Author</h5>
-                                    <input id="author" placeholder="Type new author, press enter" type="text"
-                                        class="form-control">
-                                </div>
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Add Author</h5>
+                                <input id="author" placeholder="Type new author, press enter" type="text"
+                                       class="form-control">
                             </div>
                         </div>
+                    </div>
 
-                        <!-- simple table -->
-                        <div class="card mb-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <strong class="card-title">All Books</strong>
-                                    <a class="btn btn-sm btn-info float-right" data-toggle="modal"
-                                        data-target="#bookFormModal">Create Book</a>
-                                </div>
-                                <div class="card-body">
-                                    <table class="table datatables" id="booksDatatable" width="100%">
-                                        <thead>
-                                            <tr>
-                                                <th>Author</th>
-                                                <th>Title</th>
-                                                <th>Page</th>
-                                                <th>Added Date</th>
-                                                <th>Add to Path</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {{#books}}
-                                            <tr>
-                                                <td style="width:30%">{{author}}</td>
-                                                <td style="width:30%">
-                                                    {{title}}
-                                                    {{#add_to_library}}
+                    <!-- simple table -->
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <strong class="card-title">All Books</strong>
+                                <a class="btn btn-sm btn-info float-right" data-toggle="modal"
+                                   data-target="#bookFormModal">Create Book</a>
+                            </div>
+                            <div class="card-body">
+                                <table class="table datatables" id="booksDatatable" width="100%">
+                                    <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Title</th>
+                                        <th>Page</th>
+                                        <th>Add to Path</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {{#books}}
+                                        <tr>
+                                            <td><img src="{{thumbnail_small}}"></td>
+                                            <td>
+                                                {{#info_link}}
+                                                    <a href="{{info_link}}">{{author}} - {{title}}</a>
+                                                {{/info_link}}
+                                                {{^info_link}}
+                                                    {{author}} - {{title}}
+                                                {{/info_link}}
+                                            </td>
+                                            <td style="width:4%">{{page_count}}</td>
+                                            <td style="width:7%">
+                                                <div class="btn-group">
                                                     <button type="button"
-                                                        class="btn btn-primary btn-sm float-right btnAddToLibrary"
-                                                        data-id="{{bookUID}}">Add
-                                                    </button>
-                                                    {{/add_to_library}}
-                                                </td>
-                                                <td style="width:4%">{{page_count}}</td>
-                                                <td style="width:8%">
-                                                    {{^add_to_library}}
-                                                    {{added_date}}
-                                                    {{/add_to_library}}
-                                                </td>
-                                                <td style="width:7%">
-                                                    <div class="btn-group">
-                                                        <button type="button"
                                                             class="btn btn-danger btn-sm dropdown-toggle"
                                                             data-toggle="dropdown" aria-haspopup="true"
                                                             aria-expanded="false">
-                                                            Paths
-                                                        </button>
-                                                        <div class="dropdown-menu">
-                                                            {{#paths}}
+                                                        Paths
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        {{#paths}}
                                                             <a class="dropdown-item btnAddBookToPath"
-                                                                data-id="{{pathUID}}"
-                                                                data-book="{{bookUID}}">{{path_name}}</a>
-                                                            {{/paths}}
-                                                        </div>
+                                                               data-id="{{pathUID}}"
+                                                               data-book="{{bookUID}}">{{path_name}}</a>
+                                                        {{/paths}}
                                                     </div>
-                                                </td>
-                                            </tr>
-                                            {{/books}}
-                                        </tbody>
-                                    </table>
-                                </div>
+
+                                                    {{#add_to_library}}
+                                                        <button type="button"
+                                                                class="btn btn-primary btn-sm float-right btnAddToLibrary"
+                                                                data-id="{{bookUID}}">Add
+                                                        </button>
+                                                    {{/add_to_library}}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {{/books}}
+                                    </tbody>
+                                </table>
                             </div>
-                        </div> <!-- simple table -->
-                    </div> <!-- .col-12 -->
-                </div> <!-- .row -->
-            </div> <!-- .container-fluid -->
-        </main> <!-- main -->
-    </div> <!-- .wrapper -->
+                        </div>
+                    </div> <!-- simple table -->
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
 
-    {{> include}}
-    {{> menu }}
-    {{> navbar }}
-    {{> add-book }}
+{{> include}}
+{{> menu }}
+{{> navbar }}
+{{> add-book }}
 
-    <script>
-        $(document).ready(function () {
+<script>
+    $(document).ready(function () {
 
-            $(".btnAddBookToPath").on('click', function (e) {
+        $(".btnAddBookToPath").on('click', function (e) {
 
-                var pathUID = $(this).data("id");
-                var bookUID = $(this).data("book");
+            var pathUID = $(this).data("id");
+            var bookUID = $(this).data("book");
 
-                ajaxCall('POST', "/books/" + bookUID + "/paths", "pathUID=" + pathUID, true)
-
-            });
-
-            $(".btnAddToLibrary").on('click', function (e) {
-
-                var bookUID = $(this).data("id");
-                var result = ajaxCall('PUT', "/books/" + bookUID + "/add-to-library", null)
-
-                if (result !== false) {
-                    location.reload();
-                }
-
-            });
-
-            $(".btnResetBook").on('click', function (e) {
-
-                var bookUID = $(this).data("id");
-                var result = ajaxCall('DELETE', "/books/" + bookUID, null)
-
-                if (result !== false) {
-                    location.reload();
-                }
-
-            });
-
-            $('#author').bind('keypress', function (e) {
-                if (e.keyCode == 13) {
-                    var author = $('#author').val();
-                    var result = ajaxCall('POST', "/authors", "author=" + author)
-
-                    if (result !== false) {
-                        location.reload();
-                    }
-
-                }
-            });
-
-            // $('#booksDatatable').DataTable({
-            //     autoWidth: true,
-            //     "lengthMenu": [
-            //         [32, 64, 128, -1],
-            //         [32, 64, 128, "All"]
-            //     ],
-            //     "order": [[3, "desc"]]
-            // });
+            ajaxCall('POST', "/books/" + bookUID + "/paths", "pathUID=" + pathUID, true)
 
         });
-    </script>
+
+        $(".btnAddToLibrary").on('click', function (e) {
+
+            var bookUID = $(this).data("id");
+            var result = ajaxCall('PUT', "/books/" + bookUID + "/add-to-library", null)
+
+            if (result !== false) {
+                location.reload();
+            }
+
+        });
+
+        $(".btnResetBook").on('click', function (e) {
+
+            var bookUID = $(this).data("id");
+            var result = ajaxCall('DELETE', "/books/" + bookUID, null)
+
+            if (result !== false) {
+                location.reload();
+            }
+
+        });
+
+        $('#author').bind('keypress', function (e) {
+            if (e.keyCode == 13) {
+                var author = $('#author').val();
+                var result = ajaxCall('POST', "/authors", "author=" + author)
+
+                if (result !== false) {
+                    location.reload();
+                }
+
+            }
+        });
+
+        // $('#booksDatatable').DataTable({
+        //     autoWidth: true,
+        //     "lengthMenu": [
+        //         [32, 64, 128, -1],
+        //         [32, 64, 128, "All"]
+        //     ],
+        //     "order": [[3, "desc"]]
+        // });
+
+    });
+</script>
 </body>
 
 </html>

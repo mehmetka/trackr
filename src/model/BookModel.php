@@ -109,6 +109,28 @@ class BookModel
         return $id;
     }
 
+    public function getBookByISBN($isbn)
+    {
+        $book = [];
+
+        $sql = 'SELECT *
+                FROM books
+                WHERE isbn = :isbn';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':isbn', $isbn, \PDO::PARAM_STR);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $book = $row;
+        }
+
+        return $book;
+    }
+
     public function getPublishers()
     {
         $sql = 'SELECT id, name
@@ -342,6 +364,46 @@ class BookModel
         return true;
     }
 
+    public function insertPublisher($publisherName)
+    {
+        $now = time();
+
+        $sql = 'INSERT INTO publishers (name, created_at)
+                VALUES(:name, :created_at)';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':name', $publisherName, \PDO::PARAM_STR);
+        $stm->bindParam(':created_at', $now, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return $this->dbConnection->lastInsertId();
+    }
+
+    public function getPublisher($name)
+    {
+        $publisher = [];
+
+        $sql = 'SELECT * 
+                FROM publishers 
+                WHERE name = :name';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':name', $name, \PDO::PARAM_STR);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $publisher = $row;
+        }
+
+        return $publisher;
+    }
+
     public function findStartDateOfBook($bookId)
     {
         $startDate = 0;
@@ -428,7 +490,7 @@ class BookModel
             $total = $row['amount'];
         }
 
-        return $total == NULL ? 0 : $total;
+        return $total == null ? 0 : $total;
     }
 
     public function getAuthors()
@@ -452,6 +514,28 @@ class BookModel
         return $list;
     }
 
+    public function getAuthorByName($authorName)
+    {
+        $author = [];
+
+        $sql = 'SELECT id,author 
+                FROM author
+                WHERE author = :author';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':author', $authorName, \PDO::PARAM_STR);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $author = $row;
+        }
+
+        return $author;
+    }
+
     public function getAllBooks()
     {
         $paths = $this->getPathsList();
@@ -461,9 +545,9 @@ class BookModel
                                FROM book_authors ba
                                         INNER JOIN author a ON ba.author_id = a.id
                                WHERE ba.book_id = b.id)) AS author,
-                       b.title, b.page_count, b.own, b.added_date
+                       b.title, b.page_count, b.own, b.added_date, b.info_link, b.thumbnail, b.thumbnail_small
                 FROM books b
-                ORDER BY b.id DESC";
+                ORDER BY b.id DESC LIMIT 50";
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -840,8 +924,9 @@ class BookModel
         $now = time();
         $status = $this->pathStatusInfos['not_started']['id'];
 
-        $sql = 'INSERT INTO books (uid, title, publisher, pdf, epub, notes, added_date, own, page_count, status)
-                VALUES(UUID(), :title,:publisher,:pdf,:epub,:notes,:added_date,:own,:page_count, :status)';
+        $sql = 'INSERT INTO books (uid, title, publisher, pdf, epub, notes, added_date, own, page_count, status, published_date, description, isbn, thumbnail, thumbnail_small, info_link)
+                VALUES(UUID(), :title,:publisher,:pdf,:epub,:notes,:added_date,:own,:page_count, :status, :published_date, :description, :isbn, :thumbnail, :thumbnail_small, :info_link)';
+
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':title', $params['bookTitle'], \PDO::PARAM_STR);
@@ -853,6 +938,12 @@ class BookModel
         $stm->bindParam(':own', $params['own'], \PDO::PARAM_INT);
         $stm->bindParam(':page_count', $params['pageCount'], \PDO::PARAM_INT);
         $stm->bindParam(':status', $status, \PDO::PARAM_INT);
+        $stm->bindParam(':published_date', $params['published_date'], \PDO::PARAM_INT);
+        $stm->bindParam(':description', $params['description'], \PDO::PARAM_STR);
+        $stm->bindParam(':isbn', $params['isbn'], \PDO::PARAM_STR);
+        $stm->bindParam(':thumbnail', $params['thumbnail'], \PDO::PARAM_STR);
+        $stm->bindParam(':thumbnail_small', $params['thumbnail_small'], \PDO::PARAM_STR);
+        $stm->bindParam(':info_link', $params['info_link'], \PDO::PARAM_STR);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -1152,6 +1243,27 @@ class BookModel
     }
 
     public function addActivityLog($pathID, $bookID, $activity)
+    {
+        $timestamp = time();
+
+        $sql = 'INSERT INTO activity_logs (path_id, book_id, activity, timestamp, user_id) 
+                VALUES (:path_id, :book_id, :activity, :timestamp, :user_id)';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':path_id', $pathID, \PDO::PARAM_INT);
+        $stm->bindParam(':book_id', $bookID, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+        $stm->bindParam(':activity', $activity, \PDO::PARAM_STR);
+        $stm->bindParam(':timestamp', $timestamp, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function fetchBookByISBN($pathID, $bookID, $activity)
     {
         $timestamp = time();
 
