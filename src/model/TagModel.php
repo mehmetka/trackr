@@ -201,7 +201,7 @@ class TagModel
 
         $sql = 'UPDATE tag_relationships 
                 SET is_deleted = :status, deleted_at = :deleted_at 
-                WHERE source_id = :sourceId AND type = :type';
+                WHERE source_id = :source_id AND type = :type';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':status', $status, \PDO::PARAM_INT);
