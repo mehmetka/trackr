@@ -37,8 +37,11 @@ $container['logger'] = function ($container) {
 
 $container['notFoundHandler'] = function ($container) {
     return function ($request, $response) use ($container) {
-        $json['message'] = 'Not Found';
-        return $response->withStatus(404)->withHeader('Content-Type', 'application/json')->write(json_encode($json));
+        $data = [
+            'status' => 404,
+            'message' => 'Not Found'
+        ];
+        return $container->get('response')->withStatus($data['status'])->withHeader('Content-Type', 'application/json')->write(json_encode($data));
     };
 };
 
