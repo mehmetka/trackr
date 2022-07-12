@@ -48,12 +48,13 @@ class HomeController extends Controller
 
     public function getMenuBadgeCounts(ServerRequestInterface $request, ResponseInterface $response)
     {
-        if (!isset($_SESSION['badgeCounts'])) {
+        if (!isset($_SESSION['badgeCounts']) || time() > $_SESSION['badgeCounts']['expires_at']) {
             $_SESSION['badgeCounts']['myBookCount'] = $this->bookModel->getMyBooksCount();
             $_SESSION['badgeCounts']['allBookCount'] = $this->bookModel->getAllBookCount();
             $_SESSION['badgeCounts']['finishedBookCount'] = $this->bookModel->getFinishedBookCount();
             $_SESSION['badgeCounts']['bookmarkCount'] = $this->bookmarkModel->getUncompleteBookmarks();
             $_SESSION['badgeCounts']['highlightsCount'] = $this->highlightsModel->getHighlightsCount();
+            $_SESSION['badgeCounts']['expires_at'] = time() + 3600;
         }
 
         $data = [
