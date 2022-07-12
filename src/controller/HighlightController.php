@@ -39,7 +39,8 @@ class HighlightController extends Controller
             'tag' => htmlentities($queryString['tag']),
             'headerTags' => $tags,
             'highlights' => $highlights,
-            'activeHighlights' => 'active'
+            'activeHighlights' => 'active',
+            'base_url' => $_ENV['TRACKR_BASE_URL']
         ];
 
         return $this->view->render($response, 'highlights/index.mustache', $data);
@@ -81,6 +82,15 @@ class HighlightController extends Controller
     {
         $highlightID = $args['id'];
         $params = $request->getParsedBody();
+        $highlightDetails = $this->highlightModel->getHighlightByID($highlightID);
+
+        if (!$highlightDetails) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "highlight not found");
+        }
+
+        if (!$params['highlight']) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "highlight cannot be null!");
+        }
 
         if ($params['link']) {
             if ($params['link'] !== $_SESSION['update']['highlight']['link']) {
@@ -101,9 +111,10 @@ class HighlightController extends Controller
         $this->tagModel->deleteTagsBySourceId($highlightID, self::SOURCE_TYPE);
         $this->tagModel->updateSourceTags($params['tags'], $highlightID, self::SOURCE_TYPE);
         $this->highlightModel->update($highlightID, $params);
+        $this->highlightModel->addChangeLog($highlightID, $highlightDetails['highlight']);
 
         $resource = [
-            "message" => "Success!"
+            "message" => "successfully updated"
         ];
 
         return $this->response(StatusCode::HTTP_OK, $resource);
@@ -159,7 +170,7 @@ class HighlightController extends Controller
 
         $parentHighlightDetails = $this->highlightModel->getHighlightByID($highlightID);
 
-        if($parentHighlightDetails) {
+        if ($parentHighlightDetails) {
             if ($params['link']) {
                 $bookmarkExist = $this->bookmarkModel->getBookmarkByBookmark($params['link']);
                 if ($bookmarkExist) {
@@ -194,8 +205,8 @@ class HighlightController extends Controller
         $highlightID = $args['id'];
 
         $this->highlightModel->deleteHighlight($highlightID);
-        //$this->highlightModel->deleteHighlightTagsByHighlightID($highlightID);
-        //$this->highlightModel->deleteSubHighlightByHighlightID($highlightID);
+        $this->tagModel->updateIsDeletedStatusBySourceId(HighlightController::SOURCE_TYPE, $highlightID,
+            HighlightModel::NOT_DELETED);
 
         $_SESSION['badgeCounts']['highlightsCount'] -= 1;
 

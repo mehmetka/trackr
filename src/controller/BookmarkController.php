@@ -49,7 +49,6 @@ class BookmarkController extends Controller
     {
         $bookmarkUid = $args['uid'];
         $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
-
         $highlights = $this->bookmarkModel->getHighlights($bookmarkId);
         $_SESSION['bookmarks']['highlights']['bookmarkID'] = $bookmarkId;
 
@@ -57,7 +56,8 @@ class BookmarkController extends Controller
             'title' => 'Bookmark\'s Highlights | trackr',
             'highlights' => $highlights,
             'activeBookmarks' => 'active',
-            'bookmarkUID' => $bookmarkUid
+            'bookmarkUID' => $bookmarkUid,
+            'base_url' => $_ENV['TRACKR_BASE_URL']
         ];
 
         return $this->view->render($response, 'bookmarks/highlights.mustache', $data);
@@ -89,7 +89,13 @@ class BookmarkController extends Controller
             $this->tagModel->updateSourceTags($params['tags'], $bookmarkID, self::SOURCE_TYPE);
         }
 
-        $rabbitmq->publishBookmarkTitleJob($bookmarkID);
+        $jobDetails = [
+            'id' => $bookmarkID,
+            'retry_count' => 0,
+            'user_id' => $_SESSION['userInfos']['user_id']
+        ];
+
+        $rabbitmq->publishBookmarkTitleJob($jobDetails);
 
         $_SESSION['badgeCounts']['bookmarkCount'] += 1;
 
@@ -107,7 +113,6 @@ class BookmarkController extends Controller
         $bookmarkDetails = $this->bookmarkModel->getBookmarkByUid($bookmarkUid);
         $bookmarkId = $bookmarkDetails['id'];
         $params = $request->getParsedBody();
-        $params['title'] = urldecode($params['title']);
 
         $this->bookmarkModel->updateBookmark($bookmarkId, $params);
 
@@ -115,14 +120,24 @@ class BookmarkController extends Controller
 
         if ($params['title'] !== $bookmarkDetails['title']) {
             $this->bookmarkModel->updateIsTitleEditedStatus($bookmarkId, BookmarkModel::TITLE_EDITED);
-            $this->bookmarkModel->updateHighlightAuthor($bookmarkId, $params['title']);
+            $this->bookmarkModel->updateHighlightAuthor($bookmarkId, $params['title'], $_SESSION['userInfos']['user_id']);
         }
 
         if ($params['status'] == 0) {
             $this->bookmarkModel->updateStartedDate($bookmarkId, null);
             $this->bookmarkModel->updateDoneDate($bookmarkId, null);
-            $this->bookmarkModel->updateBookmarkStatus($bookmarkId, 0);
             $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
+            $this->tagModel->updateIsDeletedStatusBySourceId(BookmarkController::SOURCE_TYPE, $bookmarkId, BookmarkModel::NOT_DELETED);
+        } elseif ($params['status'] == 1) {
+            $this->bookmarkModel->updateStartedDate($bookmarkId, time());
+            $this->bookmarkModel->updateDoneDate($bookmarkId, null);
+            $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
+            $this->tagModel->updateIsDeletedStatusBySourceId(BookmarkController::SOURCE_TYPE, $bookmarkId, BookmarkModel::NOT_DELETED);
+        } elseif ($params['status'] == 2) {
+            $this->bookmarkModel->updateDoneDate($bookmarkId, time());
+            $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
+            $this->tagModel->updateIsDeletedStatusBySourceId(BookmarkController::SOURCE_TYPE, $bookmarkId, BookmarkModel::NOT_DELETED);
+            $_SESSION['badgeCounts']['bookmarkCount'] -= 1;
         }
 
         if ($params['tags']) {
@@ -139,15 +154,14 @@ class BookmarkController extends Controller
     public function addHighlight(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $bookmarkUid = $args['uid'];
-        $bookmarkDetail = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
-        $bookmarkId = $bookmarkDetail['id'];
+        $bookmarkDetail['id'] = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
         $params = $request->getParsedBody();
 
         if (!$params['highlight']) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight cannot be null!");
         }
 
-        if (!isset($_SESSION['bookmarks']['highlights']['bookmarkID']) || $bookmarkId != $_SESSION['bookmarks']['highlights']['bookmarkID']) {
+        if (!isset($_SESSION['bookmarks']['highlights']['bookmarkID']) || $bookmarkDetail['id'] != $_SESSION['bookmarks']['highlights']['bookmarkID']) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST,
                 "Inconsistency! You're trying to add highlight for different bookmark!");
         }
@@ -169,8 +183,8 @@ class BookmarkController extends Controller
             $this->tagModel->updateSourceTags($params['tags'], $highlightId, HighlightController::SOURCE_TYPE);
         }
 
-        $this->bookmarkModel->updateStartedDate($bookmarkId, time());
-        $this->bookmarkModel->updateBookmarkStatus($bookmarkId, 1);
+        $this->bookmarkModel->updateStartedDate($bookmarkDetail['id'], time());
+        $this->bookmarkModel->updateBookmarkStatus($bookmarkDetail['id'], 1);
 
         $resource = [
             "message" => "Successfully added highlight"
@@ -226,7 +240,13 @@ class BookmarkController extends Controller
         $bookmarkUid = $args['uid'];
         $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
 
-        $rabbitmq->publishBookmarkTitleJob($bookmarkId);
+        $jobDetails = [
+            'id' => $bookmarkId,
+            'retry_count' => 0,
+            'user_id' => $_SESSION['userInfos']['user_id']
+        ];
+
+        $rabbitmq->publishBookmarkTitleJob($jobDetails);
 
         $resource = [
             "message" => "Title update request added to queue!"

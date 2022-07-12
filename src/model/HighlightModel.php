@@ -13,6 +13,8 @@ class HighlightModel
     private $dbConnection;
     private $tagModel;
     private $parseDown;
+    public const DELETED = 1;
+    public const NOT_DELETED = 0;
 
     public function __construct(ContainerInterface $container)
     {
@@ -150,6 +152,26 @@ class HighlightModel
         $stm->bindParam(':link', $params['link'], \PDO::PARAM_INT);
         $stm->bindParam(':file_name', $params['filename'], \PDO::PARAM_STR);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        return $this->dbConnection->lastInsertId();
+    }
+
+    public function addChangeLog($highlightId, $highlight)
+    {
+        $now = time();
+
+        $sql = 'INSERT INTO highlight_versions (highlight_id, old_highlight, created_at, user_id)
+                VALUES(:highlight_id, :old_highlight, :created_at, :user_id)';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':old_highlight', $highlight, \PDO::PARAM_STR);
+        $stm->bindParam(':highlight_id', $highlightId, \PDO::PARAM_INT);
+        $stm->bindParam(':created_at', $now, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
@@ -336,7 +358,7 @@ class HighlightModel
 
         $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created
                 FROM highlights h
-                WHERE h.highlight LIKE :searchParam AND h.user_id = :user_id';
+                WHERE h.is_deleted = 0 AND h.highlight LIKE :searchParam AND h.user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':searchParam', $searchParam, \PDO::PARAM_STR);

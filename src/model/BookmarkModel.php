@@ -340,14 +340,14 @@ class BookmarkModel
         return $this->dbConnection->lastInsertId();
     }
 
-    public function updateHighlightAuthor($bookmarkId, $title)
+    public function updateHighlightAuthor($bookmarkId, $title, $userId)
     {
         $sql = 'UPDATE highlights SET author = :author WHERE link = :bookmarkId AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':bookmarkId', $bookmarkId, \PDO::PARAM_INT);
         $stm->bindParam(':author', $title, \PDO::PARAM_STR);
-        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $userId, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));

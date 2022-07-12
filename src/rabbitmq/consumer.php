@@ -76,11 +76,12 @@ function process_message($message)
                 $metadata = RequestUtil::getUrlMetadata($bookmarkDetails['bookmark']);
 
                 if ($metadata['title']) {
-                    $title = utf8_decode(strip_tags(trim($metadata['title'])));
+                    $title = strip_tags(trim($metadata['title']));
+                    $title = mb_check_encoding($title, 'UTF-8') ? $title : utf8_encode($title);
 
-                    if($title !== $bookmarkDetails['title']){
+                    if ($title !== $bookmarkDetails['title']) {
                         $bookmarkModel->updateTitleByID($bookmarkDetails['id'], $title);
-                        $bookmarkModel->updateHighlightAuthor($bookmarkDetails['id'], $title);
+                        $bookmarkModel->updateHighlightAuthor($bookmarkDetails['id'], $title, $messageBody['user_id']);
                         echo "completed 'get_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title\n";
                     }
 
@@ -89,7 +90,14 @@ function process_message($message)
                         echo "Retry count: {$messageBody['retry_count']}\n";
                         $messageBody['retry_count']++;
                         $amqpPublisher = new AmqpJobPublisher();
-                        $amqpPublisher->publishBookmarkTitleJob($bookmarkDetails['id'], $messageBody['retry_count']);
+
+                        $jobDetails = [
+                            'id' => $bookmarkDetails['id'],
+                            'retry_count' => $messageBody['retry_count'],
+                            'user_id' => $messageBody['user_id']
+                        ];
+
+                        $amqpPublisher->publishBookmarkTitleJob($jobDetails);
                         echo "trigged again 'get_bookmark_title' job for: {$bookmarkDetails['id']}, retry_count: {$messageBody['retry_count']}\n";
                     }
                 }
