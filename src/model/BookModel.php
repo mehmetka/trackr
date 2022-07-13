@@ -547,7 +547,7 @@ class BookModel
                                WHERE ba.book_id = b.id)) AS author,
                        b.title, b.page_count, b.own, b.added_date, b.info_link, b.thumbnail, b.thumbnail_small
                 FROM books b
-                ORDER BY b.id DESC LIMIT 50";
+                ORDER BY b.id DESC";
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -924,12 +924,13 @@ class BookModel
         $now = time();
         $status = $this->pathStatusInfos['not_started']['id'];
 
-        $sql = 'INSERT INTO books (uid, title, publisher, pdf, epub, notes, added_date, own, page_count, status, published_date, description, isbn, thumbnail, thumbnail_small, info_link)
-                VALUES(UUID(), :title,:publisher,:pdf,:epub,:notes,:added_date,:own,:page_count, :status, :published_date, :description, :isbn, :thumbnail, :thumbnail_small, :info_link)';
+        $sql = 'INSERT INTO books (uid, title, subtitle, publisher, pdf, epub, notes, added_date, own, page_count, status, published_date, description, isbn, thumbnail, thumbnail_small, info_link)
+                VALUES(UUID(), :title, :subtitle, :publisher, :pdf, :epub, :notes, :added_date, :own, :page_count, :status, :published_date, :description, :isbn, :thumbnail, :thumbnail_small, :info_link)';
 
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':title', $params['bookTitle'], \PDO::PARAM_STR);
+        $stm->bindParam(':subtitle', $params['subtitle'], \PDO::PARAM_STR);
         $stm->bindParam(':publisher', $params['publisher'], \PDO::PARAM_STR);
         $stm->bindParam(':pdf', $params['pdf'], \PDO::PARAM_INT);
         $stm->bindParam(':epub', $params['epub'], \PDO::PARAM_INT);
@@ -1283,4 +1284,5 @@ class BookModel
 
         return true;
     }
+
 }

@@ -246,6 +246,7 @@ class BookController extends Controller
         $params['thumbnail'] = null;
         $params['thumbnail_small'] = null;
         $params['info_link'] = null;
+        $params['subtitle'] = null;
 
         if (isset($params['isbn']) && $params['isbn']) {
 
@@ -265,14 +266,13 @@ class BookController extends Controller
             }
 
             $params['bookTitle'] = $bookResponse['items'][0]['volumeInfo']['title'];
-
-            if (isset($bookResponse['items'][0]['volumeInfo']['subtitle'])) {
-                $params['bookTitle'] .= ': ' . $bookResponse['items'][0]['volumeInfo']['subtitle'];
-            }
+            $params['subtitle'] = $bookResponse['items'][0]['volumeInfo']['subtitle'] ?? null;
 
             $publisherDetails = $this->bookModel->getPublisher($bookResponse['items'][0]['volumeInfo']['publisher']);
             if (!$publisherDetails) {
-                $params['publisher'] = $this->bookModel->insertPublisher($bookResponse['items'][0]['volumeInfo']['publisher']);
+                if ($bookResponse['items'][0]['volumeInfo']['publisher']) {
+                    $params['publisher'] = $this->bookModel->insertPublisher($bookResponse['items'][0]['volumeInfo']['publisher']);
+                }
             } else {
                 $params['publisher'] = $publisherDetails['id'];
             }
