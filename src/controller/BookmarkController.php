@@ -154,7 +154,7 @@ class BookmarkController extends Controller
     public function addHighlight(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $bookmarkUid = $args['uid'];
-        $bookmarkDetail['id'] = $this->bookmarkModel->getBookmarkByUid($bookmarkUid);
+        $bookmarkDetail = $this->bookmarkModel->getBookmarkByUid($bookmarkUid);
         $params = $request->getParsedBody();
 
         if (!$params['highlight']) {
