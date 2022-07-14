@@ -168,26 +168,36 @@
             var status = $(this).data('status');
             var result = ajaxCall('PUT', "/bookmarks/" + uid + "/status", "status=" + status)
 
-            // if (result !== false) {
-            //     location.reload();
-            // }
+            if (result !== false) {
+
+                if (status === 2) {
+                    $("#bookmarksDatatable").on("click", ".btnStatusAction", function () {
+                        $(this).closest("tr").remove();
+                    });
+                } else {
+                    location.reload();
+                }
+            }
 
         });
 
         $(".btnDeleteBookmark").on('click', function (e) {
-
             var uid = $(this).data('uid');
             var result = ajaxCall('DELETE', "/bookmarks/" + uid, null)
 
             if (result !== false) {
                 location.reload();
             }
-
         });
 
         $(".btnDeleteBookmark2").on('click', function (e) {
             var uid = $(this).data('uid');
-            ajaxCall('DELETE', "/bookmarks/" + uid, null)
+            var result = ajaxCall('DELETE', "/bookmarks/" + uid, null);
+            if (result !== false) {
+                $("#bookmarksDatatable").on("click", ".btnDeleteBookmark2", function () {
+                    $(this).closest("tr").remove();
+                });
+            }
         });
 
         $(".btnUpdateTitle").on('click', function (e) {
