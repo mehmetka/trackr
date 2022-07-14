@@ -6,29 +6,29 @@
 </head>
 
 <body class="vertical dark">
-    <div class="wrapper">
-        <main role="main" class="main-content">
-            <div class="container-fluid">
+<div class="wrapper">
+    <main role="main" class="main-content">
+        <div class="container-fluid">
 
-                <div class="row justify-content-center">
-                    <div class="col-12">
-                        <div class="card mb-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    {{#details}}
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                {{#details}}
 
                                     <div class="form-group">
                                         <input id="bookmark" placeholder="Bookmark" type="text" class="form-control"
-                                            value="{{bookmark}}" disabled>
+                                               value="{{bookmark}}" disabled>
                                     </div>
 
                                     <div class="form-group">
                                         <input id="title" placeholder="Title" type="text" class="form-control"
-                                            value="{{title}}">
+                                               value="{{title}}">
                                     </div>
                                     <div class="form-group">
                                         <input id="note" placeholder="Note" type="number" class="form-control"
-                                            value="{{note}}">
+                                               value="{{note}}">
                                     </div>
                                     <div class="form-group">
                                         <div class="form-group">
@@ -37,70 +37,86 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
+                                        <div class="form-group">
+                                            <input id="description" placeholder="Description" type="text"
+                                                   class="form-control"
+                                                   value="{{description}}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="form-group">
+                                            <input id="thumbnail" placeholder="Thumbnail" type="text"
+                                                   class="form-control"
+                                                   value="{{thumbnail}}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
                                         <select id="status" class="form-control">
                                             <option value="0" {{#selectedNew}}selected="selected" {{/selectedNew}}>New
                                             </option>
                                             <option value="1" {{#selectedStarted}}selected="selected"
-                                                {{/selectedStarted}}>Started</option>
+                                            {{/selectedStarted}}>Started
+                                            </option>
                                             <option value="2" {{#selectedDone}}selected="selected" {{/selectedDone}}>
-                                                Done</option>
+                                                Done
+                                            </option>
                                         </select>
                                     </div>
                                     <div class="form-group">
                                         <button id="updateBookmark" type="button" class="btn btn-primary"
-                                            data-uid="{{uid}}">
+                                                data-uid="{{uid}}">
                                             Update
                                         </button>
 
                                         <button id="deleteBookmark" type="button" class="btn btn-danger float-right"
-                                            data-uid="{{uid}}">
+                                                data-uid="{{uid}}">
                                             Delete
                                         </button>
                                     </div>
-                                    {{/details}}
-                                </div>
+                                {{/details}}
                             </div>
                         </div>
+                    </div>
 
-                    </div> <!-- .col-12 -->
-                </div> <!-- .row -->
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
 
-            </div> <!-- .container-fluid -->
-        </main> <!-- main -->
-    </div> <!-- .wrapper -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
 
-    {{> include}}
-    {{> menu }}
-    {{> navbar }}
+{{> include}}
+{{> menu }}
+{{> navbar }}
 
-    <script>
-        $(document).ready(function () {
+<script>
+    $(document).ready(function () {
 
-            $('#updateBookmark').on('click', function (e) {
+        $('#updateBookmark').on('click', function (e) {
 
-                var bookmarkUID = $(this).data('uid');
-                var data = "title=" + encodeURIComponent($('#title').val()) + "&note=" + $('#note').val() + "&tags=" + $('#tags').val() + "&status=" + $('#status').val();
-                var result = ajaxCall('PUT', "/bookmarks/" + bookmarkUID, data)
+            var bookmarkUID = $(this).data('uid');
+            var data = "title=" + encodeURIComponent($('#title').val()) + "&note=" + $('#note').val() + "&tags=" + $('#tags').val() + "&status=" + $('#status').val();
+            var result = ajaxCall('PUT', "/bookmarks/" + bookmarkUID, data)
 
-                if (result !== false) {
-                    location.reload();
-                }
-
-            });
-
-            $('#deleteBookmark').on('click', function (e) {
-
-                var bookmarkUID = $(this).data('uid');
-                var result = ajaxCall('DELETE', "/bookmarks/" + bookmarkUID, null)
-
-                if (result !== false) {
-                    window.location.replace('/bookmarks')
-                }
-
-            });
+            if (result !== false) {
+                location.reload();
+            }
 
         });
-    </script>
+
+        $('#deleteBookmark').on('click', function (e) {
+
+            var bookmarkUID = $(this).data('uid');
+            var result = ajaxCall('DELETE', "/bookmarks/" + bookmarkUID, null)
+
+            if (result !== false) {
+                window.location.replace('/bookmarks')
+            }
+
+        });
+
+    });
+</script>
 </body>
 
 </html>
