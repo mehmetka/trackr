@@ -134,7 +134,7 @@ class HighlightModel
     public function create($params)
     {
         $now = time();
-        $rawHighlight = htmlentities(trim($params['highlight']));
+        $rawHighlight = trim($params['highlight']);
 
         $params['author'] = $params['author'] ? trim($params['author']) : 'trackr';
         $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
@@ -184,14 +184,13 @@ class HighlightModel
     public function update($highlightID, $params)
     {
         $update = time();
-        $rawHighlight = trim($params['highlight']);
+        $highlight = trim($params['highlight']);
 
         $params['author'] = $params['author'] ? trim($params['author']) : 'trackr';
         $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
-        $highlight = htmlentities($rawHighlight);
 
         $sql = 'UPDATE highlights 
                 SET highlight = :highlight, author = :author, source = :source, page = :page, location = :location, link = :link, file_name = :file_name, is_secret = :is_secret, updated = :updated
