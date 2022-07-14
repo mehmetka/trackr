@@ -315,8 +315,8 @@ class BookmarkModel
     {
         $now = time();
 
-        $bookmarkHighlight['author'] = $bookmarkHighlight['author'] ? $bookmarkHighlight['author'] : 'trackr';
-        $bookmarkHighlight['source'] = $bookmarkHighlight['source'] ? $bookmarkHighlight['source'] : 'trackr';
+        $bookmarkHighlight['author'] = $bookmarkHighlight['author'] ?? 'trackr';
+        $bookmarkHighlight['source'] = $bookmarkHighlight['source'] ?? 'trackr';
         $highlight = htmlentities(trim($bookmarkHighlight['highlight']));
         $page = null;
 

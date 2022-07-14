@@ -154,7 +154,7 @@ class BookmarkController extends Controller
     public function addHighlight(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $bookmarkUid = $args['uid'];
-        $bookmarkDetail['id'] = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
+        $bookmarkDetail['id'] = $this->bookmarkModel->getBookmarkByUid($bookmarkUid);
         $params = $request->getParsedBody();
 
         if (!$params['highlight']) {
@@ -173,7 +173,7 @@ class BookmarkController extends Controller
             $bookmarkDetail['author'] = $username;
             $bookmarkDetail['source'] = 'Twitter';
         } else {
-            $bookmarkDetail['author'] = $bookmarkDetail['title'] ? $bookmarkDetail['title'] : null;
+            $bookmarkDetail['author'] = $bookmarkDetail['title'] ?? null;
             $bookmarkDetail['source'] = 'Bookmark Highlight';
         }
 
