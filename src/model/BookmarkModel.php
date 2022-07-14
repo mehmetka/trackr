@@ -452,16 +452,17 @@ class BookmarkModel
 
     public function updateBookmark($bookmarkID, $details)
     {
-        $title = $details['title']; //htmlspecialchars($details['title']);
-        $note = htmlspecialchars($details['note']);
-
         $sql = 'UPDATE bookmarks 
-                SET title = :title, note = :note, status = :status
+                SET site_name = :site_name, title = :title, description = :description, note = :note, site_type = :site_type, thumbnail = :thumbnail, status = :status
                 WHERE id = :id';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':title', $title, \PDO::PARAM_STR);
-        $stm->bindParam(':note', $note, \PDO::PARAM_STR);
+        $stm->bindParam(':site_name', $details['site_name'], \PDO::PARAM_STR);
+        $stm->bindParam(':title', $details['title'], \PDO::PARAM_STR);
+        $stm->bindParam(':note', $details['note'], \PDO::PARAM_STR);
+        $stm->bindParam(':site_type', $details['site_type'], \PDO::PARAM_STR);
+        $stm->bindParam(':description', $details['description'], \PDO::PARAM_STR);
+        $stm->bindParam(':thumbnail', $details['thumbnail'], \PDO::PARAM_STR);
         $stm->bindParam(':status', $details['status'], \PDO::PARAM_INT);
         $stm->bindParam(':id', $bookmarkID, \PDO::PARAM_INT);
 
