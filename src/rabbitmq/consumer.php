@@ -4,11 +4,13 @@ require __DIR__ . '/../../vendor/autoload.php';
 
 use Slim\App;
 use App\model\BookmarkModel;
+use App\util\EncodingUtil;
 use App\util\RequestUtil;
 use App\util\TwitterUtil;
 use App\rabbitmq\AmqpJobPublisher;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
+use ForceUTF8\Encoding;
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
 $dotenv->load();
@@ -76,14 +78,41 @@ function process_message($message)
                 $metadata = RequestUtil::getUrlMetadata($bookmarkDetails['bookmark']);
 
                 if ($metadata['title']) {
-                    $title = strip_tags(trim($metadata['title']));
-                    $title = mb_check_encoding($title, 'UTF-8') ? $title : utf8_encode($title);
 
-                    if ($title !== $bookmarkDetails['title']) {
-                        $bookmarkModel->updateTitleByID($bookmarkDetails['id'], $title);
-                        $bookmarkModel->updateHighlightAuthor($bookmarkDetails['id'], $title, $messageBody['user_id']);
-                        echo "completed 'get_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title\n";
+                    $title = trim($metadata['title']);
+                    $description = trim($metadata['description']);
+                    $siteName = trim($metadata['site_name']);
+                    $siteType = trim($metadata['type']);
+                    $thumbnail = trim($metadata['image']);
+
+                    if (EncodingUtil::isLatin1($title)) {
+                        $title = Encoding::toLatin1($title);
+                        $description = Encoding::toLatin1($description);
+                        $siteName = Encoding::toLatin1($siteName);
+                        $siteType = Encoding::toLatin1($siteType);
+                        $thumbnail = Encoding::toLatin1($thumbnail);
                     }
+
+                    $newBookmarkDetails['description'] = strip_tags($description);
+                    $newBookmarkDetails['thumbnail'] = strip_tags($thumbnail);
+                    $newBookmarkDetails['title'] = strip_tags($title);
+                    $newBookmarkDetails['note'] = $bookmarkDetails['note'];
+                    $newBookmarkDetails['status'] = $bookmarkDetails['status'];
+                    $newBookmarkDetails['site_name'] = strip_tags($siteName);
+                    $newBookmarkDetails['site_type'] = strip_tags($siteType);
+
+                    try {
+                        $bookmarkModel->updateBookmark($bookmarkDetails['id'], $newBookmarkDetails);
+                    } catch (Exception $exception) {
+                        echo 'Error occured: ' . $exception->getMessage();
+                    }
+
+                    if ($bookmarkDetails['title'] !== $newBookmarkDetails['title']) {
+                        $bookmarkModel->updateHighlightAuthor($bookmarkDetails['id'], $newBookmarkDetails['title'],
+                            $messageBody['user_id']);
+                    }
+
+                    echo "completed 'get_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}\n";
 
                 } else {
                     if ($messageBody['retry_count'] < 5) {

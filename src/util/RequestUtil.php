@@ -54,17 +54,22 @@ class RequestUtil
     static function getUrlMetadata($url, $specificTags = 0)
     {
         $html = RequestUtil::getUrlContent($url);
-        $doc = new \DOMDocument();
-        @$doc->loadHTML($html);
-        $res['title'] = $doc->getElementsByTagName('title')->item(0)->nodeValue;
 
-        foreach ($doc->getElementsByTagName('meta') as $m) {
-            $tag = $m->getAttribute('name') ?: $m->getAttribute('property');
-            if (in_array($tag, ['description', 'keywords']) || strpos($tag, 'og:') === 0) {
-                $res[str_replace('og:', '', $tag)] = $m->getAttribute('content');
+        if ($html) {
+            $doc = new \DOMDocument();
+            @$doc->loadHTML($html);
+            $res['title'] = $doc->getElementsByTagName('title')->item(0)->nodeValue;
+
+            foreach ($doc->getElementsByTagName('meta') as $m) {
+                $tag = $m->getAttribute('name') ?: $m->getAttribute('property');
+                if (in_array($tag, ['description', 'keywords']) || strpos($tag, 'og:') === 0) {
+                    $res[str_replace('og:', '', $tag)] = $m->getAttribute('content');
+                }
             }
+            return $specificTags ? array_intersect_key($res, array_flip($specificTags)) : $res;
         }
-        return $specificTags ? array_intersect_key($res, array_flip($specificTags)) : $res;
+
+        return null;
     }
 
     static function getUrlContent($url)
