@@ -43,10 +43,10 @@
                                     <tbody>
                                     {{#books}}
                                         <tr>
-                                            <td><img src="{{thumbnail_small}}"></td>
+                                            <td><img class="lazy" data-src="{{thumbnail_small}}" src=""></td>
                                             <td>
                                                 {{#info_link}}
-                                                    <a href="{{info_link}}">{{author}} - {{title}}</a>
+                                                    <a href="{{info_link}}" target="_blank">{{author}} - {{title}}</a>
                                                 {{/info_link}}
                                                 {{^info_link}}
                                                     {{author}} - {{title}}
@@ -95,8 +95,14 @@
 {{> navbar }}
 {{> add-book }}
 
+<script type="text/javascript" src="//cdn.jsdelivr.net/gh/dkern/jquery.lazy@1.7.10/jquery.lazy.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/gh/dkern/jquery.lazy@1.7.10/jquery.lazy.plugins.min.js"></script>
+
+
 <script>
     $(document).ready(function () {
+
+        $(".lazy").Lazy();
 
         $(".btnAddBookToPath").on('click', function (e) {
 
