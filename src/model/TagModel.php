@@ -33,7 +33,7 @@ class TagModel
 
     public function insertTagByChecking($sourceId, $tag, $sourceType)
     {
-        $tag = strip_tags(trim($tag));
+        $tag = strtolower(strip_tags(trim($tag)));
 
         if ($tag) {
             $tagExist = $this->getTagByTag($tag);
@@ -69,14 +69,15 @@ class TagModel
     {
         $now = time();
 
-        $sql = 'INSERT INTO tag_relationships (source_id, tag_id, type, created)
-                VALUES(:source_id, :tag_id, :type, :created)';
+        $sql = 'INSERT INTO tag_relationships (source_id, tag_id, type, created, user_id)
+                VALUES(:source_id, :tag_id, :type, :created, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':source_id', $sourceId, \PDO::PARAM_INT);
         $stm->bindParam(':type', $sourceType, \PDO::PARAM_INT);
         $stm->bindParam(':tag_id', $tagId, \PDO::PARAM_INT);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -88,11 +89,12 @@ class TagModel
     public function deleteTagsBySourceId($sourceId, $type)
     {
         $sql = 'DELETE FROM tag_relationships
-                WHERE source_id = :source_id AND type = :type';
+                WHERE source_id = :source_id AND type = :type AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':source_id', $sourceId, \PDO::PARAM_INT);
         $stm->bindParam(':type', $type, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -106,10 +108,11 @@ class TagModel
         $sql = 'SELECT DISTINCT t.tag, t.id
                 FROM tag_relationships tr
                 INNER JOIN tags t ON tr.tag_id = t.id
-                WHERE tr.type = :sourceType AND tr.is_deleted = 0';
+                WHERE tr.type = :sourceType AND tr.is_deleted = 0 AND tr.user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':sourceType', $type, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -141,11 +144,12 @@ class TagModel
         $sql = "SELECT t.id, t.tag, CONCAT('#', t.tag) AS hashtag, CONCAT('<span class=\"badge badge-info\">', t.tag, '</span>') AS html
                 FROM tag_relationships tr
                 INNER JOIN tags t ON tr.tag_id = t.id
-                WHERE tr.source_id = :source_id AND tr.type = :source_type";
+                WHERE tr.source_id = :source_id AND tr.type = :source_type AND tr.user_id = :user_id";
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':source_id', $sourceId, \PDO::PARAM_INT);
         $stm->bindParam(':source_type', $sourceType, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -201,13 +205,14 @@ class TagModel
 
         $sql = 'UPDATE tag_relationships 
                 SET is_deleted = :status, deleted_at = :deleted_at 
-                WHERE source_id = :source_id AND type = :type';
+                WHERE source_id = :source_id AND type = :type AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':status', $status, \PDO::PARAM_INT);
         $stm->bindParam(':deleted_at', $now, \PDO::PARAM_INT);
         $stm->bindParam(':source_id', $sourceId, \PDO::PARAM_INT);
         $stm->bindParam(':type', $type, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
