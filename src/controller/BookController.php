@@ -337,13 +337,10 @@ class BookController extends Controller
 
         if ($params['own']) {
             $this->bookModel->addToLibrary($bookId, $params['notes']);
+            $_SESSION['badgeCounts']['myBookCount'] += 1;
         }
 
         $_SESSION['badgeCounts']['allBookCount'] += 1;
-
-        if ($params['own']) {
-            $_SESSION['badgeCounts']['myBookCount'] += 1;
-        }
 
         $this->bookModel->addActivityLog(null, $bookId, 'created new book');
 
