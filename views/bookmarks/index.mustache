@@ -110,7 +110,7 @@
                                                             <i class="fe fe-trash fe-4"></i> Delete
                                                         </a>
                                                     {{/startAction}}
-                                                    {{#doneAction}}<a class="dropdown-item  btnStatusAction"
+                                                    {{#doneAction}}<a class="dropdown-item btnStatusAction"
                                                                       data-status="2"
                                                                       data-uid="{{bookmarkUID}}">Done</a>
                                                     {{/doneAction}}
@@ -170,6 +170,15 @@
 
             if (result !== false) {
 
+                // if (status === 1) {
+                //     $("#bookmarksDatatable").on("click", ".btnStatusAction", function () {
+                //         $(this).removeClass('badge-info').addClass('badge-warning');
+                //         $(this).attr('data-status', '2');
+                //         $(this).text('Started');
+                //         $(this).closest("tr").prependTo("#bookmarksDatatable");
+                //         $(this).addEventListener('click', '.btnStatusAction', statusActionEvent());
+                //     });
+                // } else
                 if (status === 2) {
                     $("#bookmarksDatatable").on("click", ".btnStatusAction", function () {
                         $(this).closest("tr").remove();

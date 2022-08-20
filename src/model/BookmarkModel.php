@@ -27,20 +27,23 @@ class BookmarkModel
     {
         $bookmarks = [];
 
-        $sql = 'SELECT b.id, b.uid AS bookmarkUID, b.bookmark, b.title, b.note, b.status, b.created, b.started, b.done
-                FROM bookmarks b';
+        $sql = 'SELECT b.id, b.uid AS bookmarkUID, b.bookmark, IF(ISNULL(bo.title), b.title, bo.title) AS title, bo.note, bo.status, bo.created, bo.started, bo.done
+                FROM bookmarks b
+                INNER JOIN bookmarks_ownership bo ON b.id = bo.bookmark_id';
 
         if ($tag) {
             $sql .= ' INNER JOIN tag_relationships tr ON b.id = tr.source_id
                       INNER JOIN tags t ON tr.tag_id = t.id 
-                      WHERE b.is_deleted = 0 AND t.tag = :tag';
+                      WHERE bo.is_deleted = 0 AND t.tag = :tag';
         } else {
-            $sql .= ' WHERE b.is_deleted = 0';
+            $sql .= ' WHERE bo.is_deleted = 0';
         }
 
-        $sql .= ' ORDER BY FIELD(b.status, 1, 0, 2), b.orderNumber DESC, b.id DESC';
+        $sql .= ' AND bo.user_id = :user_id';
+        $sql .= ' ORDER BY FIELD(bo.status, 1, 0, 2), bo.orderNumber DESC, b.id DESC';
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if ($tag) {
             $stm->bindParam(':tag', $tag, \PDO::PARAM_STR);
@@ -107,7 +110,7 @@ class BookmarkModel
         return $list;
     }
 
-    public function getBookmarkByBookmark($bookmark)
+    public function getParentBookmarkByBookmark($bookmark)
     {
         $list = [];
         $bookmark = "%$bookmark%";
@@ -157,12 +160,14 @@ class BookmarkModel
     {
         $id = 0;
 
-        $sql = 'SELECT id
-                FROM bookmarks
-                WHERE uid = :uid';
+        $sql = 'SELECT b.id
+                FROM bookmarks b 
+                INNER JOIN bookmarks_ownership bo on b.id = bo.bookmark_id
+                WHERE b.uid = :uid AND bo.user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':uid', $bookmarkUid, \PDO::PARAM_STR);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -175,17 +180,55 @@ class BookmarkModel
         return $id;
     }
 
-    public function getBookmarkById($bookmarkId)
+    public function getParentBookmarkById($bookmarkId)
     {
         $list = [];
 
-        $sql = 'SELECT b.id, b.uid, b.bookmark, b.title, b.note, b.status, h.highlight, h.author, h.source, b.is_title_edited
+        $sql = 'SELECT b.id, b.uid, b.bookmark, b.title
                 FROM bookmarks b
-                LEFT JOIN highlights h ON b.id = h.link
                 WHERE b.id = :id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':id', $bookmarkId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $list = $row;
+        }
+
+        return $list;
+    }
+
+    public function getChildBookmarkById($bookmarkId, $userId)
+    {
+        $list = [];
+
+        $sql = 'SELECT b.id,
+                       b.uid,
+                       b.bookmark,
+                       IF(ISNULL(bo.title), b.title, bo.title)                   AS title,
+                       IF(ISNULL(bo.description), b.description, bo.description) AS description,
+                       IF(ISNULL(bo.thumbnail), b.thumbnail, bo.thumbnail)       AS thumbnail,
+                       b.title AS parentTitle,
+                       bo.title AS childTitle,
+                       bo.note,
+                       bo.status,
+                       h.highlight,
+                       h.author,
+                       h.source,
+                       bo.is_title_edited
+                FROM bookmarks b
+                         LEFT JOIN highlights h ON b.id = h.link
+                         INNER JOIN bookmarks_ownership bo on b.id = bo.bookmark_id
+                WHERE b.id = :id
+                  AND bo.user_id = :user_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':id', $bookmarkId, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $userId, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -217,13 +260,15 @@ class BookmarkModel
     {
         $list = [];
 
-        $sql = 'SELECT b.id, b.uid, b.bookmark, b.title, b.note, b.status, h.highlight, h.author, h.source
+        $sql = 'SELECT b.id, b.uid, b.bookmark, IF(ISNULL(bo.title), b.title, bo.title) AS title, bo.note, bo.status, h.highlight, h.author, h.source
                 FROM bookmarks b
                 LEFT JOIN highlights h ON b.id = h.link
-                WHERE b.uid = :uid';
+                INNER JOIN bookmarks_ownership bo on b.id = bo.bookmark_id
+                WHERE b.uid = :uid AND bo.user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':uid', $bookmarkUid, \PDO::PARAM_STR);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -256,10 +301,12 @@ class BookmarkModel
         $uncompleteCount = 0;
 
         $sql = 'SELECT COUNT(*) AS uncompleteBookmarksCount
-                FROM bookmarks
-                WHERE is_deleted = 0 AND status < 2';
+                FROM bookmarks b
+                INNER JOIN bookmarks_ownership bo on b.id = bo.bookmark_id
+                WHERE bo.is_deleted = 0 AND bo.status < 2 AND bo.user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -272,19 +319,16 @@ class BookmarkModel
         return $uncompleteCount;
     }
 
-    public function create($bookmark, $note)
+    public function create($bookmark)
     {
         $now = time();
-        $note = htmlspecialchars($note);
         $bookmark = htmlspecialchars($bookmark);
 
-        $sql = 'INSERT INTO bookmarks (uid, bookmark, note, orderNumber, created)
-                VALUES(UUID(), :bookmark, :note, :orderNumber, :created)';
+        $sql = 'INSERT INTO bookmarks (uid, bookmark, created)
+                VALUES(UUID(), :bookmark, :created)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':bookmark', $bookmark, \PDO::PARAM_STR);
-        $stm->bindParam(':note', $note, \PDO::PARAM_STR);
-        $stm->bindParam(':orderNumber', $now, \PDO::PARAM_INT);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
@@ -292,23 +336,6 @@ class BookmarkModel
         }
 
         return $this->dbConnection->lastInsertId();
-    }
-
-    public function createOperations($bookmark, $note)
-    {
-        if (!$bookmark) {
-            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark cannot be empty!');
-        }
-
-        $bookmarkExist = $this->getBookmarkByBookmark($bookmark);
-
-        if ($bookmarkExist) {
-            $this->updateOrderNumber($bookmarkExist['id']);
-            $this->updateIsDeletedStatus($bookmarkExist['id'], self::NOT_DELETED);
-            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
-        }
-
-        return $this->create($bookmark, $note);
     }
 
     public function addHighlight($bookmarkHighlight)
@@ -342,7 +369,9 @@ class BookmarkModel
 
     public function updateHighlightAuthor($bookmarkId, $title, $userId)
     {
-        $sql = 'UPDATE highlights SET author = :author WHERE link = :bookmarkId AND user_id = :user_id';
+        $sql = 'UPDATE highlights 
+                SET author = :author 
+                WHERE link = :bookmarkId AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':bookmarkId', $bookmarkId, \PDO::PARAM_INT);
@@ -356,7 +385,7 @@ class BookmarkModel
         return true;
     }
 
-    public function updateTitleByID($id, $title)
+    public function updateParentBookmarkTitleByID($id, $title)
     {
         $sql = 'UPDATE bookmarks 
                 SET title = :title
@@ -373,17 +402,36 @@ class BookmarkModel
         return true;
     }
 
+    public function updateChildBookmarkTitleByID($id, $title, $userId)
+    {
+        $sql = 'UPDATE bookmarks_ownership 
+                SET title = :title
+                WHERE bookmark_id = :bookmark_id AND user_id = :user_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':title', $title, \PDO::PARAM_STR);
+        $stm->bindParam(':bookmark_id', $id, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $userId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
     public function updateOrderNumber($id)
     {
         $now = time();
 
-        $sql = 'UPDATE bookmarks 
+        $sql = 'UPDATE bookmarks_ownership 
                 SET orderNumber = :orderNumber 
-                WHERE id = :id';
+                WHERE bookmark_id = :bookmark_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stm->bindParam(':bookmark_id', $id, \PDO::PARAM_INT);
         $stm->bindParam(':orderNumber', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -400,14 +448,15 @@ class BookmarkModel
             $now = time();
         }
 
-        $sql = 'UPDATE bookmarks 
+        $sql = 'UPDATE bookmarks_ownership 
                 SET is_deleted = :is_deleted, deleted_at = :deleted_at 
-                WHERE id = :id';
+                WHERE bookmark_id = :bookmark_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stm->bindParam(':bookmark_id', $id, \PDO::PARAM_INT);
         $stm->bindParam(':deleted_at', $now, \PDO::PARAM_INT);
         $stm->bindParam(':is_deleted', $status, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -418,13 +467,14 @@ class BookmarkModel
 
     public function updateDoneDate($id, $doneDate)
     {
-        $sql = 'UPDATE bookmarks 
+        $sql = 'UPDATE bookmarks_ownership 
                 SET done = :done 
-                WHERE id = :id';
+                WHERE bookmark_id = :bookmark_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stm->bindParam(':bookmark_id', $id, \PDO::PARAM_INT);
         $stm->bindParam(':done', $doneDate, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -435,13 +485,14 @@ class BookmarkModel
 
     public function updateStartedDate($id, $started)
     {
-        $sql = 'UPDATE bookmarks 
+        $sql = 'UPDATE bookmarks_ownership
                 SET started = :started 
-                WHERE id = :id';
+                WHERE bookmark_id = :bookmark_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stm->bindParam(':bookmark_id', $id, \PDO::PARAM_INT);
         $stm->bindParam(':started', $started, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -450,11 +501,32 @@ class BookmarkModel
         return true;
     }
 
-    public function updateBookmark($bookmarkID, $details)
+    public function updateParentBookmark($bookmarkID, $details)
     {
-        $sql = 'UPDATE bookmarks 
+        $sql = 'UPDATE bookmarks
+                SET site_name = :site_name, title = :title, description = :description, site_type = :site_type, thumbnail = :thumbnail
+                WHERE id = :bookmark_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':site_name', $details['site_name'], \PDO::PARAM_STR);
+        $stm->bindParam(':title', $details['title'], \PDO::PARAM_STR);
+        $stm->bindParam(':site_type', $details['site_type'], \PDO::PARAM_STR);
+        $stm->bindParam(':description', $details['description'], \PDO::PARAM_STR);
+        $stm->bindParam(':thumbnail', $details['thumbnail'], \PDO::PARAM_STR);
+        $stm->bindParam(':bookmark_id', $bookmarkID, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function updateChildBookmark($bookmarkID, $details, $userId)
+    {
+        $sql = 'UPDATE bookmarks_ownership
                 SET site_name = :site_name, title = :title, description = :description, note = :note, site_type = :site_type, thumbnail = :thumbnail, status = :status
-                WHERE id = :id';
+                WHERE bookmark_id = :bookmark_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':site_name', $details['site_name'], \PDO::PARAM_STR);
@@ -464,7 +536,8 @@ class BookmarkModel
         $stm->bindParam(':description', $details['description'], \PDO::PARAM_STR);
         $stm->bindParam(':thumbnail', $details['thumbnail'], \PDO::PARAM_STR);
         $stm->bindParam(':status', $details['status'], \PDO::PARAM_INT);
-        $stm->bindParam(':id', $bookmarkID, \PDO::PARAM_INT);
+        $stm->bindParam(':bookmark_id', $bookmarkID, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $userId, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -475,13 +548,14 @@ class BookmarkModel
 
     public function updateBookmarkStatus($bookmarkID, $status)
     {
-        $sql = 'UPDATE bookmarks 
+        $sql = 'UPDATE bookmarks_ownership 
                 SET status = :status
-                WHERE id = :id';
+                WHERE bookmark_id = :bookmark_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':status', $status, \PDO::PARAM_INT);
-        $stm->bindParam(':id', $bookmarkID, \PDO::PARAM_INT);
+        $stm->bindParam(':bookmark_id', $bookmarkID, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -492,13 +566,36 @@ class BookmarkModel
 
     public function updateIsTitleEditedStatus($bookmarkID, $status)
     {
-        $sql = 'UPDATE bookmarks 
+        $sql = 'UPDATE bookmarks_ownership
                 SET is_title_edited = :is_title_edited
-                WHERE id = :id';
+                WHERE bookmark_id = :bookmark_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':is_title_edited', $status, \PDO::PARAM_INT);
-        $stm->bindParam(':id', $bookmarkID, \PDO::PARAM_INT);
+        $stm->bindParam(':bookmark_id', $bookmarkID, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function addOwnership($bookmarkId, $userId, $note)
+    {
+        $now = time();
+        $note = htmlspecialchars($note);
+
+        $sql = 'INSERT INTO bookmarks_ownership (bookmark_id, user_id, note, created, orderNumber)
+                VALUES (:bookmark_id, :user_id, :note, :created, :orderNumber)';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':bookmark_id', $bookmarkId, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $userId, \PDO::PARAM_INT);
+        $stm->bindParam(':created', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':orderNumber', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':note', $note, \PDO::PARAM_STR);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
