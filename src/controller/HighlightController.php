@@ -83,6 +83,7 @@ class HighlightController extends Controller
         $highlightID = $args['id'];
         $params = $request->getParsedBody();
         $highlightDetails = $this->highlightModel->getHighlightByID($highlightID);
+        $params['link'] = null;
 
         if (!$highlightDetails) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "highlight not found");
@@ -92,26 +93,13 @@ class HighlightController extends Controller
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "highlight cannot be null!");
         }
 
-        if ($params['link']) {
-            if ($params['link'] !== $_SESSION['update']['highlight']['link']) {
-                $bookmarkExist = $this->bookmarkModel->getBookmarkByBookmark($params['link']);
-                if ($bookmarkExist) {
-                    $params['link'] = $bookmarkExist['id'];
-                } else {
-                    $bookmarkId = $this->bookmarkModel->createOperations($params['link'], null);
-                    $params['link'] = $bookmarkId;
-                }
-            } else {
-                $params['link'] = $_SESSION['update']['highlight']['linkID'];
-            }
-        } else {
-            $params['link'] = null;
-        }
-
         $this->tagModel->deleteTagsBySourceId($highlightID, self::SOURCE_TYPE);
         $this->tagModel->updateSourceTags($params['tags'], $highlightID, self::SOURCE_TYPE);
         $this->highlightModel->update($highlightID, $params);
-        $this->highlightModel->addChangeLog($highlightID, $highlightDetails['highlight']);
+
+        if ($highlightDetails['highlight'] !== $params['highlight']) {
+            $this->highlightModel->addChangeLog($highlightID, $highlightDetails['highlight']);
+        }
 
         $resource = [
             "message" => "successfully updated"
@@ -123,6 +111,7 @@ class HighlightController extends Controller
     public function create(ServerRequestInterface $request, ResponseInterface $response)
     {
         $params = $request->getParsedBody();
+        $params['link'] = null;
 
         if (!$params['highlight']) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight cannot be null!");
@@ -131,19 +120,7 @@ class HighlightController extends Controller
         $highlightExist = $this->highlightModel->searchHighlight(trim($params['highlight']));
 
         if ($highlightExist) {
-            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight added before.!");
-        }
-
-        if ($params['link']) {
-            $bookmarkExist = $this->bookmarkModel->getBookmarkByBookmark($params['link']);
-            if ($bookmarkExist) {
-                $params['link'] = $bookmarkExist['id'];
-            } else {
-                $bookmarkId = $this->bookmarkModel->createOperations($params['link'], null);
-                $params['link'] = $bookmarkId;
-            }
-        } else {
-            $params['link'] = null;
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight added before!");
         }
 
         $highlightId = $this->highlightModel->create($params);
@@ -171,15 +148,7 @@ class HighlightController extends Controller
         $parentHighlightDetails = $this->highlightModel->getHighlightByID($highlightID);
 
         if ($parentHighlightDetails) {
-            if ($params['link']) {
-                $bookmarkExist = $this->bookmarkModel->getBookmarkByBookmark($params['link']);
-                if ($bookmarkExist) {
-                    $params['link'] = $bookmarkExist['id'];
-                } else {
-                    $bookmarkId = $this->bookmarkModel->createOperations($params['link'], null);
-                    $params['link'] = $bookmarkId;
-                }
-            }
+            $params['link'] = null;
 
             $subHighlightID = $this->highlightModel->create($params);
 

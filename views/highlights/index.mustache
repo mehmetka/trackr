@@ -44,8 +44,6 @@
                                 </div>
                                 <br>
                                 <div class="input-group input-group-lg">
-                                    <input id="link" placeholder="Link" type="text"
-                                           class="form-control enterButtonKeyPress">
                                     <input id="tags" placeholder="Tags" type="text"
                                            class="form-control enterButtonKeyPress">
                                 </div>
@@ -161,14 +159,19 @@
 
         $('.enterButtonKeyPress').bind('keypress', function (e) {
             if (e.keyCode == 13) {
+
+                $.bootstrapPurr('running duplicate highlight control', {
+                    type: 'warning',
+                    delay: 2000
+                });
+
                 var highlight = simplemde.value();
                 var author = $('#author').val();
                 var source = $('#source').val();
                 var fileName = $('#filename').val();
                 var page = $('#page').val();
-                var link = $('#link').val();
                 var tags = $('#tags').val();
-                var data = "highlight=" + encodeURIComponent(highlight) + "&author=" + encodeURIComponent(author) + "&source=" + encodeURIComponent(source) + "&page=" + encodeURIComponent(page) + "&link=" + encodeURIComponent(link) + "&tags=" + encodeURIComponent(tags) + "&filename=" + encodeURIComponent(fileName);
+                var data = "highlight=" + encodeURIComponent(highlight) + "&author=" + encodeURIComponent(author) + "&source=" + encodeURIComponent(source) + "&page=" + encodeURIComponent(page) + "&tags=" + encodeURIComponent(tags) + "&filename=" + encodeURIComponent(fileName);
                 var result = ajaxCall('POST', "/highlights", data)
 
                 if (result !== false) {
