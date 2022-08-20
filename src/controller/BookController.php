@@ -287,7 +287,7 @@ class BookController extends Controller
 
             $params['pdf'] = $bookResponse['items'][0]['accessInfo']['epub']['isAvailable'] ? 1 : 0;
             $params['epub'] = $bookResponse['items'][0]['accessInfo']['pdf']['isAvailable'] ? 1 : 0;
-            $params['notes'] = '';
+            $params['notes'] = null;
             $params['own'] = 0;
             $params['pageCount'] = $bookResponse['items'][0]['volumeInfo']['pageCount'];
             $params['published_date'] = $bookResponse['items'][0]['volumeInfo']['publishedDate'];

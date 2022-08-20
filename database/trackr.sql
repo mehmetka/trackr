@@ -89,7 +89,6 @@ CREATE TABLE `books`
     `publisher`       varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
     `pdf`             int(11)                                 DEFAULT '0',
     `epub`            int(11)                                 DEFAULT '0',
-    `notes`           longtext COLLATE utf8mb4_unicode_ci,
     `category`        int(11)                                 DEFAULT '6665',
     `added_date`      int(11)                                 DEFAULT NULL,
     `page_count`      int(11)                                 DEFAULT '0',
