@@ -546,16 +546,17 @@ class BookModel
                                WHERE ba.book_id = b.id)) AS author,
                        b.title,
                        b.page_count,
-                       IF(ISNULL(bo.id), 0, 1)                   AS own,
+                       IF(ISNULL(bo.id), 0, 1)           AS own,
                        bo.created_at,
                        b.info_link,
                        b.thumbnail,
                        b.thumbnail_small
                 FROM books b
-                         LEFT JOIN books_ownership bo ON b.id = bo.book_id
+                         LEFT JOIN books_ownership bo ON b.id = bo.book_id AND bo.user_id = :user_id
                 ORDER BY b.id DESC";
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
