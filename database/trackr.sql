@@ -142,7 +142,7 @@ CREATE TABLE `books_googleapi_responses`
 
 CREATE TABLE `books_ownership`
 (
-    `id`      int(11)                                NOT NULL,
+    `id`      int(11)                                NOT NULL AUTO_INCREMENT,
     `book_id` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
     `user_id` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
     `note`    varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -151,6 +151,7 @@ CREATE TABLE `books_ownership`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
+
 
 CREATE TABLE `book_trackings`
 (
