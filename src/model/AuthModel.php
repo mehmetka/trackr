@@ -47,11 +47,12 @@ class AuthModel
         return true;
     }
 
-    public function userCreatedBefore()
+    public function userCreatedBefore($username)
     {
-        $sql = 'SELECT id FROM users';
+        $sql = 'SELECT id FROM users WHERE username = :username';
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':username', $username, \PDO::PARAM_STR);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(500, 'Something went wrong');
@@ -66,7 +67,8 @@ class AuthModel
 
     public function register($username, $password)
     {
-        $password = hash('sha512', $password);
+        $password = hash('sha512', trim($password));
+        $username = trim($username);
         $created = time();
 
         $sql = 'INSERT INTO users (username, password, created) 

@@ -46,21 +46,22 @@ class AuthController extends Controller
 
     public function register(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $userExist = $this->authModel->userCreatedBefore();
+        $params = $request->getParsedBody();
+        $userExist = $this->authModel->userCreatedBefore($params['username']);
 
         if ($userExist) {
-            throw CustomException::clientError(StatusCode::HTTP_FORBIDDEN, 'User created before!', 'User created before!');
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'User created before!',
+                'User created before!');
         }
-
-        $params = $request->getParsedBody();
 
         if (trim($params['password']) != trim($params['passwordAgain'])) {
-            throw CustomException::clientError(StatusCode::HTTP_UNAUTHORIZED, 'Passwords must be matched!', 'Passwords must be matched!');
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Passwords must be matched!',
+                'Passwords must be matched!');
         }
 
-        $this->authModel->register(trim($params['username']), trim($params['password']));
+        $this->authModel->register($params['username'], $params['password']);
 
-        $resource['responseCode'] = StatusCode::HTTP_OK;
+        $resource['responseCode'] = StatusCode::HTTP_CREATED;
         $resource['message'] = "Registered successfully";
 
         return $this->response($resource['responseCode'], $resource);
@@ -72,7 +73,8 @@ class AuthController extends Controller
 
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
+            setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"], $params["secure"],
+                $params["httponly"]);
             session_destroy();
         }
 
