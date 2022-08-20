@@ -538,15 +538,21 @@ class BookModel
 
     public function getAllBooks()
     {
-        $paths = $this->getPathsList();
-
-        $sql = "SELECT b.id, b.uid AS bookUID,
+        $sql = "SELECT b.id,
+                       b.uid                             AS bookUID,
                        CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ')
-                               FROM book_authors ba
+                               FROM book_authors ba USE INDEX (idx_book_id)
                                         INNER JOIN author a ON ba.author_id = a.id
                                WHERE ba.book_id = b.id)) AS author,
-                       b.title, b.page_count, b.own, b.added_date, b.info_link, b.thumbnail, b.thumbnail_small
+                       b.title,
+                       b.page_count,
+                       IF(ISNULL(bo.id), 0, 1)                   AS own,
+                       bo.created_at,
+                       b.info_link,
+                       b.thumbnail,
+                       b.thumbnail_small
                 FROM books b
+                         LEFT JOIN books_ownership bo ON b.id = bo.book_id
                 ORDER BY b.id DESC";
 
         $stm = $this->dbConnection->prepare($sql);
@@ -563,13 +569,36 @@ class BookModel
                 $row['add_to_library'] = true;
             }
 
-            $row['paths'] = $paths;
-            $row['added_date'] = date("Y-m-d", $row['added_date']);
+            $row['created_at'] = date("Y-m-d", $row['created_at']);
 
             $list[] = $row;
         }
 
         return $list;
+    }
+
+    public function getAuthorsByBookId($bookId)
+    {
+        $author = '';
+
+        $sql = "SELECT (SELECT GROUP_CONCAT(a.author SEPARATOR ', ')
+                FROM book_authors ba
+                         INNER JOIN author a ON ba.author_id = a.id
+                WHERE ba.book_id = :book_id) AS author";
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+
+            $author = $row['author'];
+        }
+
+        return $author;
     }
 
     public function getPathsList()
@@ -604,14 +633,19 @@ class BookModel
     public function getMyBooks()
     {
         $sql = "SELECT b.id,
+                       b.uid                             AS bookUID,
                        CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ')
-                               FROM book_authors ba
+                               FROM book_authors ba USE INDEX (idx_book_id)
                                         INNER JOIN author a ON ba.author_id = a.id
                                WHERE ba.book_id = b.id)) AS author,
-                       b.title, b.page_count, b.own, b.added_date,
-                       (IFNULL((SELECT true FROM books_finished bf WHERE bf.book_id = b.id AND bf.user_id = :user_id LIMIT 1), false)) AS is_read
-                FROM books b
-                WHERE b.own = 1
+                       b.title,
+                       b.page_count,
+                       bo.created_at,
+                       (IFNULL((SELECT true FROM books_finished bf WHERE bf.book_id = b.id AND bf.user_id = :user_id LIMIT 1),
+                               false))                   AS is_read
+                FROM books_ownership bo USE INDEX (idx_book_id)
+                         INNER JOIN books b ON bo.book_id = b.id
+                WHERE bo.user_id = :user_id
                 ORDER BY b.id DESC";
 
         $stm = $this->dbConnection->prepare($sql);
@@ -624,7 +658,7 @@ class BookModel
         $list = [];
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['added_date'] = date("Y-m-d", $row['added_date']);
+            $row['created_at'] = date("Y-m-d", $row['created_at']);
             $row['remaining'] = 0;
             $row['read_status'] = $row['is_read'] ? 'success' : 'danger';
 
@@ -718,7 +752,7 @@ class BookModel
             }
 
             $readAmount = $this->getReadAmount($row['id'], $row['path_id']);
-            $readAmount = $readAmount ? $readAmount : 0;
+            $readAmount = $readAmount ?? 0;
 
             $pageCount = $row['page_count'];
             $diff = $pageCount - $readAmount;
@@ -727,7 +761,7 @@ class BookModel
                 $this->insertNewReadRecord($row['path_id'], $row['id']);
                 $this->setBookPathStatus($row['path_id'], $row['id'], $this->pathStatusInfos['done']['id']);
                 $this->setBookStatus($row['id'], $this->pathStatusInfos['done']['id']);
-                unset($_SESSION['badgeCounts']);
+                $_SESSION['badgeCounts']['finishedBookCount']++;
                 continue;
             }
 
@@ -803,17 +837,25 @@ class BookModel
         return $this->dbConnection->lastInsertId();
     }
 
-    public function addToLibrary($bookId)
+    public function addToLibrary($bookId, $note = null)
     {
         $addedDate = time();
 
-        $sql = 'UPDATE books
-                SET own = 1, added_date = :addedDate
-                WHERE id = :id';
+        $sql = 'INSERT INTO books_ownership 
+                SET book_id = :book_id, user_id = :user_id, created_at = :created_at';
+
+        if ($note) {
+            $sql .= ', note = :note';
+        }
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':id', $bookId, \PDO::PARAM_INT);
-        $stm->bindParam(':addedDate', $addedDate, \PDO::PARAM_INT);
+        $stm->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+        $stm->bindParam(':created_at', $addedDate, \PDO::PARAM_INT);
+
+        if ($note) {
+            $stm->bindParam(':note', $note, \PDO::PARAM_STR);
+        }
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
@@ -924,9 +966,8 @@ class BookModel
         $now = time();
         $status = $this->pathStatusInfos['not_started']['id'];
 
-        $sql = 'INSERT INTO books (uid, title, subtitle, publisher, pdf, epub, notes, added_date, own, page_count, status, published_date, description, isbn, thumbnail, thumbnail_small, info_link)
-                VALUES(UUID(), :title, :subtitle, :publisher, :pdf, :epub, :notes, :added_date, :own, :page_count, :status, :published_date, :description, :isbn, :thumbnail, :thumbnail_small, :info_link)';
-
+        $sql = 'INSERT INTO books (uid, title, subtitle, publisher, pdf, epub, notes, added_date, page_count, status, published_date, description, isbn, thumbnail, thumbnail_small, info_link)
+                VALUES(UUID(), :title, :subtitle, :publisher, :pdf, :epub, :notes, :added_date, :page_count, :status, :published_date, :description, :isbn, :thumbnail, :thumbnail_small, :info_link)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':title', $params['bookTitle'], \PDO::PARAM_STR);
@@ -934,9 +975,7 @@ class BookModel
         $stm->bindParam(':publisher', $params['publisher'], \PDO::PARAM_STR);
         $stm->bindParam(':pdf', $params['pdf'], \PDO::PARAM_INT);
         $stm->bindParam(':epub', $params['epub'], \PDO::PARAM_INT);
-        $stm->bindParam(':notes', $params['notes'], \PDO::PARAM_STR);
         $stm->bindParam(':added_date', $now, \PDO::PARAM_INT);
-        $stm->bindParam(':own', $params['own'], \PDO::PARAM_INT);
         $stm->bindParam(':page_count', $params['pageCount'], \PDO::PARAM_INT);
         $stm->bindParam(':status', $status, \PDO::PARAM_INT);
         $stm->bindParam(':published_date', $params['published_date'], \PDO::PARAM_INT);
@@ -1098,10 +1137,11 @@ class BookModel
         $myBookCount = 0;
 
         $sql = "SELECT COUNT(*) AS myBookCount
-                FROM books
-                WHERE own = 1";
+                FROM books_ownership
+                WHERE user_id = :user_id";
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));

@@ -34,7 +34,7 @@
                                 <table class="table datatables" id="booksDatatable" width="100%">
                                     <thead>
                                     <tr>
-                                        <th>#</th>
+<!--                                        <th>#</th>-->
                                         <th>Title</th>
                                         <th>Page</th>
                                         <th>Add to Path</th>
@@ -43,7 +43,7 @@
                                     <tbody>
                                     {{#books}}
                                         <tr>
-                                            <td><img class="lazy" data-src="{{thumbnail_small}}" src=""></td>
+<!--                                            <td><img class="lazy" data-src="{{thumbnail_small}}" src=""></td>-->
                                             <td>
                                                 {{#info_link}}
                                                     <a href="{{info_link}}" target="_blank">{{author}} - {{title}}</a>
@@ -105,45 +105,32 @@
         $(".lazy").Lazy();
 
         $(".btnAddBookToPath").on('click', function (e) {
-
-            var pathUID = $(this).data("id");
-            var bookUID = $(this).data("book");
-
-            ajaxCall('POST', "/books/" + bookUID + "/paths", "pathUID=" + pathUID, true)
-
+            ajaxCall('POST', "/books/" + $(this).data("book") + "/paths", "pathUID=" + $(this).data("id"), true)
         });
 
         $(".btnAddToLibrary").on('click', function (e) {
-
-            var bookUID = $(this).data("id");
-            var result = ajaxCall('PUT', "/books/" + bookUID + "/add-to-library", null)
+            var result = ajaxCall('PUT', "/books/" + $(this).data("id") + "/add-to-library", null)
 
             if (result !== false) {
                 location.reload();
             }
-
         });
 
         $(".btnResetBook").on('click', function (e) {
-
-            var bookUID = $(this).data("id");
-            var result = ajaxCall('DELETE', "/books/" + bookUID, null)
+            var result = ajaxCall('DELETE', "/books/" + $(this).data("id"), null)
 
             if (result !== false) {
                 location.reload();
             }
-
         });
 
         $('#author').bind('keypress', function (e) {
             if (e.keyCode == 13) {
-                var author = $('#author').val();
-                var result = ajaxCall('POST', "/authors", "author=" + author)
+                var result = ajaxCall('POST', "/authors", "author=" + $('#author').val())
 
                 if (result !== false) {
                     location.reload();
                 }
-
             }
         });
 

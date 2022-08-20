@@ -42,8 +42,7 @@ class BookController extends Controller
             'activeBookPaths' => 'active'
         ];
 
-        // TODO give a decent name
-        return $this->view->render($response, 'books/books.mustache', $data);
+        return $this->view->render($response, 'books/index.mustache', $data);
     }
 
     public function paths(ServerRequestInterface $request, ResponseInterface $response)
@@ -64,12 +63,14 @@ class BookController extends Controller
         $authors = $this->bookModel->getAuthors();
         $publishers = $this->bookModel->getPublishers();
         $books = $this->bookModel->getAllBooks();
+        $paths = $this->bookModel->getPathsList();
 
         $data = [
             'title' => 'All Books | trackr',
             'authors' => $authors,
             'books' => $books,
             'publishers' => $publishers,
+            'paths' => $paths,
             'activeAllBooks' => 'active'
         ];
 
@@ -79,10 +80,12 @@ class BookController extends Controller
     public function myBooks(ServerRequestInterface $request, ResponseInterface $response)
     {
         $books = $this->bookModel->getMyBooks();
+        $paths = $this->bookModel->getPathsList();
 
         $data = [
             'title' => 'My Books | trackr',
             'books' => $books,
+            'paths' => $paths,
             'activeMyBooks' => 'active'
         ];
 
@@ -250,7 +253,7 @@ class BookController extends Controller
 
         if (isset($params['isbn']) && $params['isbn']) {
 
-            $params['isbn'] = str_replace("-", "", $params['isbn']);
+            $params['isbn'] = trim(str_replace("-", "", $params['isbn']));
             $bookDetail = $this->bookModel->getBookByISBN($params['isbn']);
 
             if ($bookDetail) {
@@ -258,6 +261,11 @@ class BookController extends Controller
                     "Book already exist: " . htmlspecialchars($bookDetail['title']));
             }
 
+            /*
+             * https://www.googleapis.com/books/v1/volumes?
+             * q=isbn:9786258475722
+             * q={title}+inauthor:{author}
+             */
             $url = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' . $params['isbn'];
             $bookResponse = RequestUtil::makeHttpRequest($url, RequestUtil::HTTP_GET, [], []);
 
@@ -312,6 +320,10 @@ class BookController extends Controller
 
         }
 
+        if (!$params['bookTitle']) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Title cannot be null');
+        }
+
         $bookId = $this->bookModel->saveBook($params);
         $authors = $params['authors'];
 
@@ -321,6 +333,10 @@ class BookController extends Controller
 
         foreach ($authors as $authorId) {
             $this->bookModel->insertBookAuthor($bookId, $authorId);
+        }
+
+        if ($params['own']) {
+            $this->bookModel->addToLibrary($bookId, $params['notes']);
         }
 
         $_SESSION['badgeCounts']['allBookCount'] += 1;

@@ -23,6 +23,7 @@
                                                 <th>Title</th>
                                                 <th>Page</th>
                                                 <th>Added</th>
+                                                <th>Add to Path</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -34,7 +35,24 @@
                                                     <span class="dot dot-md bg-{{read_status}} float-right"></span>
                                                 </td>
                                                 <td>{{page_count}}</td>
-                                                <td>{{added_date}}</td>
+                                                <td>{{created_at}}</td>
+                                                <td>
+                                                    <div class="btn-group">
+                                                        <button type="button"
+                                                                class="btn btn-danger btn-sm dropdown-toggle"
+                                                                data-toggle="dropdown" aria-haspopup="true"
+                                                                aria-expanded="false">
+                                                            Paths
+                                                        </button>
+                                                        <div class="dropdown-menu">
+                                                            {{#paths}}
+                                                                <a class="dropdown-item btnAddBookToPath"
+                                                                   data-id="{{pathUID}}"
+                                                                   data-book="{{bookUID}}">{{path_name}}</a>
+                                                            {{/paths}}
+                                                        </div>
+                                                    </div>
+                                                </td>
                                             </tr>
                                             {{/books}}
                                         </tbody>
@@ -54,13 +72,11 @@
 
     <script>
         $(document).ready(function () {
-            // $('#booksDatatable').DataTable({
-            //     autoWidth: true,
-            //     "lengthMenu": [
-            //         [16, 32, 64, -1],
-            //         [16, 32, 64, "All"]
-            //     ]
-            // });
+
+            $(".btnAddBookToPath").on('click', function (e) {
+                ajaxCall('POST', "/books/" + $(this).data("book") + "/paths", "pathUID=" + $(this).data("id"), true)
+            });
+
         });
     </script>
 </body>
