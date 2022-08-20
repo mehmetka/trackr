@@ -20,9 +20,32 @@ class AmqpJobPublisher
         $this->connection->close();
     }
 
-    public function publishBookmarkTitleJob($details)
+    public function publishParentBookmarkTitleJob($details)
     {
-        $jobType = 'get_bookmark_title';
+        $jobType = 'get_parent_bookmark_title';
+        $exchange = 'router';
+        $queue = 'msgs';
+
+        $channel = $this->connection->channel();
+        $channel->queue_declare($queue, false, true, false, false);
+        $channel->exchange_declare($exchange, AMQPExchangeType::DIRECT, false, true, false);
+        $channel->queue_bind($queue, $exchange);
+
+        $messageBody = [
+            'job_type' => $jobType
+        ];
+
+        $messageBody = array_merge($messageBody, $details);
+
+        $message = new AMQPMessage(serialize($messageBody), array('content_type' => 'text/plain', 'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT));
+        $channel->basic_publish($message, $exchange);
+
+        $channel->close();
+    }
+
+    public function publishChildBookmarkTitleJob($details)
+    {
+        $jobType = 'get_child_bookmark_title';
         $exchange = 'router';
         $queue = 'msgs';
 

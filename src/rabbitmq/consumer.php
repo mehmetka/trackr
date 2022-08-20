@@ -61,48 +61,89 @@ while ($channel->is_consuming()) {
 function process_message($message)
 {
     $messageBody = unserialize($message->body);
+    $container = $GLOBALS['container'];
+    $bookmarkModel = new BookmarkModel($container);
 
-    if ($messageBody['job_type'] === 'get_bookmark_title') {
-        $container = $GLOBALS['container'];
+    if ($messageBody['job_type'] === 'get_parent_bookmark_title') {
 
-        $bookmarkModel = new BookmarkModel($container);
-        $bookmarkDetails = $bookmarkModel->getBookmarkById($messageBody['id']);
+        $bookmarkDetails = $bookmarkModel->getParentBookmarkById($messageBody['id']);
+
+        if (!$bookmarkDetails) {
+            echo "bookmark not found. given bookmark id: {$messageBody['id']}\n";
+            return;
+        }
+
+        if (TwitterUtil::isTwitterUrl($bookmarkDetails['bookmark'])) {
+            $username = TwitterUtil::getUsernameFromUrl($bookmarkDetails['bookmark']);
+            $title = 'Twitter - ' . strip_tags(trim($username));
+            $bookmarkModel->updateParentBookmarkTitleByID($bookmarkDetails['id'], $title);
+
+            echo "completed 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title (twitter-title)\n";
+        } else {
+            $metadata = RequestUtil::getUrlMetadata($bookmarkDetails['bookmark']);
+
+            if ($metadata['title']) {
+
+                $newBookmarkDetails['description'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['description'])) ? Encoding::toLatin1(trim($metadata['description'])) : trim($metadata['description']));
+                $newBookmarkDetails['thumbnail'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['image'])) ? Encoding::toLatin1(trim($metadata['image'])) : trim($metadata['image']));
+                $newBookmarkDetails['title'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['title'])) ? Encoding::toLatin1(trim($metadata['title'])) : trim($metadata['title']));
+                $newBookmarkDetails['site_name'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['site_name'])) ? Encoding::toLatin1(trim($metadata['site_name'])) : trim($metadata['site_name']));
+                $newBookmarkDetails['site_type'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['type'])) ? Encoding::toLatin1(trim($metadata['type'])) : trim($metadata['type']));
+
+                try {
+                    $bookmarkModel->updateParentBookmark($bookmarkDetails['id'], $newBookmarkDetails);
+                } catch (Exception $exception) {
+                    echo 'Error occured: ' . $exception->getMessage();
+                }
+
+                echo "completed 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}\n";
+
+            } else {
+                if ($messageBody['retry_count'] < 5) {
+                    echo "Retry count: {$messageBody['retry_count']}\n";
+                    $messageBody['retry_count']++;
+                    $amqpPublisher = new AmqpJobPublisher();
+
+                    $amqpPublisher->publishParentBookmarkTitleJob([
+                        'id' => $bookmarkDetails['id'],
+                        'retry_count' => $messageBody['retry_count']
+                    ]);
+                    echo "trigged again 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, retry_count: {$messageBody['retry_count']}\n";
+                }
+            }
+        }
+
+    } elseif ($messageBody['job_type'] === 'get_child_bookmark_title') {
+
+        $bookmarkDetails = $bookmarkModel->getChildBookmarkById($messageBody['id'], $messageBody['user_id']);
+
+        if (!$bookmarkDetails) {
+            echo "bookmark not found. given bookmark id: {$messageBody['id']}\n";
+            return;
+        }
 
         if (!$bookmarkDetails['is_title_edited']) {
             if (TwitterUtil::isTwitterUrl($bookmarkDetails['bookmark'])) {
                 $username = TwitterUtil::getUsernameFromUrl($bookmarkDetails['bookmark']);
                 $title = 'Twitter - ' . strip_tags(trim($username));
-                $bookmarkModel->updateTitleByID($bookmarkDetails['id'], $title);
-                echo "completed 'get_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title (twitter-title)\n";
+                $bookmarkModel->updateChildBookmarkTitleByID($bookmarkDetails['id'], $title, $messageBody['user_id']);
+
+                echo "completed 'get_child_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title (twitter-title)\n";
             } else {
                 $metadata = RequestUtil::getUrlMetadata($bookmarkDetails['bookmark']);
 
                 if ($metadata['title']) {
 
-                    $title = trim($metadata['title']);
-                    $description = trim($metadata['description']);
-                    $siteName = trim($metadata['site_name']);
-                    $siteType = trim($metadata['type']);
-                    $thumbnail = trim($metadata['image']);
-
-                    if (EncodingUtil::isLatin1($title)) {
-                        $title = Encoding::toLatin1($title);
-                        $description = Encoding::toLatin1($description);
-                        $siteName = Encoding::toLatin1($siteName);
-                        $siteType = Encoding::toLatin1($siteType);
-                        $thumbnail = Encoding::toLatin1($thumbnail);
-                    }
-
-                    $newBookmarkDetails['description'] = strip_tags($description);
-                    $newBookmarkDetails['thumbnail'] = strip_tags($thumbnail);
-                    $newBookmarkDetails['title'] = strip_tags($title);
+                    $newBookmarkDetails['description'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['description'])) ? Encoding::toLatin1(trim($metadata['description'])) : trim($metadata['description']));
+                    $newBookmarkDetails['thumbnail'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['image'])) ? Encoding::toLatin1(trim($metadata['image'])) : trim($metadata['image']));
+                    $newBookmarkDetails['title'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['title'])) ? Encoding::toLatin1(trim($metadata['title'])) : trim($metadata['title']));
+                    $newBookmarkDetails['site_name'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['site_name'])) ? Encoding::toLatin1(trim($metadata['site_name'])) : trim($metadata['site_name']));
+                    $newBookmarkDetails['site_type'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['type'])) ? Encoding::toLatin1(trim($metadata['type'])) : trim($metadata['type']));
                     $newBookmarkDetails['note'] = $bookmarkDetails['note'];
                     $newBookmarkDetails['status'] = $bookmarkDetails['status'];
-                    $newBookmarkDetails['site_name'] = strip_tags($siteName);
-                    $newBookmarkDetails['site_type'] = strip_tags($siteType);
 
                     try {
-                        $bookmarkModel->updateBookmark($bookmarkDetails['id'], $newBookmarkDetails);
+                        $bookmarkModel->updateChildBookmark($bookmarkDetails['id'], $newBookmarkDetails, $messageBody['user_id']);
                     } catch (Exception $exception) {
                         echo 'Error occured: ' . $exception->getMessage();
                     }
@@ -112,7 +153,7 @@ function process_message($message)
                             $messageBody['user_id']);
                     }
 
-                    echo "completed 'get_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}\n";
+                    echo "completed 'get_child_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}\n";
 
                 } else {
                     if ($messageBody['retry_count'] < 5) {
@@ -120,19 +161,17 @@ function process_message($message)
                         $messageBody['retry_count']++;
                         $amqpPublisher = new AmqpJobPublisher();
 
-                        $jobDetails = [
+                        $amqpPublisher->publishChildBookmarkTitleJob([
                             'id' => $bookmarkDetails['id'],
                             'retry_count' => $messageBody['retry_count'],
                             'user_id' => $messageBody['user_id']
-                        ];
+                        ]);
 
-                        $amqpPublisher->publishBookmarkTitleJob($jobDetails);
-                        echo "trigged again 'get_bookmark_title' job for: {$bookmarkDetails['id']}, retry_count: {$messageBody['retry_count']}\n";
+                        echo "trigged again 'get_child_bookmark_title' job for: {$bookmarkDetails['id']}, retry_count: {$messageBody['retry_count']}\n";
                     }
                 }
             }
         }
-
     }
 
     $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);
