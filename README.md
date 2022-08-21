@@ -12,13 +12,20 @@
 ```
 displayErrorDetails=1
 debug=1
+
+TRACKR_BASE_URL=http://localhost
+
 MYSQL_USER=root
-MYSQL_PASSWORD=password
+MYSQL_PASSWORD=strong-password
 MYSQL_DATABASE=trackr
 MYSQL_HOST=192.168.2.2
-```
 
-6. Create logs directory on project root.
+RABBITMQ_HOST=192.168.2.4
+RABBITMQ_PORT=5672
+RABBITMQ_USER=guest
+RABBITMQ_PASSWORD=guest
+RABBITMQ_VHOST=/
+```
 
 ### Appendix
 #### Backup:
