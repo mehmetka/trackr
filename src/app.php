@@ -13,6 +13,10 @@ session_start();
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
+if(!strpos($_ENV['TRACKR_BASE_URL'], $_SERVER['HTTP_HOST'])){
+    die('access denied');
+}
+
 $settings['settings'] = [
     'displayErrorDetails' => $_ENV['displayErrorDetails'],
     'debug' => $_ENV['debug']

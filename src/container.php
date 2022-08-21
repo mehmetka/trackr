@@ -31,7 +31,7 @@ $container['view'] = function ($container) {
 $container['logger'] = function ($container) {
     $logger = new Monolog\Logger('trackr');
     $logger->pushProcessor(new Monolog\Processor\UidProcessor());
-    $logger->pushHandler(new Monolog\Handler\StreamHandler(dirname(__DIR__) . '/logs/skeleton.log', \Monolog\Logger::DEBUG));
+    $logger->pushHandler(new Monolog\Handler\StreamHandler(__DIR__ . '/../logs/skeleton.log', \Monolog\Logger::DEBUG));
     return $logger;
 };
 
