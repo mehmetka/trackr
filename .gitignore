@@ -1,10 +1,10 @@
 /vendor/
 /cache/
 /backups/
-/logs/
 /scripts/
 .DS_Store
 /.idea/
 conf.ini
 composer.lock
 .env
+/logs/*.log
