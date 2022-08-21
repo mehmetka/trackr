@@ -49,6 +49,11 @@ class AuthController extends Controller
         $params = $request->getParsedBody();
         $userExist = $this->authModel->userCreatedBefore($params['username']);
 
+        if (!$params['username'] || !$params['password']) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Credentials cannot be null',
+                'Credentials cannot be null');
+        }
+
         if ($userExist) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'User created before!',
                 'User created before!');
