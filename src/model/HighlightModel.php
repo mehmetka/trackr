@@ -141,15 +141,14 @@ class HighlightModel
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
-        $sql = 'INSERT INTO highlights (highlight, author, source, page, link, file_name, created, user_id)
-                VALUES(:highlight, :author, :source, :page, :link, :file_name, :created, :user_id)';
+        $sql = 'INSERT INTO highlights (highlight, author, source, page, file_name, created, user_id)
+                VALUES(:highlight, :author, :source, :page, :file_name, :created, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':highlight', $rawHighlight, \PDO::PARAM_STR);
         $stm->bindParam(':author', $params['author'], \PDO::PARAM_STR);
         $stm->bindParam(':source', $params['source'], \PDO::PARAM_STR);
         $stm->bindParam(':page', $params['page'], \PDO::PARAM_INT);
-        $stm->bindParam(':link', $params['link'], \PDO::PARAM_INT);
         $stm->bindParam(':file_name', $params['filename'], \PDO::PARAM_STR);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
@@ -193,7 +192,7 @@ class HighlightModel
 
 
         $sql = 'UPDATE highlights 
-                SET highlight = :highlight, author = :author, source = :source, page = :page, location = :location, link = :link, file_name = :file_name, is_secret = :is_secret, updated = :updated
+                SET highlight = :highlight, author = :author, source = :source, page = :page, location = :location, file_name = :file_name, is_secret = :is_secret, updated = :updated
                 WHERE id = :id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
@@ -204,7 +203,6 @@ class HighlightModel
         $stm->bindParam(':source', $params['source'], \PDO::PARAM_STR);
         $stm->bindParam(':page', $params['page'], \PDO::PARAM_INT);
         $stm->bindParam(':location', $params['location'], \PDO::PARAM_INT);
-        $stm->bindParam(':link', $params['link'], \PDO::PARAM_INT);
         $stm->bindParam(':file_name', $params['filename'], \PDO::PARAM_STR);
         $stm->bindParam(':is_secret', $params['is_secret'], \PDO::PARAM_INT);
         $stm->bindParam(':updated', $update, \PDO::PARAM_INT);

@@ -83,7 +83,6 @@ class HighlightController extends Controller
         $highlightID = $args['id'];
         $params = $request->getParsedBody();
         $highlightDetails = $this->highlightModel->getHighlightByID($highlightID);
-        $params['link'] = null;
 
         if (!$highlightDetails) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "highlight not found");
@@ -111,7 +110,6 @@ class HighlightController extends Controller
     public function create(ServerRequestInterface $request, ResponseInterface $response)
     {
         $params = $request->getParsedBody();
-        $params['link'] = null;
 
         if (!$params['highlight']) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight cannot be null!");

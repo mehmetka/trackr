@@ -49,7 +49,7 @@
                                     </div>
                                     <div class="form-group">
                                         <input id="link" placeholder="Link" type="text" class="form-control"
-                                               value="{{link}}">
+                                               value="{{link}}" disabled>
                                     </div>
                                     <div class="form-group">
                                         <input id="filename" placeholder="File Name" type="text" class="form-control"
@@ -168,7 +168,7 @@
             var link = $('#commentLink').val();
             var tags = $('#commentTags').val();
 
-            var data = "highlight=" + encodeURIComponent(comment) + "&source=" + encodeURIComponent(source) + "&link=" + encodeURIComponent(link) + "&tags=" + encodeURIComponent(tags);
+            var data = "highlight=" + encodeURIComponent(comment) + "&source=" + encodeURIComponent(source) + "&tags=" + encodeURIComponent(tags);
             var result = ajaxCall('POST', "/highlights/" + highlightID + "/sub", data)
 
             if (result !== false) {
