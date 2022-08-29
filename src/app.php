@@ -4,6 +4,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Slim\App;
 
+error_reporting(E_ERROR);
 date_default_timezone_set('Europe/Istanbul');
 
 session_name('trackr');
