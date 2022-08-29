@@ -27,25 +27,6 @@ RABBITMQ_PASSWORD=guest
 RABBITMQ_VHOST=/
 ```
 
-### Appendix
-#### Backup:
-```shell
-# Add to cron:
-# Local
-docker exec mysql sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" trackr' | bzip2 > ~/trackr/backups/`date +\%d-\%m-\%Y`.sql.bz2
-# iCloud folder
-docker exec mysql sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" trackr' | bzip2 > ~/Library/Mobile\ Documents/com\~apple\~CloudDocs/trackr.sql.bz2
-```
-#### Versioning Backup
-```shell
-# create a git repository(git init) named "trackr-backups" and add commands below into a shell script and run it with cron
-cd trackr-backups
-docker exec mysql sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" trackr' > ./trackr-backup.sql
-git add .
-git commit -m "`date +\%Y-\%m-\%d`"
-# if you have a "remote" then you can "push"
-```
-
 ### Themes and Used Libraries
 - Theme: https://usebootstrap.com/theme/tinydash
 - Simple MDE Dark Theme: https://github.com/xcatliu/simplemde-theme-dark
