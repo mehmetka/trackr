@@ -3,8 +3,8 @@
 namespace App\controller;
 
 use App\model\TagModel;
+use App\util\EncryptionUtil;
 use Slim\Http\StatusCode;
-use App\model\BookmarkModel;
 use App\model\HighlightModel;
 use App\exception\CustomException;
 use Psr\Container\ContainerInterface;
@@ -15,14 +15,12 @@ class HighlightController extends Controller
 {
     public const SOURCE_TYPE = 1;
     private $highlightModel;
-    private $bookmarkModel;
     private $tagModel;
 
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
         $this->highlightModel = new HighlightModel($container);
-        $this->bookmarkModel = new BookmarkModel($container);
         $this->tagModel = new TagModel($container);
     }
 
@@ -84,12 +82,24 @@ class HighlightController extends Controller
         $params = $request->getParsedBody();
         $highlightDetails = $this->highlightModel->getHighlightByID($highlightID);
 
+        if (isset($_SESSION['userInfos']['not_editable_highlights'][$highlightID])) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "highlight not editable");
+        }
+
         if (!$highlightDetails) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "highlight not found");
         }
 
-        if (!$params['highlight']) {
+        if (!$params['highlight'] || !trim($params['highlight'])) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "highlight cannot be null!");
+        }
+
+        if (isset($params['is_encrypted']) && $params['is_encrypted'] === 'Yes') {
+            $params['is_encrypted'] = 1;
+            $params['highlight'] = EncryptionUtil::encrypt(trim($params['highlight']));
+        } else {
+            $params['is_encrypted'] = 0;
+            $params['highlight'] = trim($params['highlight']);
         }
 
         $this->tagModel->deleteTagsBySourceId($highlightID, self::SOURCE_TYPE);
@@ -111,7 +121,7 @@ class HighlightController extends Controller
     {
         $params = $request->getParsedBody();
 
-        if (!$params['highlight']) {
+        if (!$params['highlight'] || !trim($params['highlight'])) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight cannot be null!");
         }
 
@@ -119,6 +129,14 @@ class HighlightController extends Controller
 
         if ($highlightExist) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight added before!");
+        }
+
+        if (isset($params['is_encrypted']) && $params['is_encrypted'] === 'Yes') {
+            $params['is_encrypted'] = 1;
+            $params['highlight'] = EncryptionUtil::encrypt(trim($params['highlight']));
+        } else {
+            $params['is_encrypted'] = 0;
+            $params['highlight'] = trim($params['highlight']);
         }
 
         $highlightId = $this->highlightModel->create($params);
@@ -147,6 +165,14 @@ class HighlightController extends Controller
 
         if ($parentHighlightDetails) {
             $params['link'] = null;
+
+            if (isset($params['is_encrypted']) && $params['is_encrypted'] === 'Yes') {
+                $params['is_encrypted'] = 1;
+                $params['highlight'] = EncryptionUtil::encrypt(trim($params['highlight']));
+            } else {
+                $params['is_encrypted'] = 0;
+                $params['highlight'] = trim($params['highlight']);
+            }
 
             $subHighlightID = $this->highlightModel->create($params);
 

@@ -3,6 +3,8 @@
 namespace App\model;
 
 use App\controller\HighlightController;
+use App\util\EncryptionUtil;
+use App\util\StringUtil;
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
 use Slim\Http\StatusCode;
@@ -28,7 +30,7 @@ class HighlightModel
         $limit = $limit ? $limit : 500;
         $list = [];
 
-        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created, h.is_encrypted
                 FROM highlights h';
 
         if ($tag) {
@@ -57,7 +59,22 @@ class HighlightModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            if ($row['is_encrypted']) {
+                $row['highlight'] = EncryptionUtil::decrypt($row['highlight']);
+                if ($row['highlight'] === null) {
+                    $row['highlight'] = 'Could not be decrypted, your encryption key might be broken. Do not update this highlight otherwise you might loss your highlight';
+                }
+            }
+
             $row['highlight'] = $this->convertMarkdownToHTML($row['highlight']);
+            $decimalHashtags = StringUtil::getDecimalHashtags($row['highlight']);
+
+            if ($decimalHashtags) {
+                foreach ($decimalHashtags as $id) {
+                    $row['highlight'] = str_replace('#' . $id, "<a href='/highlights/$id'>#$id</a>", $row['highlight']);
+                }
+            }
+
             $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
             $tags = $this->tagModel->getTagsBySourceId($row['id'], HighlightController::SOURCE_TYPE);
 
@@ -75,7 +92,7 @@ class HighlightModel
     {
         $list = [];
 
-        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.page, h.location, b.bookmark AS link, h.link AS linkID, h.file_name, h.type, h.is_secret, h.created, h.updated
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.page, h.location, b.bookmark AS link, h.link AS linkID, h.file_name, h.type, h.is_secret, h.is_encrypted, h.created, h.updated
                 FROM highlights h
                 LEFT JOIN bookmarks b ON h.link = b.id
                 WHERE h.id = :highlightID AND h.user_id = :user_id';
@@ -91,7 +108,20 @@ class HighlightModel
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['tags'] = $this->tagModel->getTagsBySourceId($row['id'], HighlightController::SOURCE_TYPE);
             $row['is_secret'] = $row['is_secret'] ? true : false;
-            $row['highlight'] = html_entity_decode($row['highlight']);
+            $row['is_encrypted'] = $row['is_encrypted'] ? true : false;
+
+            $row['highlight'] = $row['is_encrypted'] ? EncryptionUtil::decrypt($row['highlight']) : $row['highlight'];
+
+            if ($row['highlight'] === null) {
+                $_SESSION['userInfos']['not_editable_highlights'][$row['id']] = true;
+                $row['not_editable'] = true;
+                $row['not_deletable'] = true;
+                $row['not_editable_highlight_placeholder'] = 'Could not be decrypted, your encryption key might be broken. Do not update this highlight otherwise you might loss your highlight';
+            } else {
+                unset($_SESSION['userInfos']['not_editable_highlights'][$row['id']]);
+                $row['highlight'] = html_entity_decode($row['highlight']);
+            }
+
 
             $list = $row;
         }
@@ -104,7 +134,7 @@ class HighlightModel
     {
         $list = [];
 
-        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.page, h.location, h.link, h.type, h.created, h.updated
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.page, h.location, h.link, h.type, h.created, h.updated, h.is_encrypted
                 FROM highlights h
                 INNER JOIN sub_highlights sh ON h.id = sh.sub_highlight_id
                 WHERE sh.highlight_id = :highlightID AND h.user_id = :user_id';
@@ -118,6 +148,10 @@ class HighlightModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            if ($row['is_encrypted']) {
+                $row['highlight'] = EncryptionUtil::decrypt($row['highlight']);
+            }
+
             $row['highlight'] = $this->convertMarkdownToHTML($row['highlight']);
             $tags = $this->tagModel->getTagsBySourceId($row['id'], HighlightController::SOURCE_TYPE);
 
@@ -134,22 +168,22 @@ class HighlightModel
     public function create($params)
     {
         $now = time();
-        $rawHighlight = trim($params['highlight']);
 
         $params['author'] = $params['author'] ? trim($params['author']) : 'trackr';
         $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
-        $sql = 'INSERT INTO highlights (highlight, author, source, page, file_name, created, user_id)
-                VALUES(:highlight, :author, :source, :page, :file_name, :created, :user_id)';
+        $sql = 'INSERT INTO highlights (highlight, author, source, page, file_name, is_encrypted, created, user_id)
+                VALUES(:highlight, :author, :source, :page, :file_name, :is_encrypted, :created, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':highlight', $rawHighlight, \PDO::PARAM_STR);
+        $stm->bindParam(':highlight', $params['highlight'], \PDO::PARAM_STR);
         $stm->bindParam(':author', $params['author'], \PDO::PARAM_STR);
         $stm->bindParam(':source', $params['source'], \PDO::PARAM_STR);
         $stm->bindParam(':page', $params['page'], \PDO::PARAM_INT);
         $stm->bindParam(':file_name', $params['filename'], \PDO::PARAM_STR);
+        $stm->bindParam(':is_encrypted', $params['is_encrypted'], \PDO::PARAM_STR);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
@@ -183,7 +217,6 @@ class HighlightModel
     public function update($highlightID, $params)
     {
         $update = time();
-        $highlight = trim($params['highlight']);
 
         $params['author'] = $params['author'] ? trim($params['author']) : 'trackr';
         $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
@@ -192,19 +225,20 @@ class HighlightModel
 
 
         $sql = 'UPDATE highlights 
-                SET highlight = :highlight, author = :author, source = :source, page = :page, location = :location, file_name = :file_name, is_secret = :is_secret, updated = :updated
+                SET highlight = :highlight, author = :author, source = :source, page = :page, location = :location, file_name = :file_name, is_secret = :is_secret, is_encrypted = :is_encrypted, updated = :updated
                 WHERE id = :id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
 
         $stm->bindParam(':id', $highlightID, \PDO::PARAM_INT);
-        $stm->bindParam(':highlight', $highlight, \PDO::PARAM_STR);
+        $stm->bindParam(':highlight', $params['highlight'], \PDO::PARAM_STR);
         $stm->bindParam(':author', $params['author'], \PDO::PARAM_STR);
         $stm->bindParam(':source', $params['source'], \PDO::PARAM_STR);
         $stm->bindParam(':page', $params['page'], \PDO::PARAM_INT);
         $stm->bindParam(':location', $params['location'], \PDO::PARAM_INT);
         $stm->bindParam(':file_name', $params['filename'], \PDO::PARAM_STR);
         $stm->bindParam(':is_secret', $params['is_secret'], \PDO::PARAM_INT);
+        $stm->bindParam(':is_encrypted', $params['is_encrypted'], \PDO::PARAM_INT);
         $stm->bindParam(':updated', $update, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
@@ -355,7 +389,7 @@ class HighlightModel
 
         $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created
                 FROM highlights h
-                WHERE h.is_deleted = 0 AND h.highlight LIKE :searchParam AND h.user_id = :user_id';
+                WHERE h.is_deleted = 0 AND h.is_encrypted = 0 AND h.highlight LIKE :searchParam AND h.user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':searchParam', $searchParam, \PDO::PARAM_STR);

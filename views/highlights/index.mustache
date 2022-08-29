@@ -28,11 +28,11 @@
                     <div class="card mb-4">
                         <div class="card">
                             <div class="card-body">
+
                                 <h5 class="card-title">Add New Highlight</h5>
                                 <textarea id="highlight" hidden></textarea>
 
-                                <br>
-                                <div class="input-group input-group-lg">
+                                <div class="input-group input-group-md">
                                     <input id="author" placeholder="Author" type="text"
                                            class="form-control enterButtonKeyPress">
                                     <input id="source" placeholder="Source" type="text"
@@ -42,10 +42,21 @@
                                     <input id="page" placeholder="Page" type="number"
                                            class="form-control enterButtonKeyPress">
                                 </div>
+
                                 <br>
-                                <div class="input-group input-group-lg">
-                                    <input id="tags" placeholder="Tags" type="text"
-                                           class="form-control enterButtonKeyPress">
+
+                                <div class="form-row">
+                                    <div class="form-group col-9">
+                                        <input id="tags" placeholder="Tags" type="text"
+                                               class="form-control enterButtonKeyPress">
+                                    </div>
+                                    <div class="form-group col-3">
+                                        <select id="is_encrypted" class="form-control">
+                                            <option disabled selected>Store encrypted?</option>
+                                            <option>Yes</option>
+                                            <option>No</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -109,7 +120,6 @@
                         </div>
                         <br class="highlightCardBR">
                     {{/highlights}}
-
                     </script>
                     <%={{ }}=%>
 
@@ -171,7 +181,15 @@
                 var fileName = $('#filename').val();
                 var page = $('#page').val();
                 var tags = $('#tags').val();
-                var data = "highlight=" + encodeURIComponent(highlight) + "&author=" + encodeURIComponent(author) + "&source=" + encodeURIComponent(source) + "&page=" + encodeURIComponent(page) + "&tags=" + encodeURIComponent(tags) + "&filename=" + encodeURIComponent(fileName);
+                var is_encrypted = $('#is_encrypted').val();
+
+                var data = "highlight=" + encodeURIComponent(highlight) +
+                            "&author=" + encodeURIComponent(author) +
+                            "&source=" + encodeURIComponent(source) +
+                            "&page=" + encodeURIComponent(page) +
+                            "&tags=" + encodeURIComponent(tags) +
+                            "&filename=" + encodeURIComponent(fileName) +
+                            "&is_encrypted=" + encodeURIComponent(is_encrypted);
                 var result = ajaxCall('POST', "/highlights", data)
 
                 if (result !== false) {
@@ -179,6 +197,7 @@
                 }
             }
         });
+
     });
 </script>
 </body>

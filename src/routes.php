@@ -18,6 +18,7 @@ $app->group('', function () {
 // TODO Add authorization
 $app->group('/api', function () {
     $this->post('/bookmarks', BookmarkController::class . ':create');
+    $this->put('/bookmarks/{uid}/title', BookmarkController::class . ':updateTitle');
 });
 
 $app->group('', function () {

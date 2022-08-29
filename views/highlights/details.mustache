@@ -26,7 +26,14 @@
                             </div>
                             <div class="card-body">
                                 {{#detail}}
-                                    <textarea id="highlight" hidden>{{#detail}}{{highlight}}{{/detail}}</textarea>
+
+                                    {{#not_editable_highlight_placeholder}}
+                                        <h4>{{not_editable_highlight_placeholder}}</h4>
+                                    {{/not_editable_highlight_placeholder}}
+
+                                    {{^not_editable_highlight_placeholder}}
+                                        <textarea id="highlight" hidden>{{#detail}}{{highlight}}{{/detail}}</textarea>
+                                    {{/not_editable_highlight_placeholder}}
 
                                     <br>
 
@@ -47,10 +54,14 @@
                                         <input id="location" placeholder="Location" type="text" class="form-control"
                                                value="{{location}}">
                                     </div>
-                                    <div class="form-group">
-                                        <input id="link" placeholder="Link" type="text" class="form-control"
-                                               value="{{link}}" disabled>
-                                    </div>
+
+                                    {{#link}}
+                                        <div class="form-group">
+                                            <input id="link" placeholder="Link" type="text" class="form-control"
+                                                   value="{{link}}" disabled>
+                                        </div>
+                                    {{/link}}
+
                                     <div class="form-group">
                                         <input id="filename" placeholder="File Name" type="text" class="form-control"
                                                value="{{file_name}}">
@@ -61,18 +72,24 @@
                                     </div>
                                     <div class="form-group custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input" id="is_secret"
-                                            {{#is_secret}}checked="checked" {{/is_secret}}>
+                                               {{#is_secret}}checked="checked"{{/is_secret}}>
                                         <label class="custom-control-label" for="is_secret">Is secret?</label>
+                                    </div>
+
+                                    <div class="form-group custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="is_encrypted"
+                                               {{#is_encrypted}}checked="checked"{{/is_encrypted}}>
+                                        <label class="custom-control-label" for="is_encypted">Is encrypted?</label>
                                     </div>
 
                                     <div class="form-group">
                                         <button id="updateHighlight" type="button" class="btn btn-primary"
-                                                data-id="{{id}}">
+                                                data-id="{{id}}" {{#not_editable}}disabled{{/not_editable}}>
                                             Update
                                         </button>
 
                                         <button id="deleteHighlight" type="button" class="btn btn-danger float-right"
-                                                data-id="{{id}}">
+                                                data-id="{{id}}" {{#not_deletable}}disabled{{/not_deletable}}>
                                             Delete
                                         </button>
                                     </div>
@@ -93,18 +110,16 @@
                                 <div class="form-group">
                                     <textarea id="comment" hidden></textarea>
                                 </div>
-
                                 <div class="form-group">
                                     <input id="commentSource" placeholder="Source" type="text" class="form-control"
                                            value="{{#detail}}{{source}}{{/detail}}">
                                 </div>
-
-                                <div class="form-group">
-                                    <input id="commentLink" placeholder="Link" type="text" class="form-control">
-                                </div>
-
                                 <div class="form-group">
                                     <input id="commentTags" placeholder="Tags" type="text" class="form-control">
+                                </div>
+                                <div class="form-group custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="is_comment_encrypted">
+                                    <label class="custom-control-label" for="is_comment_encrypted">Is encrypted?</label>
                                 </div>
                                 <div class="form-group">
                                     {{#detail}}
@@ -147,17 +162,18 @@
 <script>
     $(document).ready(function () {
 
-        var simplemdeHighlight = new SimpleMDE({
-            element: $("#highlight")[0],
-            toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
-        });
+        if ($('#highlight').length) {
+            var simplemdeHighlight = new SimpleMDE({
+                element: $("#highlight")[0],
+                toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
+            });
+            $('#highlight').show();
+        }
 
         var simplemdeComment = new SimpleMDE({
             element: $("#comment")[0],
             toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
         });
-
-        $('#highlight').show();
         $('#comment').show();
 
         $('#addComment').on('click', function (e) {
@@ -165,10 +181,14 @@
             var highlightID = $('#addComment').data('id');
             var comment = simplemdeComment.value();
             var source = $('#commentSource').val();
-            var link = $('#commentLink').val();
             var tags = $('#commentTags').val();
+            var is_encrypted = $('#is_comment_encrypted').is(":checked") ? 'Yes' : 'No';
 
-            var data = "highlight=" + encodeURIComponent(comment) + "&source=" + encodeURIComponent(source) + "&tags=" + encodeURIComponent(tags);
+            var data = "highlight=" + encodeURIComponent(comment) +
+                    "&source=" + encodeURIComponent(source) +
+                    "&tags=" + encodeURIComponent(tags) +
+                    "&is_encrypted=" + encodeURIComponent(is_encrypted);
+
             var result = ajaxCall('POST', "/highlights/" + highlightID + "/sub", data)
 
             if (result !== false) {
@@ -189,7 +209,17 @@
             var tags = $('#tags').val();
             var highlightID = $(this).data('id');
             var is_secret = $('#is_secret').is(":checked") ? 1 : 0;
-            var data = "highlight=" + encodeURIComponent(highlight) + "&author=" + encodeURIComponent(author) + "&source=" + encodeURIComponent(source) + "&page=" + page + "&location=" + highlightLocation + "&link=" + link +  "&filename=" + encodeURIComponent(fileName) + "&tags=" + tags + "&is_secret=" + is_secret;
+            var is_encrypted = $('#is_encrypted').is(":checked") ? 'Yes' : 'No';
+            var data = "highlight=" + encodeURIComponent(highlight) +
+                    "&author=" + encodeURIComponent(author) +
+                    "&source=" + encodeURIComponent(source) +
+                    "&page=" + page +
+                    "&location=" + highlightLocation +
+                    "&link=" + link +
+                    "&filename=" + encodeURIComponent(fileName) +
+                    "&tags=" + tags +
+                    "&is_secret=" + is_secret +
+                    "&is_encrypted=" + encodeURIComponent(is_encrypted);
 
             var result = ajaxCall('PUT', "/highlights/" + highlightID, data)
 

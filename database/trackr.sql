@@ -189,21 +189,22 @@ CREATE TABLE `date_trackings`
 
 CREATE TABLE `highlights`
 (
-    `id`         int(11)                                  NOT NULL AUTO_INCREMENT,
-    `highlight`  longtext COLLATE utf8mb4_unicode_ci      NOT NULL,
-    `author`     varchar(1000) COLLATE utf8mb4_unicode_ci NOT NULL,
-    `source`     varchar(1000) COLLATE utf8mb4_unicode_ci NOT NULL,
-    `page`       int(11)                                 DEFAULT NULL,
-    `location`   varchar(45) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
-    `link`       int(11)                                 DEFAULT NULL,
-    `file_name`  varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-    `type`       int(11)                                 DEFAULT '0',
-    `is_secret`  int(11)                                 DEFAULT '1',
-    `created`    int(11)                                  NOT NULL,
-    `updated`    int(11)                                 DEFAULT NULL,
-    `is_deleted` int(11)                                 DEFAULT '0',
-    `deleted_at` int(11)                                 DEFAULT NULL,
-    `user_id`    int(11)                                  NOT NULL,
+    `id`           int(11)                                  NOT NULL AUTO_INCREMENT,
+    `highlight`    longtext COLLATE utf8mb4_unicode_ci      NOT NULL,
+    `author`       varchar(1000) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `source`       varchar(1000) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `page`         int(11)                                 DEFAULT NULL,
+    `location`     varchar(45) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
+    `link`         int(11)                                 DEFAULT NULL,
+    `file_name`    varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `type`         int(11)                                 DEFAULT '0',
+    `is_secret`    int(11)                                 DEFAULT '1',
+    `is_encrypted` int(11)                                 DEFAULT '0',
+    `created`      int(11)                                  NOT NULL,
+    `updated`      int(11)                                 DEFAULT NULL,
+    `is_deleted`   int(11)                                 DEFAULT '0',
+    `deleted_at`   int(11)                                 DEFAULT NULL,
+    `user_id`      int(11)                                  NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   AUTO_INCREMENT = 666
@@ -307,10 +308,11 @@ CREATE TABLE `tags`
 
 CREATE TABLE `users`
 (
-    `id`       int(11)                                 NOT NULL AUTO_INCREMENT,
-    `username` varchar(45) COLLATE utf8mb4_unicode_ci  NOT NULL,
-    `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-    `created`  int(11)                                 NOT NULL,
+    `id`             int(11)                                 NOT NULL AUTO_INCREMENT,
+    `username`       varchar(45) COLLATE utf8mb4_unicode_ci  NOT NULL,
+    `password`       varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `created`        int(11)                                 NOT NULL,
+    `encryption_key` tinyblob                                NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `username_UNIQUE` (`username`)
 ) ENGINE = InnoDB
