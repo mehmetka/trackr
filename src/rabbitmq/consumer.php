@@ -30,7 +30,7 @@ $container['db'] = function ($container) {
     try {
         $db = new \PDO($dsn, $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASSWORD']);
     } catch (\Exception $e) {
-        echo 'Database access problem: ' . $e->getMessage();
+        echo 'Database access problem: ' . $e->getMessage() . PHP_EOL;
         die;
     }
 
@@ -93,7 +93,7 @@ function process_message($message)
                 try {
                     $bookmarkModel->updateParentBookmark($bookmarkDetails['id'], $newBookmarkDetails);
                 } catch (Exception $exception) {
-                    echo 'Error occured: ' . $exception->getMessage();
+                    echo 'Error occured: ' . $exception->getMessage() . PHP_EOL;
                 }
 
                 echo "completed 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}\n";
@@ -145,7 +145,12 @@ function process_message($message)
                     try {
                         $bookmarkModel->updateChildBookmark($bookmarkDetails['id'], $newBookmarkDetails, $messageBody['user_id']);
                     } catch (Exception $exception) {
-                        echo 'Error occured: ' . $exception->getMessage();
+                        echo 'Error occured: ' . $exception->getMessage() . PHP_EOL;
+                        $web = new \spekulatius\phpscraper;
+                        $web->go($bookmarkDetails['bookmark']);
+                        $newBookmarkDetails['title'] = strip_tags(trim($web->title));
+                        $newBookmarkDetails['description'] = strip_tags(trim($web->description));
+                        $bookmarkModel->updateParentBookmark($bookmarkDetails['id'], $newBookmarkDetails);
                     }
 
                     if ($bookmarkDetails['title'] !== $newBookmarkDetails['title']) {

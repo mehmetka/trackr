@@ -7,7 +7,8 @@
     "erusev/parsedown": "^1.7",
     "php-amqplib/php-amqplib": "^2.9.0",
     "neitanod/forceutf8": "~2.0",
-    "defuse/php-encryption": "^2.3"
+    "defuse/php-encryption": "^2.3",
+    "spekulatius/phpscraper": "^0.6.2"
   },
   "autoload": {
     "psr-4": {
