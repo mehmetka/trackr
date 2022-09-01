@@ -248,7 +248,7 @@ class BookController extends Controller
         $params['description'] = null;
         $params['thumbnail'] = null;
         $params['thumbnail_small'] = null;
-        $params['info_link'] = null;
+        $params['info_link'] = $params['info_link'] ?? null;
         $params['subtitle'] = null;
 
         if (isset($params['isbn']) && $params['isbn']) {
