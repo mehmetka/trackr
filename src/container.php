@@ -1,5 +1,7 @@
 <?php
 
+use Slim\Http\StatusCode;
+
 $container['db'] = function ($container) {
 
     $dsn = "mysql:host=" . $_ENV['MYSQL_HOST'] . ";dbname=" . $_ENV['MYSQL_DATABASE'] . ";charset=utf8mb4";
@@ -75,12 +77,18 @@ $container['errorHandler'] = function ($container) {
                 'message' => $exception->getMessage()
             ];
 
-        } else {
-            $logger->critical($exception->getMessage());
-            $withStatus = 500;
+        } elseif ($exception instanceof \PDOException) {
+            $logger->warning('PDOException: ' . $exception->getMessage());
 
             $data = [
-                'status' => $withStatus,
+                'status' => StatusCode::HTTP_SERVICE_UNAVAILABLE,
+                'message' => 'Request could not complete. Contact administrator.'
+            ];
+        } else {
+            $logger->critical($exception->getMessage());
+
+            $data = [
+                'status' => StatusCode::HTTP_INTERNAL_SERVER_ERROR,
                 'message' => $exception->getMessage()
             ];
         }
