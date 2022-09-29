@@ -5,6 +5,7 @@ namespace App\controller;
 use App\exception\CustomException;
 use App\model\BookModel;
 use App\model\TagModel;
+use App\rabbitmq\AmqpJobPublisher;
 use App\util\RequestUtil;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
@@ -164,23 +165,10 @@ class BookController extends Controller
     {
         $params = $request->getParsedBody();
 
-        if (strpos($params['author'], ',') !== false) {
-            $authors = explode(',', $params['author']);
-
-            foreach ($authors as $author) {
-                $author = trim($params['author']);
-                $this->bookModel->createAuthor($author);
-                $this->bookModel->addActivityLog(null, null, "add new author: $author");
-            }
-
-        } else {
-            $author = trim($params['author']);
-            $this->bookModel->createAuthor($author);
-            $this->bookModel->addActivityLog(null, null, "add new author: $author");
-        }
+        $this->bookModel->createAuthorOperations($params['author']);
 
         $resource = [
-            "message" => "Created successfully: " . htmlentities($params['author'])
+            "message" => "Created author(s) successfully"
         ];
 
         return $this->response(StatusCode::HTTP_OK, $resource);
@@ -242,13 +230,13 @@ class BookController extends Controller
 
     public function saveBook(ServerRequestInterface $request, ResponseInterface $response)
     {
+        $rabbitmq = new AmqpJobPublisher();
         $params = $request->getParsedBody();
 
         $params['published_date'] = null;
         $params['description'] = null;
         $params['thumbnail'] = null;
         $params['thumbnail_small'] = null;
-        $params['info_link'] = $params['info_link'] ?? null;
         $params['subtitle'] = null;
 
         if (isset($params['isbn']) && $params['isbn']) {
@@ -270,19 +258,21 @@ class BookController extends Controller
             $bookResponse = RequestUtil::makeHttpRequest($url, RequestUtil::HTTP_GET, [], []);
 
             if (!$bookResponse['totalItems']) {
+                $rabbitmq->publishScrapeBookOnIdefixJob([
+                    'isbn' => $params['isbn'],
+                    'retry_count' => 0,
+                    'user_id' => $_SESSION['userInfos']['user_id']
+                ]);
                 throw CustomException::clientError(StatusCode::HTTP_NOT_FOUND, "Book not found");
             }
 
             $params['bookTitle'] = $bookResponse['items'][0]['volumeInfo']['title'];
             $params['subtitle'] = $bookResponse['items'][0]['volumeInfo']['subtitle'] ?? null;
 
-            $publisherDetails = $this->bookModel->getPublisher($bookResponse['items'][0]['volumeInfo']['publisher']);
-            if (!$publisherDetails) {
-                if ($bookResponse['items'][0]['volumeInfo']['publisher']) {
-                    $params['publisher'] = $this->bookModel->insertPublisher($bookResponse['items'][0]['volumeInfo']['publisher']);
-                }
-            } else {
-                $params['publisher'] = $publisherDetails['id'];
+            $publisher = trim($bookResponse['items'][0]['volumeInfo']['publisher']);
+            if ($publisher) {
+                $publisherDetails = $this->bookModel->getPublisher($publisher);
+                $params['publisher'] = !$publisherDetails ? $this->bookModel->insertPublisher($publisher) : $publisherDetails['id'];
             }
 
             $params['pdf'] = $bookResponse['items'][0]['accessInfo']['epub']['isAvailable'] ? 1 : 0;
