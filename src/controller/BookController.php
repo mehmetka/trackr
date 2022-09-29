@@ -300,16 +300,7 @@ class BookController extends Controller
             }
 
             foreach ($bookResponse['items'][0]['volumeInfo']['authors'] as $author) {
-                $authorDetails = $this->bookModel->getAuthorByName($author);
-
-                if ($authorDetails) {
-                    $params['authors'][] = $authorDetails['id'];
-                } else {
-                    $author = trim($author);
-                    $lastInsertAuthorId = $this->bookModel->createAuthor($author);
-                    $this->bookModel->addActivityLog(null, null, "add new author: $author");
-                    $params['authors'][] = $lastInsertAuthorId;
-                }
+                $params['authors'][] = $this->bookModel->insertAuthorByChecking($author);
             }
 
         }

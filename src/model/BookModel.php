@@ -131,6 +131,28 @@ class BookModel
         return $book;
     }
 
+    public function getBookByGivenColumn($column, $param)
+    {
+        $result = [];
+
+        $sql = "SELECT *
+                FROM books
+                WHERE $column = :param";
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':param', $param, \PDO::PARAM_STR);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $result[] = $row;
+        }
+
+        return $result;
+    }
+
     public function getPublishers()
     {
         $sql = 'SELECT id, name
@@ -518,7 +540,7 @@ class BookModel
     {
         $author = [];
 
-        $sql = 'SELECT id,author 
+        $sql = 'SELECT id, author 
                 FROM author
                 WHERE author = :author';
 
@@ -1324,6 +1346,59 @@ class BookModel
         }
 
         return true;
+    }
+
+    public function createAuthorOperations($rawAuthor)
+    {
+        $resultIds = [];
+
+        if (strpos($rawAuthor, ',') !== false) {
+            $authors = explode(',', $rawAuthor);
+
+            foreach ($authors as $author) {
+                $author = trim($author);
+
+                $authorExist = $this->getAuthorByName($author);
+
+                if (!$authorExist) {
+                    $resultIds[] = $this->createAuthor($author);
+                    $this->addActivityLog(null, null, "add new author: $author");
+                } else {
+                    $resultIds[] = $authorExist['id'];
+                }
+
+            }
+
+        } else {
+
+            $authorExist = $this->getAuthorByName($rawAuthor);
+
+            if (!$authorExist) {
+                $author = trim($rawAuthor);
+                $resultIds[] = $this->createAuthor($author);
+                $this->addActivityLog(null, null, "add new author: $author");
+            } else {
+                $resultIds[] = $authorExist['id'];
+            }
+        }
+
+        return $resultIds;
+    }
+
+    public function insertAuthorByChecking($authorName)
+    {
+        $authorName = trim($authorName);
+
+        $authorExist = $this->getAuthorByName($authorName);
+
+        if (!$authorExist) {
+            $authorId = $this->createAuthor($authorName);
+            $this->addActivityLog(null, null, "add new author: $authorName");
+        } else {
+            $authorId = $authorExist['id'];
+        }
+
+        return $authorId;
     }
 
 }
