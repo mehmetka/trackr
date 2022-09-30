@@ -1,62 +1,62 @@
 version: "3"
 
 services:
-    db:
-        container_name: mysql
-        image: mysql:5.7.34
-        ports:
-            - "3306:3306"
-        command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql_mode="TRADITIONAL"
-        environment:
-            MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
-            MYSQL_DATABASE: ${MYSQL_DATABASE}
-        volumes:
-          - mysql-data:/var/lib/mysql
-          - ./database:/docker-entrypoint-initdb.d
-        networks:
-            trackr:
-                ipv4_address: 192.168.2.2
-    trackr:
-        container_name: trackr-web
-        build: .
-        image: phpdev
-        ports:
-          - "80:80"
-        volumes:
-          - .:/var/www/html/trackr
-        depends_on:
-          - db
-        networks:
-            trackr:
-                ipv4_address: 192.168.2.3
-    rabbitmq:
-        image: rabbitmq:3-management-alpine
-        container_name: "rabbitmq"
-        ports:
-          - "5672:5672"
-          - "15672:15672"
-        networks:
-            trackr:
-              ipv4_address: 192.168.2.4
-    rabbitmq_consumer:
-        container_name: trackr-amqp-consumer
-        build: ./src/rabbitmq
-        image: trackr-amqp-consumer
-        entrypoint: ['php', '/trackr/src/rabbitmq/consumer.php']
-        volumes:
-          - .:/trackr
-        restart: on-failure
-        depends_on:
-          - db
-          - rabbitmq
-        networks:
-          trackr:
-            ipv4_address: 192.168.2.5
+  db:
+    container_name: trackr-db
+    image: mysql:5.7.36
+    ports:
+      - "3307:3306"
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql_mode="TRADITIONAL"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - trackr-data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
+    networks:
+      trackr:
+        ipv4_address: 192.168.3.2
+  trackr:
+    container_name: trackr-web
+    build: .
+    image: phpdev
+    ports:
+      - "8081:80"
+    volumes:
+      - .:/var/www/html/trackr
+    depends_on:
+      - db
+    networks:
+      trackr:
+        ipv4_address: 192.168.3.3
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: trackr-rabbitmq
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    networks:
+      trackr:
+        ipv4_address: 192.168.3.4
+  rabbitmq_consumer:
+    container_name: trackr-consumer
+    build: ./src/rabbitmq
+    image: trackr-amqp-consumer
+    entrypoint: ['php', '/trackr/src/rabbitmq/consumer.php']
+    volumes:
+      - .:/trackr
+    restart: on-failure
+    depends_on:
+      - db
+      - rabbitmq
+    networks:
+      trackr:
+        ipv4_address: 192.168.3.5
 networks:
   trackr:
     ipam:
       driver: default
       config:
-        - subnet: 192.168.2.0/24
+        - subnet: 192.168.3.0/24
 volumes:
-  mysql-data:
+  trackr-data:
