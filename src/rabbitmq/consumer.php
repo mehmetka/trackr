@@ -84,14 +84,15 @@ function process_message($message)
             echo "completed 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title (twitter-title)\n";
         } else {
             $metadata = RequestUtil::getUrlMetadata($bookmarkDetails['bookmark']);
+            $metadata = array_map('trim', $metadata);
 
             if ($metadata['title']) {
 
-                $newBookmarkDetails['description'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['description'])) ? Encoding::toLatin1(trim($metadata['description'])) : trim($metadata['description']));
-                $newBookmarkDetails['thumbnail'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['image'])) ? Encoding::toLatin1(trim($metadata['image'])) : trim($metadata['image']));
-                $newBookmarkDetails['title'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['title'])) ? Encoding::toLatin1(trim($metadata['title'])) : trim($metadata['title']));
-                $newBookmarkDetails['site_name'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['site_name'])) ? Encoding::toLatin1(trim($metadata['site_name'])) : trim($metadata['site_name']));
-                $newBookmarkDetails['site_type'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['type'])) ? Encoding::toLatin1(trim($metadata['type'])) : trim($metadata['type']));
+                $newBookmarkDetails['description'] = EncodingUtil::isLatin1($metadata['description']) ? Encoding::toLatin1($metadata['description']) : $metadata['description'];
+                $newBookmarkDetails['thumbnail'] = EncodingUtil::isLatin1($metadata['image']) ? Encoding::toLatin1($metadata['image']) : $metadata['image'];
+                $newBookmarkDetails['title'] = EncodingUtil::isLatin1($metadata['title']) ? Encoding::toLatin1($metadata['title']) : $metadata['title'];
+                $newBookmarkDetails['site_name'] = EncodingUtil::isLatin1($metadata['site_name']) ? Encoding::toLatin1($metadata['site_name']) : $metadata['site_name'];
+                $newBookmarkDetails['site_type'] = EncodingUtil::isLatin1($metadata['type']) ? Encoding::toLatin1($metadata['type']) : $metadata['type'];
 
                 try {
                     $bookmarkModel->updateParentBookmark($bookmarkDetails['id'], $newBookmarkDetails);
@@ -134,14 +135,15 @@ function process_message($message)
                 echo "completed 'get_child_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title (twitter-title)\n";
             } else {
                 $metadata = RequestUtil::getUrlMetadata($bookmarkDetails['bookmark']);
+                $metadata = array_map('trim', $metadata);
 
                 if ($metadata['title']) {
 
-                    $newBookmarkDetails['description'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['description'])) ? Encoding::toLatin1(trim($metadata['description'])) : trim($metadata['description']));
-                    $newBookmarkDetails['thumbnail'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['image'])) ? Encoding::toLatin1(trim($metadata['image'])) : trim($metadata['image']));
-                    $newBookmarkDetails['title'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['title'])) ? Encoding::toLatin1(trim($metadata['title'])) : trim($metadata['title']));
-                    $newBookmarkDetails['site_name'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['site_name'])) ? Encoding::toLatin1(trim($metadata['site_name'])) : trim($metadata['site_name']));
-                    $newBookmarkDetails['site_type'] = strip_tags(EncodingUtil::isLatin1(trim($metadata['type'])) ? Encoding::toLatin1(trim($metadata['type'])) : trim($metadata['type']));
+                    $newBookmarkDetails['description'] = EncodingUtil::isLatin1($metadata['description']) ? Encoding::toLatin1($metadata['description']) : $metadata['description'];
+                    $newBookmarkDetails['thumbnail'] = EncodingUtil::isLatin1($metadata['image']) ? Encoding::toLatin1($metadata['image']) : $metadata['image'];
+                    $newBookmarkDetails['title'] = EncodingUtil::isLatin1($metadata['title']) ? Encoding::toLatin1($metadata['title']) : $metadata['title'];
+                    $newBookmarkDetails['site_name'] = EncodingUtil::isLatin1($metadata['site_name']) ? Encoding::toLatin1($metadata['site_name']) : $metadata['site_name'];
+                    $newBookmarkDetails['site_type'] = EncodingUtil::isLatin1($metadata['type']) ? Encoding::toLatin1($metadata['type']) : $metadata['type'];
                     $newBookmarkDetails['note'] = $bookmarkDetails['note'];
                     $newBookmarkDetails['status'] = $bookmarkDetails['status'];
 
@@ -154,7 +156,8 @@ function process_message($message)
                         $web->go($bookmarkDetails['bookmark']);
                         $newBookmarkDetails['title'] = strip_tags(trim($web->title));
                         $newBookmarkDetails['description'] = strip_tags(trim($web->description));
-                        $bookmarkModel->updateParentBookmark($bookmarkDetails['id'], $newBookmarkDetails);
+                        $bookmarkModel->updateChildBookmark($bookmarkDetails['id'], $newBookmarkDetails,
+                            $messageBody['user_id']);
                     }
 
                     if ($bookmarkDetails['title'] !== $newBookmarkDetails['title']) {
@@ -217,14 +220,19 @@ function process_message($message)
 
             $url = "https://www.idefix.com/search?q=$isbn&redirect=search";
 
-            $client = new Client();
-            $crawler = $client->request('GET', $url);
+            try {
+                $client = new Client();
+                $crawler = $client->request('GET', $url);
 
-            $result = $crawler->filter(".box-title")->text();
-            $link = $crawler->selectLink($result)->link();
-            $crawler = $client->click($link);
+                $result = $crawler->filter(".box-title")->text();
+                $link = $crawler->selectLink($result)->link();
+                $crawler = $client->click($link);
 
-            $bookData['info_link'] = $link->getUri();
+                $bookData['info_link'] = $link->getUri();
+            } catch (Exception $e) {
+                echo 'Error occured while scraping book on Idefix: ' . $e->getMessage();
+            }
+
             $bookData['isbn'] = $isbn;
             $bookData['pdf'] = 0;
             $bookData['epub'] = 0;
