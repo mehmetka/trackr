@@ -296,7 +296,8 @@ class BookController extends Controller
             $params['tags'] = '';
 
             if (!$bookResponse['items'][0]['volumeInfo']['authors']) {
-                throw CustomException::clientError(StatusCode::HTTP_INTERNAL_SERVER_ERROR, 'Author cannot be null!');
+                $bookResponse['items'][0]['volumeInfo']['authors'] = ['###'];
+                //throw CustomException::clientError(StatusCode::HTTP_INTERNAL_SERVER_ERROR, 'Author cannot be null!');
             }
 
             foreach ($bookResponse['items'][0]['volumeInfo']['authors'] as $author) {
