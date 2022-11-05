@@ -209,8 +209,11 @@ class BookmarkController extends Controller
         }
 
         $this->tagModel->updateSourceTags($params['tags'], $highlightId, HighlightController::SOURCE_TYPE);
-        $this->bookmarkModel->updateStartedDate($bookmarkDetail['id'], time());
-        $this->bookmarkModel->updateBookmarkStatus($bookmarkDetail['id'], 1);
+
+        if ($bookmarkDetail['status'] != 2) {
+            $this->bookmarkModel->updateStartedDate($bookmarkDetail['id'], time());
+            $this->bookmarkModel->updateBookmarkStatus($bookmarkDetail['id'], 1);
+        }
 
         $resource = [
             "message" => "Successfully added highlight"
