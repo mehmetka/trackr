@@ -26,6 +26,8 @@ class BookmarkModel
     public function getBookmarks($tag = null)
     {
         $bookmarks = [];
+        $today = date('d-m-y', time());
+        $yesterday = date('d-m-y', strtotime("-1 days"));
 
         $sql = 'SELECT b.id, b.uid AS bookmarkUID, b.bookmark, IF(ISNULL(bo.title), b.title, bo.title) AS title, bo.note, bo.status, bo.created, bo.started, bo.done
                 FROM bookmarks b
@@ -59,12 +61,21 @@ class BookmarkModel
                 $row['title'] = $row['bookmark'];
             }
 
-            if (strlen($row['title']) > 125) {
-                $row['title'] = substr($row['title'], 0, 125);
+            if (strlen($row['title']) > 75) {
+                $row['rawTitle'] = $row['title'];
+                $row['title'] = substr($row['title'], 0, 75);
                 $row['title'] .= ' ...';
             }
 
-            $row['created'] = date('Y-m-d H:i:s', $row['created']);
+            $createdAt = date('d-m-y', $row['created']);
+
+            if ($createdAt == $yesterday) {
+                $row['created'] = 'Yesterday';
+            } elseif ($createdAt == $today) {
+                $row['created'] = 'Today';
+            } else {
+                $row['created'] = $createdAt;
+            }
 
             if (!$row['started']) {
                 $row['startAction'] = true;
@@ -344,7 +355,7 @@ class BookmarkModel
 
         $bookmarkHighlight['author'] = $bookmarkHighlight['author'] ?? 'trackr';
         $bookmarkHighlight['source'] = $bookmarkHighlight['source'] ?? 'trackr';
-        $highlight = htmlentities(trim($bookmarkHighlight['highlight']));
+        $highlight = trim($bookmarkHighlight['highlight']);
         $page = null;
 
         $sql = 'INSERT INTO highlights (highlight, author, source, page, link, created, user_id)
