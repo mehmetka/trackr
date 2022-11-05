@@ -84,9 +84,10 @@ function process_message($message)
             echo "completed 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title (twitter-title)\n";
         } else {
             $metadata = RequestUtil::getUrlMetadata($bookmarkDetails['bookmark']);
-            $metadata = array_map('trim', $metadata);
 
-            if ($metadata['title']) {
+            if (isset($metadata['title']) && $metadata['title']) {
+
+                $metadata = array_map('trim', $metadata);
 
                 $newBookmarkDetails['description'] = EncodingUtil::isLatin1($metadata['description']) ? Encoding::toLatin1($metadata['description']) : $metadata['description'];
                 $newBookmarkDetails['thumbnail'] = EncodingUtil::isLatin1($metadata['image']) ? Encoding::toLatin1($metadata['image']) : $metadata['image'];
@@ -135,9 +136,10 @@ function process_message($message)
                 echo "completed 'get_child_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title (twitter-title)\n";
             } else {
                 $metadata = RequestUtil::getUrlMetadata($bookmarkDetails['bookmark']);
-                $metadata = array_map('trim', $metadata);
 
-                if ($metadata['title']) {
+                if (isset($metadata['title']) && $metadata['title']) {
+
+                    $metadata = array_map('trim', $metadata);
 
                     $newBookmarkDetails['description'] = EncodingUtil::isLatin1($metadata['description']) ? Encoding::toLatin1($metadata['description']) : $metadata['description'];
                     $newBookmarkDetails['thumbnail'] = EncodingUtil::isLatin1($metadata['image']) ? Encoding::toLatin1($metadata['image']) : $metadata['image'];
