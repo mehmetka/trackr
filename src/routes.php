@@ -7,6 +7,7 @@ use App\controller\BookController;
 use App\controller\BookmarkController;
 use App\controller\DateTrackingController;
 use App\controller\HighlightController;
+use App\controller\LogController;
 
 $app->group('', function () {
     $this->get('/login', AuthController::class . ':loginPage')->setName('login');
@@ -18,12 +19,16 @@ $app->group('', function () {
 // TODO Add authorization
 $app->group('/api', function () {
     $this->post('/bookmarks', BookmarkController::class . ':create');
+    $this->post('/books', BookController::class . ':saveBook');
     $this->put('/bookmarks/{uid}/title', BookmarkController::class . ':updateTitle');
 });
 
 $app->group('', function () {
 
     $this->get('/', HomeController::class . ':index')->setName('home');
+
+    $this->get('/logs', LogController::class . ':index');
+    $this->post('/logs', LogController::class . ':save');
 
     $this->get('/menu-badge-counts', HomeController::class . ':getMenuBadgeCounts');
 
