@@ -4,6 +4,7 @@ namespace App\model;
 
 use App\controller\HighlightController;
 use App\util\EncryptionUtil;
+use App\util\MarkdownUtil;
 use App\util\StringUtil;
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
@@ -66,7 +67,7 @@ class HighlightModel
                 }
             }
 
-            $row['highlight'] = $this->convertMarkdownToHTML($row['highlight']);
+            $row['highlight'] = MarkdownUtil::convertToHTML($row['highlight']);
             $decimalHashtags = StringUtil::getDecimalHashtags($row['highlight']);
 
             if ($decimalHashtags) {
@@ -152,7 +153,7 @@ class HighlightModel
                 $row['highlight'] = EncryptionUtil::decrypt($row['highlight']);
             }
 
-            $row['highlight'] = $this->convertMarkdownToHTML($row['highlight']);
+            $row['highlight'] = MarkdownUtil::convertToHTML($row['highlight']);
             $tags = $this->tagModel->getTagsBySourceId($row['id'], HighlightController::SOURCE_TYPE);
 
             if ($tags) {
@@ -400,7 +401,7 @@ class HighlightModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['highlight'] = $this->convertMarkdownToHTML($row['highlight']);
+            $row['highlight'] = MarkdownUtil::convertToHTML($row['highlight']);
             $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
             $tags = $this->tagModel->getTagsBySourceId($row['id'], HighlightController::SOURCE_TYPE);
 
@@ -414,10 +415,4 @@ class HighlightModel
         return $list;
     }
 
-    public function convertMarkdownToHTML($str)
-    {
-        $str = str_replace("\n", "   \n", $str);
-        $this->parseDown->setSafeMode(true);
-        return $this->parseDown->text($str);
-    }
 }
