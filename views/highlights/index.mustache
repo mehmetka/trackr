@@ -3,9 +3,7 @@
 
 <head>
     {{> head }}
-    <link rel="stylesheet"
-          href="https://cdn.rawgit.com/xcatliu/simplemde-theme-dark/master/dist/simplemde-theme-dark.min.css">
-
+    <link rel="stylesheet" href="/css/simplemde-theme-dark.min.css">
     <style>
         img {
             height: 300px;
@@ -120,6 +118,7 @@
                         </div>
                         <br class="highlightCardBR">
                     {{/highlights}}
+
                     </script>
                     <%={{ }}=%>
 
@@ -184,12 +183,12 @@
                 var is_encrypted = $('#is_encrypted').val();
 
                 var data = "highlight=" + encodeURIComponent(highlight) +
-                            "&author=" + encodeURIComponent(author) +
-                            "&source=" + encodeURIComponent(source) +
-                            "&page=" + encodeURIComponent(page) +
-                            "&tags=" + encodeURIComponent(tags) +
-                            "&filename=" + encodeURIComponent(fileName) +
-                            "&is_encrypted=" + encodeURIComponent(is_encrypted);
+                        "&author=" + encodeURIComponent(author) +
+                        "&source=" + encodeURIComponent(source) +
+                        "&page=" + encodeURIComponent(page) +
+                        "&tags=" + encodeURIComponent(tags) +
+                        "&filename=" + encodeURIComponent(fileName) +
+                        "&is_encrypted=" + encodeURIComponent(is_encrypted);
                 var result = ajaxCall('POST', "/highlights", data)
 
                 if (result !== false) {
