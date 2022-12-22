@@ -42,7 +42,7 @@ class BookmarkModel
         }
 
         $sql .= ' AND bo.user_id = :user_id';
-        $sql .= ' ORDER BY FIELD(bo.status, 1, 0, 2), bo.orderNumber DESC, b.id DESC';
+        $sql .= ' ORDER BY FIELD(bo.status, 1, 0, 2), bo.updated_at DESC, b.id DESC';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
@@ -436,12 +436,12 @@ class BookmarkModel
         $now = time();
 
         $sql = 'UPDATE bookmarks_ownership 
-                SET orderNumber = :orderNumber 
+                SET updated_at = :updated_at 
                 WHERE bookmark_id = :bookmark_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':bookmark_id', $id, \PDO::PARAM_INT);
-        $stm->bindParam(':orderNumber', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':updated_at', $now, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
@@ -598,14 +598,14 @@ class BookmarkModel
         $now = time();
         $note = htmlspecialchars($note);
 
-        $sql = 'INSERT INTO bookmarks_ownership (bookmark_id, user_id, note, created, orderNumber)
-                VALUES (:bookmark_id, :user_id, :note, :created, :orderNumber)';
+        $sql = 'INSERT INTO bookmarks_ownership (bookmark_id, user_id, note, created, updated_at)
+                VALUES (:bookmark_id, :user_id, :note, :created, :updated_at)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':bookmark_id', $bookmarkId, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $userId, \PDO::PARAM_INT);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
-        $stm->bindParam(':orderNumber', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':updated_at', $now, \PDO::PARAM_INT);
         $stm->bindParam(':note', $note, \PDO::PARAM_STR);
 
         if (!$stm->execute()) {

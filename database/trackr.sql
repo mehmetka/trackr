@@ -5,10 +5,9 @@ CREATE TABLE `activity_logs`
     `book_id`   int(11) DEFAULT NULL,
     `activity`  varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
     `timestamp` int(11)                                 NOT NULL,
-    `user_id`   int(11)                                 NOT NULL,
+    `user_id`   int(11) DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -19,7 +18,6 @@ CREATE TABLE `author`
     PRIMARY KEY (`id`),
     UNIQUE KEY `NAME_UNIQUE` (`author`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -32,7 +30,6 @@ CREATE TABLE `book_authors`
     UNIQUE KEY `idx_author_id_book_id` (`author_id`, `book_id`),
     KEY `idx_book_id` (`book_id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -51,7 +48,6 @@ CREATE TABLE `bookmarks`
     `created`     int(11)                                  NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -76,7 +72,6 @@ CREATE TABLE `bookmarks_ownership`
     `is_title_edited` int(11)                                  DEFAULT '0',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -101,7 +96,6 @@ CREATE TABLE `books`
     `info_link`       varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -116,7 +110,6 @@ CREATE TABLE `books_finished`
     `user_id`     int(11) NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -128,7 +121,6 @@ CREATE TABLE `books_googleapi_responses`
     `created_at` int(11) DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -143,7 +135,6 @@ CREATE TABLE `books_ownership`
     UNIQUE KEY `unique_idx_bookid_user_id` (`book_id`, `user_id`),
     KEY `idx_book_id` (`book_id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -157,7 +148,6 @@ CREATE TABLE `book_trackings`
     `user_id`     int(11)                                NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -170,7 +160,6 @@ CREATE TABLE `categories`
     PRIMARY KEY (`id`),
     UNIQUE KEY `NAME_UNIQUE` (`name`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -183,7 +172,6 @@ CREATE TABLE `date_trackings`
     `user_id` int(11) DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -207,7 +195,6 @@ CREATE TABLE `highlights`
     `user_id`      int(11)                                  NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -220,7 +207,28 @@ CREATE TABLE `highlight_versions`
     `user_id`       int(11)                             NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE `logs`
+(
+    `id`         int(11)                               NOT NULL AUTO_INCREMENT,
+    `log`        mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+    `created_at` int(11)                               NOT NULL,
+    `updated_at` int(11) DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE `log_versions`
+(
+    `id`         int(11)                               NOT NULL AUTO_INCREMENT,
+    `log_id`     int(11)                               NOT NULL,
+    `old`        mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
+    `created_at` int(11)                               NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -235,7 +243,6 @@ CREATE TABLE `path_books`
     PRIMARY KEY (`id`),
     UNIQUE KEY `idx_path_id_book_id` (`path_id`, `book_id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -250,7 +257,6 @@ CREATE TABLE `paths`
     `user_id` int(11)                                NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -261,7 +267,6 @@ CREATE TABLE `publishers`
     `created_at` int(11)                                 DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -274,7 +279,6 @@ CREATE TABLE `sub_highlights`
     `updated`          int(11) DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_bin;
 
@@ -291,7 +295,6 @@ CREATE TABLE `tag_relationships`
     PRIMARY KEY (`id`),
     KEY `idx_source_id` (`source_id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -302,7 +305,6 @@ CREATE TABLE `tags`
     `created` int(11)                                 NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
@@ -316,6 +318,15 @@ CREATE TABLE `users`
     PRIMARY KEY (`id`),
     UNIQUE KEY `username_UNIQUE` (`username`)
 ) ENGINE = InnoDB
-  AUTO_INCREMENT = 666
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE `words`
+(
+    `id`      int(11)                                 NOT NULL AUTO_INCREMENT,
+    `word`    varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `created` varchar(45) COLLATE utf8mb4_unicode_ci  NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
