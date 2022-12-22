@@ -78,12 +78,19 @@ $container['errorHandler'] = function ($container) {
             ];
 
         } elseif ($exception instanceof \PDOException) {
-            $logger->warning('PDOException: ' . $exception->getMessage());
 
-            $data = [
-                'status' => StatusCode::HTTP_SERVICE_UNAVAILABLE,
-                'message' => 'Request could not complete. Contact administrator.'
-            ];
+            $exceptionArray = json_decode(json_encode($exception), true);
+
+            $data['status'] = StatusCode::HTTP_SERVICE_UNAVAILABLE;
+            $data['message'] = 'Request could not complete. Contact administrator.';
+
+            if ($exceptionArray['errorInfo'][1] == 1062) {
+                $data['status'] = StatusCode::HTTP_CONFLICT;
+                $data['message'] = 'Duplicate entry!';
+            } else {
+                $logger->critical('PDOException: ' . $exception->getMessage());
+            }
+
         } else {
             $logger->critical($exception->getMessage());
 
