@@ -15,7 +15,6 @@ class HighlightModel
     /** @var \PDO $dbConnection */
     private $dbConnection;
     private $tagModel;
-    private $parseDown;
     public const DELETED = 1;
     public const NOT_DELETED = 0;
 
@@ -23,7 +22,6 @@ class HighlightModel
     {
         $this->dbConnection = $container->get('db');
         $this->tagModel = new TagModel($container);
-        $this->parseDown = new \Parsedown();
     }
 
     public function getHighlights($tag = null, $limit = null)
