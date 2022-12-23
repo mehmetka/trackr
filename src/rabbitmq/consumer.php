@@ -1,5 +1,8 @@
 <?php
 
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+
 require __DIR__ . '/../../vendor/autoload.php';
 
 use Slim\App;
@@ -33,7 +36,7 @@ $container['db'] = function ($container) {
     try {
         $db = new \PDO($dsn, $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASSWORD']);
     } catch (\Exception $e) {
-        echo 'Database access problem: ' . $e->getMessage() . PHP_EOL;
+        echo  getTimestamp() . 'Database access problem: ' . $e->getMessage() . PHP_EOL;
         die;
     }
 
@@ -72,7 +75,7 @@ function process_message($message)
         $bookmarkDetails = $bookmarkModel->getParentBookmarkById($messageBody['id']);
 
         if (!$bookmarkDetails) {
-            echo "bookmark not found. given bookmark id: {$messageBody['id']}\n";
+            echo getTimestamp() . "bookmark not found. given bookmark id: {$messageBody['id']}\n";
             return;
         }
 
@@ -81,7 +84,7 @@ function process_message($message)
             $title = 'Twitter - ' . strip_tags(trim($username));
             $bookmarkModel->updateParentBookmarkTitleByID($bookmarkDetails['id'], $title);
 
-            echo "completed 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title (twitter-title)\n";
+            echo getTimestamp() . "completed 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title (twitter-title)\n";
         } else {
             $metadata = RequestUtil::getUrlMetadata($bookmarkDetails['bookmark']);
 
@@ -101,11 +104,11 @@ function process_message($message)
                     echo 'Error occured: ' . $exception->getMessage() . PHP_EOL;
                 }
 
-                echo "completed 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}\n";
+                echo getTimestamp() . "completed 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}\n";
 
             } else {
                 if ($messageBody['retry_count'] < 5) {
-                    echo "Retry count: {$messageBody['retry_count']}\n";
+                    echo getTimestamp() . "Retry count: {$messageBody['retry_count']}\n";
                     $messageBody['retry_count']++;
                     $amqpPublisher = new AmqpJobPublisher();
 
@@ -113,7 +116,7 @@ function process_message($message)
                         'id' => $bookmarkDetails['id'],
                         'retry_count' => $messageBody['retry_count']
                     ]);
-                    echo "trigged again 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, retry_count: {$messageBody['retry_count']}\n";
+                    echo getTimestamp() . "trigged again 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, retry_count: {$messageBody['retry_count']}\n";
                 }
             }
         }
@@ -123,7 +126,7 @@ function process_message($message)
         $bookmarkDetails = $bookmarkModel->getChildBookmarkById($messageBody['id'], $messageBody['user_id']);
 
         if (!$bookmarkDetails) {
-            echo "bookmark not found. given bookmark id: {$messageBody['id']}\n";
+            echo getTimestamp() . "bookmark not found. given bookmark id: {$messageBody['id']}\n";
             return;
         }
 
@@ -133,7 +136,7 @@ function process_message($message)
                 $title = 'Twitter - ' . strip_tags(trim($username));
                 $bookmarkModel->updateChildBookmarkTitleByID($bookmarkDetails['id'], $title, $messageBody['user_id']);
 
-                echo "completed 'get_child_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title (twitter-title)\n";
+                echo getTimestamp() . "completed 'get_child_bookmark_title' job for: {$bookmarkDetails['id']}, title: $title (twitter-title)\n";
             } else {
                 $metadata = RequestUtil::getUrlMetadata($bookmarkDetails['bookmark']);
 
@@ -153,7 +156,7 @@ function process_message($message)
                         $bookmarkModel->updateChildBookmark($bookmarkDetails['id'], $newBookmarkDetails,
                             $messageBody['user_id']);
                     } catch (Exception $exception) {
-                        echo 'Error occured: ' . $exception->getMessage() . PHP_EOL;
+                        echo getTimestamp() . 'Error occured: ' . $exception->getMessage() . PHP_EOL;
                         $web = new \spekulatius\phpscraper;
                         $web->go($bookmarkDetails['bookmark']);
                         $newBookmarkDetails['title'] = strip_tags(trim($web->title));
@@ -167,11 +170,11 @@ function process_message($message)
                             $messageBody['user_id']);
                     }
 
-                    echo "completed 'get_child_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}\n";
+                    echo getTimestamp() . "completed 'get_child_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}\n";
 
                 } else {
                     if ($messageBody['retry_count'] < 5) {
-                        echo "Retry count: {$messageBody['retry_count']}\n";
+                        echo getTimestamp() . "Retry count: {$messageBody['retry_count']}\n";
                         $messageBody['retry_count']++;
                         $amqpPublisher = new AmqpJobPublisher();
 
@@ -181,7 +184,7 @@ function process_message($message)
                             'user_id' => $messageBody['user_id']
                         ]);
 
-                        echo "trigged again 'get_child_bookmark_title' job for: {$bookmarkDetails['id']}, retry_count: {$messageBody['retry_count']}\n";
+                        echo getTimestamp() . "trigged again 'get_child_bookmark_title' job for: {$bookmarkDetails['id']}, retry_count: {$messageBody['retry_count']}\n";
                     }
                 }
             }
@@ -232,7 +235,7 @@ function process_message($message)
 
                 $bookData['info_link'] = $link->getUri();
             } catch (Exception $e) {
-                echo 'Error occured while scraping book on Idefix: ' . $e->getMessage();
+                echo getTimestamp() . 'Error occured while scraping book on Idefix: ' . $e->getMessage();
             }
 
             $bookData['isbn'] = $isbn;
@@ -248,8 +251,8 @@ function process_message($message)
                 }
             }
 
-            echo 'author: ' . $bookData['author'] . PHP_EOL;
-            echo 'title: ' . $bookData['bookTitle'] . PHP_EOL;
+            echo getTimestamp() . 'author: ' . $bookData['author'] . PHP_EOL;
+            echo getTimestamp() . 'title: ' . $bookData['bookTitle'] . PHP_EOL;
 
             $exist = $bookModel->getBookByGivenColumn(Book::COLUMN_TITLE, $bookData['bookTitle']);
 
@@ -272,7 +275,7 @@ function process_message($message)
             }
         }
 
-        echo 'user id: ' . $_SESSION['userInfos']['user_id'];
+        echo getTimestamp() . 'user id: ' . $_SESSION['userInfos']['user_id'];
         session_destroy();
     }
 
@@ -298,7 +301,7 @@ function getTextBySelector($crawler, $selector)
     try {
         return trim($crawler->filter($selector)->text());
     } catch (Exception $exception) {
-        echo "error occured while fetching '$selector', error: " . $exception->getMessage();
+        echo getTimestamp() . "error occured while fetching '$selector', error: " . $exception->getMessage();
         return null;
     }
 }
@@ -308,7 +311,12 @@ function getAttrBySelector($crawler, $selector, $attrName)
     try {
         return trim($crawler->filter($selector)->attr($attrName));
     } catch (Exception $exception) {
-        echo "error occured while fetching '$selector', error: " . $exception->getMessage();
+        echo getTimestamp() . "error occured while fetching '$selector', error: " . $exception->getMessage();
         return null;
     }
+}
+
+function getTimestamp()
+{
+    return '[' . date('Y-m-d H:i:s', time()) . '] ';
 }
