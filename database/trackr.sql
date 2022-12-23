@@ -64,11 +64,11 @@ CREATE TABLE `bookmarks_ownership`
     `thumbnail`       varchar(500) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
     `status`          int(11) NOT NULL                         DEFAULT '0',
     `created`         int(11) NOT NULL,
+    `updated_at`      int(11)                                  DEFAULT NULL,
     `started`         int(11)                                  DEFAULT NULL,
     `done`            int(11)                                  DEFAULT NULL,
     `deleted_at`      int(11)                                  DEFAULT NULL,
     `is_deleted`      int(11)                                  DEFAULT '0',
-    `orderNumber`     int(11)                                  DEFAULT NULL,
     `is_title_edited` int(11)                                  DEFAULT '0',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
@@ -212,10 +212,10 @@ CREATE TABLE `highlight_versions`
 
 CREATE TABLE `logs`
 (
-    `id`         int(11)                               NOT NULL AUTO_INCREMENT,
-    `log`        mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
-    `created_at` int(11)                               NOT NULL,
-    `updated_at` int(11) DEFAULT NULL,
+    `id`      int(11)                                NOT NULL AUTO_INCREMENT,
+    `date`    varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `log`     mediumtext COLLATE utf8mb4_unicode_ci,
+    `user_id` int(11)                                NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
