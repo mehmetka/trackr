@@ -43,7 +43,7 @@ class HighlightModel
             $sql .= ' AND t.tag = :tag AND tr.type = 1';
         }
 
-        $sql .= ' ORDER BY h.id DESC LIMIT :limit';
+        $sql .= ' ORDER BY h.updated DESC LIMIT :limit';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':limit', $limit, \PDO::PARAM_INT);
@@ -173,8 +173,8 @@ class HighlightModel
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
-        $sql = 'INSERT INTO highlights (highlight, author, source, page, file_name, is_encrypted, created, user_id)
-                VALUES(:highlight, :author, :source, :page, :file_name, :is_encrypted, :created, :user_id)';
+        $sql = 'INSERT INTO highlights (highlight, author, source, page, file_name, is_encrypted, created, updated, user_id)
+                VALUES(:highlight, :author, :source, :page, :file_name, :is_encrypted, :created, :updated, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':highlight', $params['highlight'], \PDO::PARAM_STR);
@@ -184,6 +184,7 @@ class HighlightModel
         $stm->bindParam(':file_name', $params['filename'], \PDO::PARAM_STR);
         $stm->bindParam(':is_encrypted', $params['is_encrypted'], \PDO::PARAM_STR);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':updated', $now, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
