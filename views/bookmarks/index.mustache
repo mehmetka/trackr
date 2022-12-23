@@ -23,7 +23,7 @@
                                 </div>
                                 <div class="form-group">
                                     <input id="tags" placeholder="Tags" type="text"
-                                           class="form-control" value="{{defaultTag}}">
+                                           class="form-control enterButtonKeyPress" value="{{defaultTag}}">
                                 </div>
                                 <div class="form-group">
                                     <button id="addBookmark" type="button" class="btn btn-primary">Add</button>
@@ -137,8 +137,7 @@
 <script>
     $(document).ready(function () {
 
-        $("#addBookmark").on('click', function (e) {
-
+        function saveBook() {
             var bookmark = $('#bookmark').val();
             var tags = $('#tags').val();
             var note = $('#note').val();
@@ -155,6 +154,16 @@
             }
 
             $(btnContext).delay(3000).removeAttr("disabled").addClass('btn-primary').html('Add');
+        }
+
+        $('.enterButtonKeyPress').bind('keypress', function (e) {
+            if (e.keyCode == 13) {
+                saveBook();
+            }
+        });
+
+        $("#addBookmark").on('click', function (e) {
+            saveBook();
         });
 
         // $(".go-to-bookmark-highlight").on('click', function (e) {
