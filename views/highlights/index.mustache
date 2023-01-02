@@ -10,6 +10,8 @@
             width: 300px;
         }
     </style>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
 </head>
 
 <body class="vertical dark">
@@ -119,6 +121,7 @@
                         <br class="highlightCardBR">
                     {{/highlights}}
 
+
                     </script>
                     <%={{ }}=%>
 
@@ -133,9 +136,12 @@
 {{> navbar }}
 <script src="/js/mustache.min.js"></script>
 <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 
 <script>
     $(document).ready(function () {
+
+        hljs.highlightAll();
 
         var simplemde = new SimpleMDE({
             element: $("#highlight")[0],
