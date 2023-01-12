@@ -36,7 +36,7 @@ $container['db'] = function ($container) {
     try {
         $db = new \PDO($dsn, $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASSWORD']);
     } catch (\Exception $e) {
-        echo  getTimestamp() . 'Database access problem: ' . $e->getMessage() . PHP_EOL;
+        echo getTimestamp() . 'Database access problem: ' . $e->getMessage() . PHP_EOL;
         die;
     }
 
@@ -277,6 +277,40 @@ function process_message($message)
 
         echo getTimestamp() . 'user id: ' . $_SESSION['userInfos']['user_id'];
         session_destroy();
+    } elseif ($messageBody['job_type'] === 'get_keyword_about_bookmark') {
+        $bookmarkId = $messageBody['id'];
+        $requestGoesTo = 'https://api.openai.com/v1/completions';
+        $bookmarkModel = new BookmarkModel($container);
+        $bookmarkDetails = $bookmarkModel->getParentBookmarkById($bookmarkId);
+
+        if (!$bookmarkDetails) {
+            echo getTimestamp() . "bookmark not found. given bookmark id: $bookmarkId\n";
+            return;
+        }
+
+        $bodyParams = json_encode([
+            'model' => "text-davinci-003",
+            "prompt" => "could you give me one keyword about {$bookmarkDetails['bookmark']} this website?",
+            "temperature" => 0.5,
+            "max_tokens" => 60,
+            "top_p" => 1.0,
+            "frequency_penalty" => 0.8,
+            "presence_penalty" => 0.0
+        ]);
+
+        $headers = [
+            "Content-Type: application/json",
+            "Authorization: Bearer {$_ENV['OPENAI_CHATGPT_API_KEY']}"
+        ];
+
+        $response = RequestUtil::makeHttpRequest($requestGoesTo, RequestUtil::HTTP_POST, $bodyParams, $headers);
+        $keyword = trim($response['choices'][0]['text']);
+
+        if ($keyword) {
+            echo "found a keyword for $bookmarkId -> $keyword\n";
+            $keyword = strtolower($keyword);
+            $bookmarkModel->updateKeyword($bookmarkId, $keyword);
+        }
     }
 
     $message->delivery_info['channel']->basic_ack($message->delivery_info['delivery_tag']);

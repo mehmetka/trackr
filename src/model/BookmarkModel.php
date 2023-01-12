@@ -29,9 +29,23 @@ class BookmarkModel
         $today = date('d-m-y', time());
         $yesterday = date('d-m-y', strtotime("-1 days"));
 
-        $sql = 'SELECT b.id, b.uid AS bookmarkUID, b.bookmark, IF(ISNULL(bo.title), b.title, bo.title) AS title, bo.note, bo.status, bo.created, bo.started, bo.done
+        $sql = "SELECT b.id,
+                       b.uid                                   AS bookmarkUID,
+                       b.bookmark,
+                       IF(ISNULL(bo.title), b.title, bo.title) AS title,
+                       bo.note,
+                       bo.status,
+                       bo.created,
+                       bo.started,
+                       bo.done,
+                       (SELECT GROUP_CONCAT(t.tag SEPARATOR ' #')
+                        FROM bookmarks iq_b 
+                                 INNER JOIN tag_relationships tr ON iq_b.id = tr.source_id
+                                 INNER JOIN tags t ON tr.tag_id = t.id
+                        WHERE iq_b.id = b.id
+                          AND tr.type = 2) AS imploded_tags
                 FROM bookmarks b
-                INNER JOIN bookmarks_ownership bo ON b.id = bo.bookmark_id';
+                         INNER JOIN bookmarks_ownership bo ON b.id = bo.bookmark_id";
 
         if ($tag) {
             $sql .= ' INNER JOIN tag_relationships tr ON b.id = tr.source_id
@@ -52,7 +66,7 @@ class BookmarkModel
         }
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
@@ -66,6 +80,8 @@ class BookmarkModel
                 $row['title'] = substr($row['title'], 0, 75);
                 $row['title'] .= ' ...';
             }
+
+            $row['title'] .= " - #{$row['imploded_tags']}";
 
             $createdAt = date('d-m-y', $row['created']);
 
@@ -536,8 +552,10 @@ class BookmarkModel
 
     public function updateChildBookmark($bookmarkID, $details, $userId)
     {
+        $now = time();
+
         $sql = 'UPDATE bookmarks_ownership
-                SET site_name = :site_name, title = :title, description = :description, note = :note, site_type = :site_type, thumbnail = :thumbnail, status = :status
+                SET site_name = :site_name, title = :title, description = :description, note = :note, site_type = :site_type, thumbnail = :thumbnail, status = :status, updated_at = :updated_at
                 WHERE bookmark_id = :bookmark_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
@@ -549,6 +567,7 @@ class BookmarkModel
         $stm->bindParam(':thumbnail', $details['thumbnail'], \PDO::PARAM_STR);
         $stm->bindParam(':status', $details['status'], \PDO::PARAM_INT);
         $stm->bindParam(':bookmark_id', $bookmarkID, \PDO::PARAM_INT);
+        $stm->bindParam(':updated_at', $now, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $userId, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
@@ -560,13 +579,16 @@ class BookmarkModel
 
     public function updateBookmarkStatus($bookmarkID, $status)
     {
-        $sql = 'UPDATE bookmarks_ownership 
-                SET status = :status
+        $now = time();
+
+        $sql = 'UPDATE bookmarks_ownership
+                SET status = :status, updated_at = :updated_at
                 WHERE bookmark_id = :bookmark_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':status', $status, \PDO::PARAM_INT);
         $stm->bindParam(':bookmark_id', $bookmarkID, \PDO::PARAM_INT);
+        $stm->bindParam(':updated_at', $now, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
@@ -611,6 +633,25 @@ class BookmarkModel
 
         if (!$stm->execute()) {
             throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function updateKeyword($bookmarkId, $keyword)
+    {
+        $keyword = htmlspecialchars($keyword);
+
+        $sql = 'UPDATE bookmarks 
+                SET keyword = :keyword 
+                WHERE id = :id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':id', $bookmarkId, \PDO::PARAM_INT);
+        $stm->bindParam(':keyword', $keyword, \PDO::PARAM_STR);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         return true;

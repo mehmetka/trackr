@@ -89,4 +89,27 @@ class AmqpJobPublisher
         $channel->close();
     }
 
+    public function publishGetKeywordAboutBookmarkWithChatGPT($details)
+    {
+        $jobType = 'get_keyword_about_bookmark';
+        $exchange = 'router';
+        $queue = 'msgs';
+
+        $channel = $this->connection->channel();
+        $channel->queue_declare($queue, false, true, false, false);
+        $channel->exchange_declare($exchange, AMQPExchangeType::DIRECT, false, true, false);
+        $channel->queue_bind($queue, $exchange);
+
+        $messageBody = [
+            'job_type' => $jobType
+        ];
+
+        $messageBody = array_merge($messageBody, $details);
+
+        $message = new AMQPMessage(serialize($messageBody), array('content_type' => 'text/plain', 'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT));
+        $channel->basic_publish($message, $exchange);
+
+        $channel->close();
+    }
+
 }

@@ -117,6 +117,10 @@ class BookmarkController extends Controller
             'user_id' => $_SESSION['userInfos']['user_id']
         ]);
 
+        $rabbitmq->publishGetKeywordAboutBookmarkWithChatGPT([
+            'id' => $bookmarkID
+        ]);
+
         $this->bookmarkModel->addOwnership($bookmarkID, $_SESSION['userInfos']['user_id'], $params['note']);
         $_SESSION['badgeCounts']['bookmarkCount'] += 1;
 
