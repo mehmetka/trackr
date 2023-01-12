@@ -15,6 +15,16 @@
                     <div class="card mb-4">
                         <div class="card">
                             <div class="card-body">
+                                <h5 class="card-title">Add Book by ISBN</h5>
+                                <input id="isbn" placeholder="Type ISBN, press enter" type="text"
+                                       class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
                                 <h5 class="card-title">Add Author</h5>
                                 <input id="author" placeholder="Type new author, press enter" type="text"
                                        class="form-control">
@@ -34,7 +44,7 @@
                                 <table class="table datatables" id="booksDatatable" width="100%">
                                     <thead>
                                     <tr>
-<!--                                        <th>#</th>-->
+                                        <!--                                        <th>#</th>-->
                                         <th>Title</th>
                                         <th>Page</th>
                                         <th>Add to Path</th>
@@ -43,7 +53,7 @@
                                     <tbody>
                                     {{#books}}
                                         <tr>
-<!--                                            <td><img class="lazy" data-src="{{thumbnail_small}}" src=""></td>-->
+                                            <!--                                            <td><img class="lazy" data-src="{{thumbnail_small}}" src=""></td>-->
                                             <td>
                                                 {{#info_link}}
                                                     <a href="{{info_link}}" target="_blank">{{author}} - {{title}}</a>
@@ -130,6 +140,19 @@
 
                 if (result !== false) {
                     location.reload();
+                }
+            }
+        });
+
+        $('#isbn').bind('keypress', function (e) {
+            if (e.keyCode == 13) {
+                var isbn = $('#isbn').val();
+                if (isbn !== "") {
+                    var result = ajaxCall('POST', "/books", "isbn=" + isbn);
+
+                    if (result !== false) {
+                        $('#bookFormModal').modal('hide');
+                    }
                 }
             }
         });
