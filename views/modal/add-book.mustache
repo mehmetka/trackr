@@ -10,14 +10,6 @@
             </div>
             <div class="modal-body">
 
-                <div class="form-group">
-                    <h5 class="card-title">Add Book by ISBN</h5>
-                    <input id="isbn" placeholder="Type ISBN" type="text"
-                           class="form-control">
-                </div>
-
-                <hr>
-
                 <h5 class="card-title">Add Book Manually</h5>
 
                 <form id="bookSaveForm" name="bookSaveForm">
@@ -118,19 +110,6 @@
                 $('#bookFormModal').modal('hide');
             }
 
-        });
-
-        $('#isbn').bind('keypress', function (e) {
-            if (e.keyCode == 13) {
-                var isbn = $('#isbn').val();
-                if (isbn !== "") {
-                    var result = ajaxCall('POST', "/books", "isbn=" + isbn);
-
-                    if (result !== false) {
-                        $('#bookFormModal').modal('hide');
-                    }
-                }
-            }
         });
 
     });
