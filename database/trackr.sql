@@ -44,6 +44,7 @@ CREATE TABLE `bookmarks`
     `note`        varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
     `site_type`   varchar(255) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
     `thumbnail`   varchar(500) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
+    `keyword`     varchar(255) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
     `status`      int(11)                                  DEFAULT '0',
     `created`     int(11)                                  NOT NULL,
     PRIMARY KEY (`id`)
