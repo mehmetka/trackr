@@ -66,6 +66,7 @@ class HighlightModel
             }
 
             $row['highlight'] = MarkdownUtil::convertToHTML($row['highlight']);
+            $row['highlight'] = str_replace('<img src="', '<img class="lazy" data-src="', $row['highlight']);
             $decimalHashtags = StringUtil::getDecimalHashtags($row['highlight']);
 
             if ($decimalHashtags) {
