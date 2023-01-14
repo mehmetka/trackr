@@ -33,12 +33,13 @@ class BookmarkModel
                        b.uid                                   AS bookmarkUID,
                        b.bookmark,
                        IF(ISNULL(bo.title), b.title, bo.title) AS title,
+                       b.keyword,
                        bo.note,
                        bo.status,
                        bo.created,
                        bo.started,
                        bo.done,
-                       (SELECT GROUP_CONCAT(t.tag SEPARATOR ' #')
+                       (SELECT GROUP_CONCAT(t.tag SEPARATOR ' ')
                         FROM bookmarks iq_b 
                                  INNER JOIN tag_relationships tr ON iq_b.id = tr.source_id
                                  INNER JOIN tags t ON tr.tag_id = t.id
@@ -80,8 +81,6 @@ class BookmarkModel
                 $row['title'] = substr($row['title'], 0, 75);
                 $row['title'] .= ' ...';
             }
-
-            $row['title'] .= " - #{$row['imploded_tags']}";
 
             $createdAt = date('d-m-y', $row['created']);
 
