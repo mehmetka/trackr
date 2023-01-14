@@ -79,7 +79,10 @@
                                                     <a class="btn btn-sm btnDeleteBookmark2 float-right"
                                                        data-uid="{{bookmarkUID}}">
                                                         <i class="fe fe-trash fe-4"></i>
-                                                    </a></a>
+                                                    </a>
+                                                    {{#keyword}}<span class="badge badge-pill badge-primary float-right">{{keyword}}</span>{{/keyword}}
+                                                    {{#imploded_tags}}<span class="badge badge-pill badge-warning float-right">{{imploded_tags}}</span>{{/imploded_tags}}
+                                                    </a>
                                             </td>
                                             <td>
                                                 {{created}}
