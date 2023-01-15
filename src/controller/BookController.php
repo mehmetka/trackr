@@ -249,11 +249,6 @@ class BookController extends Controller
                     "Book already exist: " . htmlspecialchars($bookDetail['title']));
             }
 
-            /*
-             * https://www.googleapis.com/books/v1/volumes?
-             * q=isbn:9786258475722
-             * q={title}+inauthor:{author}
-             */
             $url = 'https://www.googleapis.com/books/v1/volumes?q=isbn:' . $params['isbn'];
             $bookResponse = RequestUtil::makeHttpRequest($url, RequestUtil::HTTP_GET, [], []);
 
