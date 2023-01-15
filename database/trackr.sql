@@ -194,7 +194,8 @@ CREATE TABLE `highlights`
     `is_deleted`   int(11)                                 DEFAULT '0',
     `deleted_at`   int(11)                                 DEFAULT NULL,
     `user_id`      int(11)                                  NOT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    FULLTEXT KEY `ft_idx_highlight` (`highlight`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
@@ -318,16 +319,6 @@ CREATE TABLE `users`
     `encryption_key` tinyblob                                NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `username_UNIQUE` (`username`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci;
-
-CREATE TABLE `words`
-(
-    `id`      int(11)                                 NOT NULL AUTO_INCREMENT,
-    `word`    varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-    `created` varchar(45) COLLATE utf8mb4_unicode_ci  NOT NULL,
-    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
