@@ -125,7 +125,7 @@ class HighlightController extends Controller
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight cannot be null!");
         }
 
-        $highlightExist = $this->highlightModel->searchHighlightFulltext(trim($params['highlight']));
+        $highlightExist = $this->highlightModel->searchHighlight(trim($params['highlight']));
 
         if ($highlightExist) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight added before!");
