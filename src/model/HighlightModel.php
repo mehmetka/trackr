@@ -415,4 +415,39 @@ class HighlightModel
         return $list;
     }
 
+    public function searchHighlightFulltext($searchParam)
+    {
+        $list = [];
+        $searchParam = '"' . $searchParam . '"';
+
+        $sql = "SELECT h.id, h.highlight, h.author, h.source, h.created
+                FROM highlights h
+                WHERE h.is_deleted = 0
+                  AND h.is_encrypted = 0
+                  AND h.user_id = :user_id
+                  AND MATCH(h.highlight) AGAINST(:searchParam IN BOOLEAN MODE)";
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':searchParam', $searchParam, \PDO::PARAM_STR);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $row['highlight'] = MarkdownUtil::convertToHTML($row['highlight']);
+            $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
+            $tags = $this->tagModel->getTagsBySourceId($row['id'], HighlightController::SOURCE_TYPE);
+
+            if ($tags) {
+                $row['tags'] = $tags;
+            }
+
+            $list[] = $row;
+        }
+
+        return $list;
+    }
+
 }
