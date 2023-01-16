@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  trackr:
+    volumes:
+      - .:/var/www/html/trackr
+  db:
+    volumes:
+      - trackr-data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
