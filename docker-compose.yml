@@ -10,9 +10,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
-    volumes:
-      - trackr-data:/var/lib/mysql
-      - ./database:/docker-entrypoint-initdb.d
     networks:
       trackr:
         ipv4_address: 192.168.3.2
@@ -22,8 +19,6 @@ services:
     image: phpdev
     ports:
       - "8081:80"
-    volumes:
-      - .:/var/www/html/trackr
     depends_on:
       - db
     networks:
