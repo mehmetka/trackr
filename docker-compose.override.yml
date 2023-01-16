@@ -6,5 +6,5 @@ services:
       - .:/var/www/html/trackr
   db:
     volumes:
-      - trackr-data:/var/lib/mysql
+      - ./database/trackr-data:/var/lib/mysql
       - ./database:/docker-entrypoint-initdb.d
