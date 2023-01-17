@@ -110,6 +110,10 @@
                                     <textarea id="comment" hidden></textarea>
                                 </div>
                                 <div class="form-group">
+                                    <input id="commentAuthor" placeholder="Author" type="text" class="form-control"
+                                           value="{{#detail}}{{author}}{{/detail}}">
+                                </div>
+                                <div class="form-group">
                                     <input id="commentSource" placeholder="Source" type="text" class="form-control"
                                            value="{{#detail}}{{source}}{{/detail}}">
                                 </div>
@@ -179,12 +183,14 @@
 
             var highlightID = $('#addComment').data('id');
             var comment = simplemdeComment.value();
+            var author = $('#commentAuthor').val();
             var source = $('#commentSource').val();
             var tags = $('#commentTags').val();
             var is_encrypted = $('#is_comment_encrypted').is(":checked") ? 'Yes' : 'No';
 
             var data = "highlight=" + encodeURIComponent(comment) +
                     "&source=" + encodeURIComponent(source) +
+                    "&author=" + encodeURIComponent(author) +
                     "&tags=" + encodeURIComponent(tags) +
                     "&is_encrypted=" + encodeURIComponent(is_encrypted);
 
