@@ -669,7 +669,7 @@ class BookModel
                 FROM books_ownership bo USE INDEX (idx_book_id)
                          INNER JOIN books b ON bo.book_id = b.id
                 WHERE bo.user_id = :user_id
-                ORDER BY b.id DESC";
+                ORDER BY bo.created_at DESC";
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
