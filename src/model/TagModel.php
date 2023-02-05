@@ -108,7 +108,8 @@ class TagModel
         $sql = 'SELECT DISTINCT t.tag, t.id
                 FROM tag_relationships tr
                 INNER JOIN tags t ON tr.tag_id = t.id
-                WHERE tr.type = :sourceType AND tr.is_deleted = 0 AND tr.user_id = :user_id';
+                WHERE tr.type = :sourceType AND tr.is_deleted = 0 AND tr.user_id = :user_id
+                ORDER BY t.tag';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':sourceType', $type, \PDO::PARAM_INT);
