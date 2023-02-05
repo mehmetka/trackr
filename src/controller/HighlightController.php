@@ -28,7 +28,7 @@ class HighlightController extends Controller
     {
         $queryString = $request->getQueryParams();
 
-        $highlights = $this->highlightModel->getHighlights($queryString['tag'], 100);
+        $highlights = $this->highlightModel->getHighlights($queryString['tag'], $_ENV['HIGHLIGHT_LIMIT']);
 
         $tags = $this->tagModel->getSourceTagsByType(self::SOURCE_TYPE, $queryString['tag']);
 
