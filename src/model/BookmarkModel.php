@@ -245,7 +245,8 @@ class BookmarkModel
                        h.highlight,
                        h.author,
                        h.source,
-                       bo.is_title_edited
+                       bo.is_title_edited,
+                       b.keyword
                 FROM bookmarks b
                          LEFT JOIN highlights h ON b.id = h.link
                          INNER JOIN bookmarks_ownership bo on b.id = bo.bookmark_id

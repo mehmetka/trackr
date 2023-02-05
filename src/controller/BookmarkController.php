@@ -49,7 +49,9 @@ class BookmarkController extends Controller
     {
         $bookmarkUid = $args['uid'];
         $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
+        $details = $this->bookmarkModel->getChildBookmarkById($bookmarkId, $_SESSION['userInfos']['user_id']);
         $highlights = $this->bookmarkModel->getHighlights($bookmarkId);
+        $tags = $this->tagModel->getTagsBySourceId($bookmarkId, BookmarkController::SOURCE_TYPE);
         $_SESSION['bookmarks']['highlights']['bookmarkID'] = $bookmarkId;
 
         $data = [
@@ -57,7 +59,8 @@ class BookmarkController extends Controller
             'highlights' => $highlights,
             'activeBookmarks' => 'active',
             'bookmarkUID' => $bookmarkUid,
-            'base_url' => $_ENV['TRACKR_BASE_URL']
+            'base_url' => $_ENV['TRACKR_BASE_URL'],
+            'tags' => $tags['imploded_comma'] . ', ' . $details['keyword']
         ];
 
         return $this->view->render($response, 'bookmarks/highlights.mustache', $data);
