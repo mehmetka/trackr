@@ -157,6 +157,11 @@
 
         $('#highlight').show();
 
+        $('body').bind('paste', function(e) {
+            var data = e.originalEvent.clipboardData.getData('Text');
+            simplemde.value(data);
+        });
+
         $('#searchHighlights').bind('keypress', function (e) {
             if (e.keyCode == 13) {
 
