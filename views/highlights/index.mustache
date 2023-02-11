@@ -153,14 +153,10 @@
             element: $("#highlight")[0],
             toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
             insertTexts: {"image": ["[", "]({{base_url}}/img/)"]},
+            autofocus: true
         });
 
         $('#highlight').show();
-
-        $('body').bind('paste', function(e) {
-            var data = e.originalEvent.clipboardData.getData('Text');
-            simplemde.value(data);
-        });
 
         $('#searchHighlights').bind('keypress', function (e) {
             if (e.keyCode == 13) {
