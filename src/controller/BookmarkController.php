@@ -52,6 +52,7 @@ class BookmarkController extends Controller
         $details = $this->bookmarkModel->getChildBookmarkById($bookmarkId, $_SESSION['userInfos']['user_id']);
         $highlights = $this->bookmarkModel->getHighlights($bookmarkId);
         $tags = $this->tagModel->getTagsBySourceId($bookmarkId, BookmarkController::SOURCE_TYPE);
+        $tags['imploded_comma'] .= in_array($details['keyword'], $tags['tags']) ? ', ' . $details['keyword'] : '';
         $_SESSION['bookmarks']['highlights']['bookmarkID'] = $bookmarkId;
 
         $data = [
@@ -60,7 +61,7 @@ class BookmarkController extends Controller
             'activeBookmarks' => 'active',
             'bookmarkUID' => $bookmarkUid,
             'base_url' => $_ENV['TRACKR_BASE_URL'],
-            'tags' => $tags['imploded_comma'] . ', ' . $details['keyword']
+            'tags' => $tags['imploded_comma']
         ];
 
         return $this->view->render($response, 'bookmarks/highlights.mustache', $data);
