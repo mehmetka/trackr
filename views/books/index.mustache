@@ -6,18 +6,19 @@
 </head>
 
 <body class="vertical dark">
-    <div class="wrapper">
-        <main role="main" class="main-content">
-            <div class="container-fluid">
-                <div class="row justify-content-center">
-                    <div class="col-12">
-                        <div class="card-columns">
-                            {{#books}}
+<div class="wrapper">
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="card-columns">
+                        {{#books}}
                             <div id="{{divId}}" class="card">
                                 <div class="card-header {{status_label}}">
                                     Read: {{{readStatus}}}
 
-                                    {{#ebook_exist}}<span class="badge badge-pill badge-success float-right">Ebook</span>{{/ebook_exist}}
+                                    {{#ebook_exist}}
+                                        <span class="badge badge-pill badge-success float-right">Ebook</span>{{/ebook_exist}}
                                 </div>
                                 <div class="card-body">
                                     <blockquote class="blockquote mb-0">
@@ -26,84 +27,86 @@
                                             <br>
 
                                             {{^amount}}
-                                            <div class="input-group mb-3 actionCard">
-                                                <input id="{{bookUID}}" type="number"
-                                                    class="form-control input-group-append inputAmount"
-                                                    placeholder="Read amount">
-                                                <div class="input-group-append">
-                                                    <button class="btn btn-primary btnAddAmount" type="button"
-                                                        data-id="{{bookUID}}" data-path="{{pathUID}}"><i
-                                                            class="fe fe-plus-circle fe-16"></i></button>
+                                                <div class="input-group mb-3 actionCard">
+                                                    <input id="{{bookUID}}" type="number"
+                                                           class="form-control input-group-append inputAmount"
+                                                           placeholder="Read amount">
+                                                    <div class="input-group-append">
+                                                        <button class="btn btn-primary btnAddAmount" type="button"
+                                                                data-id="{{bookUID}}" data-path="{{pathUID}}"><i
+                                                                class="fe fe-plus-circle fe-16"></i></button>
+                                                    </div>
                                                 </div>
-                                            </div>
                                             {{/amount}}
 
                                             {{^remove}}
-                                            <div>
-                                                <button class="btn btn-sm btn-danger btnRemoveFromPath" type="button"
-                                                    data-id="{{bookUID}}" data-div="{{divId}}" data-path="{{pathUID}}">
-                                                    <i class="fe fe-trash fe-16"></i>
-                                                </button>
-                                            </div>
+                                                <div>
+                                                    <button class="btn btn-sm btn-danger btnRemoveFromPath"
+                                                            type="button"
+                                                            data-id="{{bookUID}}" data-div="{{divId}}"
+                                                            data-path="{{pathUID}}">
+                                                        <i class="fe fe-trash fe-16"></i>
+                                                    </button>
+                                                </div>
                                             {{/remove}}
                                         </footer>
                                     </blockquote>
                                 </div>
                             </div>
-                            {{/books}}
-                        </div>
-                    </div> <!-- .col-12 -->
-                </div> <!-- .row -->
-            </div> <!-- .container-fluid -->
-        </main> <!-- main -->
-    </div> <!-- .wrapper -->
+                        {{/books}}
+                    </div>
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
 
-    {{> include}}
-    {{> menu }}
-    {{> navbar }}
-    {{> add-book }}
+{{> include}}
+{{> menu }}
+{{> navbar }}
+{{> add-book }}
 
-    <script>
-        $(document).ready(function () {
-            var initBooks = function () {
+<script>
+    $(document).ready(function () {
+        var initBooks = function () {
 
-                bindingsBooks();
-            };
+            bindingsBooks();
+        };
 
-            var bindingsBooks = function () {
+        var bindingsBooks = function () {
 
-                $(".btnAddAmount").on('click', function (e) {
+            $(".btnAddAmount").on('click', function (e) {
 
-                    var bookUID = $(this).data("id");
-                    var amount = $('#' + bookUID).val();
-                    var pathUID = $(this).data("path");
-                    var result = ajaxCall('POST', "/books/" + bookUID + "/progress", "amount=" + amount + "&pathUID=" + pathUID)
+                var bookUID = $(this).data("id");
+                var amount = $('#' + bookUID).val();
+                var pathUID = $(this).data("path");
+                var result = ajaxCall('POST', "/books/" + bookUID + "/progress", "amount=" + amount + "&pathUID=" + pathUID)
 
-                    if (result !== false) {
-                        $('#' + bookUID).val('');
-                        location.reload();
-                    }
+                if (result !== false) {
+                    $('#' + bookUID).val('');
+                    location.reload();
+                }
 
-                });
+            });
 
-                $(".btnRemoveFromPath").on('click', function (e) {
+            $(".btnRemoveFromPath").on('click', function (e) {
 
-                    var bookUID = $(this).data("id");
-                    var pathUID = $(this).data("path");
-                    var divId = $(this).data("div");
-                    var result = ajaxCall('DELETE', "/books/paths/" + pathUID, "bookUID=" + bookUID)
+                var bookUID = $(this).data("id");
+                var pathUID = $(this).data("path");
+                var divId = $(this).data("div");
+                var result = ajaxCall('DELETE', "/books/paths/" + pathUID, "bookUID=" + bookUID)
 
-                    if (result !== false) {
-                        $('#' + divId).remove();
-                    }
+                if (result !== false) {
+                    $('#' + divId).remove();
+                }
 
-                });
+            });
 
-            };
+        };
 
-            initBooks();
-        });
-    </script>
+        initBooks();
+    });
+</script>
 </body>
 
 </html>

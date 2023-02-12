@@ -6,79 +6,79 @@
 </head>
 
 <body class="vertical dark">
-    <div class="wrapper">
-        <main role="main" class="main-content">
-            <div class="container-fluid">
-                <div class="row justify-content-center">
-                    <div class="col-12">
-                        <!-- simple table -->
-                        <div class="card mb-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">My Books</h5>
-                                    <table class="table datatables" id="booksDatatable" width="100%">
-                                        <thead>
-                                            <tr>
-                                                <th>Author</th>
-                                                <th>Title</th>
-                                                <th>Page</th>
-                                                <th>Added</th>
-                                                <th>Add to Path</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {{#books}}
-                                            <tr>
-                                                <td>{{author}}</td>
-                                                <td>
-                                                    {{title}}
-                                                    <span class="dot dot-md bg-{{read_status}} float-right"></span>
-                                                </td>
-                                                <td>{{page_count}}</td>
-                                                <td>{{created_at}}</td>
-                                                <td>
-                                                    <div class="btn-group">
-                                                        <button type="button"
-                                                                class="btn btn-danger btn-sm dropdown-toggle"
-                                                                data-toggle="dropdown" aria-haspopup="true"
-                                                                aria-expanded="false">
-                                                            Paths
-                                                        </button>
-                                                        <div class="dropdown-menu">
-                                                            {{#paths}}
-                                                                <a class="dropdown-item btnAddBookToPath"
-                                                                   data-id="{{pathUID}}"
-                                                                   data-book="{{bookUID}}">{{path_name}}</a>
-                                                            {{/paths}}
-                                                        </div>
+<div class="wrapper">
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <!-- simple table -->
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">My Books</h5>
+                                <table class="table datatables" id="booksDatatable" width="100%">
+                                    <thead>
+                                    <tr>
+                                        <th>Author</th>
+                                        <th>Title</th>
+                                        <th>Page</th>
+                                        <th>Added</th>
+                                        <th>Add to Path</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {{#books}}
+                                        <tr>
+                                            <td>{{author}}</td>
+                                            <td>
+                                                {{title}}
+                                                <span class="dot dot-md bg-{{read_status}} float-right"></span>
+                                            </td>
+                                            <td>{{page_count}}</td>
+                                            <td>{{created_at}}</td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <button type="button"
+                                                            class="btn btn-danger btn-sm dropdown-toggle"
+                                                            data-toggle="dropdown" aria-haspopup="true"
+                                                            aria-expanded="false">
+                                                        Paths
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        {{#paths}}
+                                                            <a class="dropdown-item btnAddBookToPath"
+                                                               data-id="{{pathUID}}"
+                                                               data-book="{{bookUID}}">{{path_name}}</a>
+                                                        {{/paths}}
                                                     </div>
-                                                </td>
-                                            </tr>
-                                            {{/books}}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {{/books}}
+                                    </tbody>
+                                </table>
                             </div>
-                        </div> <!-- simple table -->
-                    </div> <!-- .col-12 -->
-                </div> <!-- .row -->
-            </div> <!-- .container-fluid -->
-        </main> <!-- main -->
-    </div> <!-- .wrapper -->
+                        </div>
+                    </div> <!-- simple table -->
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
 
-    {{> include}}
-    {{> menu }}
-    {{> navbar }}
+{{> include}}
+{{> menu }}
+{{> navbar }}
 
-    <script>
-        $(document).ready(function () {
+<script>
+    $(document).ready(function () {
 
-            $(".btnAddBookToPath").on('click', function (e) {
-                ajaxCall('POST', "/books/" + $(this).data("book") + "/paths", "pathUID=" + $(this).data("id"), true)
-            });
-
+        $(".btnAddBookToPath").on('click', function (e) {
+            ajaxCall('POST', "/books/" + $(this).data("book") + "/paths", "pathUID=" + $(this).data("id"), true)
         });
-    </script>
+
+    });
+</script>
 </body>
 
 </html>
