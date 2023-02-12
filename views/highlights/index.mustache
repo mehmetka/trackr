@@ -15,8 +15,7 @@
             max-height: 100%;
         }
     </style>
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+    <link rel="stylesheet" href="/css/highlightjs/default.min.css">
 </head>
 
 <body class="vertical dark">
@@ -69,8 +68,9 @@
 
                     <div>
                         {{#headerTags}}
-                        <a role="button" href="/highlights{{#href}}?tag={{href}}{{/href}}" class="badge badge-{{badge}}">
-                            <strong>#{{tag}}</strong>
+                        <a role="button" href="/highlights{{#href}}?tag={{href}}{{/href}}" class="badge badge-{{badge}}
+                            ">
+                            <strong>#{{tag}} ({{tag_count}})</strong>
                             </a>
                         {{/headerTags}}
                     </div>
@@ -124,6 +124,7 @@
                         </div>
                         <br class="highlightCardBR">
                     {{/highlights}}
+
                     </script>
                     <%={{ }}=%>
 
@@ -137,10 +138,10 @@
 {{> menu }}
 {{> navbar }}
 <script src="/js/mustache.min.js"></script>
-<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/dkern/jquery.lazy@1.7.10/jquery.lazy.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/dkern/jquery.lazy@1.7.10/jquery.lazy.plugins.min.js"></script>
+<script src="/js/simplemde.min.js"></script>
+<script src="/js/highlight.min.js"></script>
+<script src="/js/jquery.lazy.min.js"></script>
+<script src="/js/jquery.lazy.plugins.min.js"></script>
 
 <script>
     $(document).ready(function () {

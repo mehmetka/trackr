@@ -105,10 +105,15 @@ class TagModel
 
     public function getSourceTagsByType($type, $tag = null)
     {
-        $sql = 'SELECT DISTINCT t.tag, t.id
+        $sql = 'SELECT t.tag,
+                       t.id,
+                       count(*) AS tag_count
                 FROM tag_relationships tr
-                INNER JOIN tags t ON tr.tag_id = t.id
-                WHERE tr.type = :sourceType AND tr.is_deleted = 0 AND tr.user_id = :user_id
+                         INNER JOIN tags t ON tr.tag_id = t.id
+                WHERE tr.type = :sourceType
+                  AND tr.is_deleted = 0
+                  AND tr.user_id = :user_id
+                GROUP BY t.tag
                 ORDER BY t.tag';
 
         $stm = $this->dbConnection->prepare($sql);
