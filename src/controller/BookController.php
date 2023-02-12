@@ -53,7 +53,7 @@ class BookController extends Controller
         $data = [
             'title' => 'Paths | trackr',
             'bookPaths' => $paths,
-            'activeBookPaths' => 'active'
+            'activeBookPaths' => 'active',
         ];
 
         return $this->view->render($response, 'books/paths.mustache', $data);
@@ -401,15 +401,10 @@ class BookController extends Controller
     {
         $graphicDatas = $this->bookModel->getBookTrackingsGraphicData();
 
-        echo "<pre>";
-        print_r($graphicDatas);
-        die;
+        $resource['data'] = $graphicDatas;
+        $resource['responseCode'] = StatusCode::HTTP_OK;
 
-        $resource = [
-            "data" => $graphicDatas,
-            "message" => "Success!"
-        ];
-
-        return $this->response(StatusCode::HTTP_OK, $resource);
+        return $this->response($resource['responseCode'], $resource);
     }
+
 }

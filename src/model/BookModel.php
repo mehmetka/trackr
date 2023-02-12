@@ -2,6 +2,7 @@
 
 namespace App\model;
 
+use App\entity\Book;
 use App\util\TimeUtil;
 use App\exception\CustomException;
 use Psr\Container\ContainerInterface;
@@ -627,7 +628,7 @@ class BookModel
 
     public function getPathsList()
     {
-        $sql = 'SELECT id AS path_id, uid AS pathUID, name AS path_name, start, finish 
+        $sql = 'SELECT id AS path_id, uid AS pathUID, name AS path_name, start, finish, status
                 FROM paths
                 WHERE user_id = :user_id
                 ORDER BY id DESC';
@@ -1087,75 +1088,6 @@ class BookModel
         return true;
     }
 
-    public function getBookTrackingsGraphicData()
-    {
-        $paths = $this->getPathsList();
-        $result = [];
-
-        foreach ($paths as $path) {
-            $graphicDatas = $this->getBookTrackingsByPathID($path['path_id']);
-            $preparedData = $this->prepareBookTrackingsGraphicData($graphicDatas);
-            $preparedData['series']['name'] = $path['path_name'];
-            $result[] = $preparedData;
-        }
-
-        return $result;
-    }
-
-    public function getBookTrackingsByPathID($pathID)
-    {
-        $trackings = [];
-
-        $sql = "SELECT FROM_UNIXTIME(record_date, '%m/%d/%Y GMT') AS date, amount
-                FROM book_trackings
-                WHERE path_id = :pathID AND user_id = :user_id";
-
-        $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':pathID', $pathID, \PDO::PARAM_INT);
-        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
-
-        if (!$stm->execute()) {
-            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
-        }
-
-        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $trackings[] = $row;
-        }
-
-        return $trackings;
-    }
-
-    public function prepareBookTrackingsGraphicData($bookTrackings)
-    {
-        $result = ['series' => ['data' => []], 'xaxisCategories' => []];
-        $tmp = [];
-        $dayCount = 1;
-
-        foreach ($bookTrackings as $bookTracking) {
-
-            if (isset($tmp[$bookTracking['date']])) {
-
-                if ($dayCount > 10) {
-                    break;
-                }
-
-                $tmp[$bookTracking['date']] += $bookTracking['amount'];
-
-                $dayCount += 1;
-            } else {
-                $tmp[$bookTracking['date']] = $bookTracking['amount'];
-            }
-
-        }
-
-        foreach ($tmp as $key => $value) {
-            $result['series']['data'][] = $value;
-            $result['xaxisCategories'][] = $key;
-        }
-
-        return $result;
-    }
-
     public function getMyBooksCount()
     {
         $myBookCount = 0;
@@ -1400,6 +1332,72 @@ class BookModel
         }
 
         return $authorId;
+    }
+
+    public function getBookTrackingsGraphicData()
+    {
+        $paths = $this->getPathsList();
+        $result = [];
+
+        foreach ($paths as $path) {
+
+            if ($path['status'] != 0) {
+                continue;
+            }
+
+            $tmpData = [];
+            $preparedData = [];
+            $rawData = $this->getBookTrackingsByPathID($path['path_id']);
+            $tmpData = $this->prepareBookTrackingsGraphicData($rawData);
+            $preparedData['name'] = $path['path_name'];
+            $preparedData['data'] = $tmpData['amounts'];
+            $result['trackings'][] = $preparedData;
+        }
+
+        $result['dates'] = TimeUtil::generateDateListKV(Book::TRACKING_DATA_DATE_LIMIT);
+
+        return $result;
+    }
+
+    public function getBookTrackingsByPathID($pathID)
+    {
+        $trackings = [];
+
+        $sql = "SELECT FROM_UNIXTIME(record_date, '%Y-%m-%d') AS date, amount
+                FROM book_trackings
+                WHERE path_id = :pathID AND user_id = :user_id";
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':pathID', $pathID, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $trackings[] = $row;
+        }
+
+        return $trackings;
+    }
+
+    public function prepareBookTrackingsGraphicData($bookTrackings)
+    {
+        $dates = TimeUtil::generateDateListArray(Book::TRACKING_DATA_DATE_LIMIT);
+        $amountData = [];
+
+        foreach ($bookTrackings as $trackingData) {
+            if (isset($dates[$trackingData['date']])) {
+                $dates[$trackingData['date']] += $trackingData['amount'];
+            }
+        }
+
+        foreach ($dates as $date => $amount) {
+            $amountData[] = $amount;
+        }
+
+        return ['amounts' => $amountData];
     }
 
 }

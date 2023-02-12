@@ -75,9 +75,9 @@
                         {{/bookPaths}}
                     </div>
 
-                    <!-- <div class="my-4">
+                    <div class="my-4">
                         <div id="lineChart"></div>
-                    </div> -->
+                    </div>
 
                 </div> <!-- .col-12 -->
             </div> <!-- .row -->
@@ -89,11 +89,17 @@
 {{> menu }}
 {{> navbar }}
 
-<!--    <script src="/js/apexcharts.min.js"></script>-->
+<script src="/js/apexcharts.min.js"></script>
 <script>
     $(document).ready(function () {
 
-        // new ApexCharts(document.querySelector("#lineChart"), lineChartOptions).render();
+        var result = ajaxCall('GET', '/books/trackings/graphic-datas', null, false, false)
+
+        if(result !== false) {
+            lineChartOptions.series = result.data.trackings;
+            lineChartOptions.xaxis.categories = result.data.dates;
+            new ApexCharts(document.querySelector("#lineChart"), lineChartOptions).render();
+        }
 
         $('#pathFinish').daterangepicker({
             singleDatePicker: true,
