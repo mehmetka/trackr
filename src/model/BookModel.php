@@ -1336,6 +1336,7 @@ class BookModel
 
     public function getBookTrackingsGraphicData()
     {
+        $fetchAfter = time() - (Book::TRACKING_DATA_DATE_LIMIT * 86400);
         $paths = $this->getPathsList();
         $result = [];
 
@@ -1347,7 +1348,7 @@ class BookModel
 
             $tmpData = [];
             $preparedData = [];
-            $rawData = $this->getBookTrackingsByPathID($path['path_id']);
+            $rawData = $this->getBookTrackingsByPathID($path['path_id'], $fetchAfter);
             $tmpData = $this->prepareBookTrackingsGraphicData($rawData);
             $preparedData['name'] = $path['path_name'];
             $preparedData['data'] = $tmpData['amounts'];
@@ -1359,16 +1360,25 @@ class BookModel
         return $result;
     }
 
-    public function getBookTrackingsByPathID($pathID)
+    /**
+     * @param $pathID
+     * @param $fetchAfter
+     * @return array
+     * @throws CustomException
+     *
+     * $fetchAfter is timestamp, will be use in where condition to fetch rows after it
+     */
+    public function getBookTrackingsByPathID($pathID, $fetchAfter)
     {
         $trackings = [];
 
         $sql = "SELECT FROM_UNIXTIME(record_date, '%Y-%m-%d') AS date, amount
                 FROM book_trackings
-                WHERE path_id = :pathID AND user_id = :user_id";
+                WHERE path_id = :pathID AND user_id = :user_id AND record_date > :fetchAfter";
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':pathID', $pathID, \PDO::PARAM_INT);
+        $stm->bindParam(':fetchAfter', $fetchAfter, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
