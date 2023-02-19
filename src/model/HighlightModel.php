@@ -29,7 +29,7 @@ class HighlightModel
         $limit = $limit ? $limit : 500;
         $list = [];
 
-        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created, h.is_encrypted
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted
                 FROM highlights h';
 
         if ($tag) {
@@ -76,6 +76,7 @@ class HighlightModel
             }
 
             $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
+            $row['updated_at_formatted'] = date('Y-m-d H:i:s', $row['updated']);
             $tags = $this->tagModel->getTagsBySourceId($row['id'], HighlightController::SOURCE_TYPE);
 
             if ($tags) {
