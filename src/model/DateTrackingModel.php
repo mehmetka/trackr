@@ -53,6 +53,7 @@ class DateTrackingModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['diff'] = TimeUtil::calculateAge($today, $row['start']);
+            $row['detailedDiff'] = TimeUtil::calculateAgeV2($today, $row['start']);
             $row['start'] = date('d/m/Y', strtotime($row['start']));
             $list[] = $row;
         }
