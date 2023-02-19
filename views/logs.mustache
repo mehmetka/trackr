@@ -32,16 +32,18 @@
                         </div>
                     </div>
 
-                    {{#logs}}
-                        <div class="card mb-4">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{date}}</h5>
+
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                {{#logs}}
+                                    <h5 class="card-title"># {{date}}</h5>
                                     {{{log}}}
-                                </div>
+                                {{/logs}}
                             </div>
                         </div>
-                    {{/logs}}
+                    </div>
+
 
                 </div> <!-- .col-12 -->
             </div> <!-- .row -->
@@ -52,7 +54,7 @@
 {{> include}}
 {{> menu }}
 {{> navbar }}
-<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+<script src="/js/simplemde.min.js"></script>
 
 <script>
     $(document).ready(function () {
