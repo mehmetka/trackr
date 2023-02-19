@@ -169,6 +169,7 @@
             var simplemdeHighlight = new SimpleMDE({
                 element: $("#highlight")[0],
                 toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
+                insertTexts: {"image": ["[", "]({{base_url}}/img/)"]},
             });
             $('#highlight').show();
         }
@@ -176,6 +177,7 @@
         var simplemdeComment = new SimpleMDE({
             element: $("#comment")[0],
             toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
+            insertTexts: {"image": ["[", "]({{base_url}}/img/)"]},
         });
         $('#comment').show();
 

@@ -60,6 +60,7 @@ class HighlightController extends Controller
             'activeHighlights' => 'active',
             'nextID' => $nextID,
             'previousID' => $previousID,
+            'base_url' => $_ENV['TRACKR_BASE_URL']
         ];
 
         return $this->view->render($response, 'highlights/details.mustache', $data);
