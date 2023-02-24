@@ -823,10 +823,8 @@ class BookModel
         return true;
     }
 
-    public function insertProgressRecord($bookId, $pathId, $amount)
+    public function insertProgressRecord($bookId, $pathId, $amount, $recordDate)
     {
-        $now = time();
-
         $this->setBookPathStatus($pathId, $bookId, $this->pathStatusInfos['reading']['id']);
 
         $sql = 'INSERT INTO book_trackings (book_id, path_id, record_date, amount, user_id)
@@ -835,7 +833,7 @@ class BookModel
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
         $stm->bindParam(':path_id', $pathId, \PDO::PARAM_INT);
-        $stm->bindParam(':record_date', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':record_date', $recordDate, \PDO::PARAM_INT);
         $stm->bindParam(':amount', $amount, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
