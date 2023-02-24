@@ -86,8 +86,8 @@ class LogModel
     public function update($date, $log)
     {
         $sql = 'UPDATE logs
-                SET date = :date, log = :log
-                WHERE user_id = :user_id';
+                SET log = :log
+                WHERE user_id = :user_id AND date = :date';
 
         $stm = $this->dbConnection->prepare($sql);
 
