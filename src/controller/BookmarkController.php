@@ -52,7 +52,7 @@ class BookmarkController extends Controller
         $details = $this->bookmarkModel->getChildBookmarkById($bookmarkId, $_SESSION['userInfos']['user_id']);
         $highlights = $this->bookmarkModel->getHighlights($bookmarkId);
         $tags = $this->tagModel->getTagsBySourceId($bookmarkId, BookmarkController::SOURCE_TYPE);
-        $tags['imploded_comma'] .= in_array($details['keyword'], $tags['tags']) ? ', ' . $details['keyword'] : '';
+        $tags['imploded_comma'] .= !in_array($details['keyword'], $tags['tags']) ? ', ' . $details['keyword'] : '';
         $_SESSION['bookmarks']['highlights']['bookmarkID'] = $bookmarkId;
 
         $data = [
