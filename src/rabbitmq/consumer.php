@@ -308,7 +308,7 @@ function process_message($message)
 
         if ($keyword) {
             echo "found a keyword for $bookmarkId -> $keyword\n";
-            $keyword = strtolower($keyword);
+            $keyword = strtolower(preg_replace('/\P{L}+/u', '', $keyword));
             $bookmarkModel->updateKeyword($bookmarkId, $keyword);
         }
     }
