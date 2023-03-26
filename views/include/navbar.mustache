@@ -1,0 +1,13 @@
+<nav class="topnav navbar navbar-light">
+    <button type="button" class="navbar-toggler text-muted mt-2 p-0 mr-3 collapseSidebar">
+        <i class="fe fe-menu navbar-toggler-icon"></i>
+    </button>
+</nav>
+
+<script>
+    $(document).ready(function () {
+        $(".collapseSidebar").on("click", function (e) {
+            $(".vertical").hasClass("narrow") ? $(".vertical").toggleClass("open") : ($(".vertical").toggleClass("collapsed"), $(".vertical").hasClass("hover") && $(".vertical").removeClass("hover")), e.preventDefault()
+        })
+    });
+</script>
