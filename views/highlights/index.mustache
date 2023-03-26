@@ -66,13 +66,32 @@
                         </div>
                     </div>
 
-                    <div>
-                        {{#headerTags}}
-                        <a role="button" href="/highlights{{#href}}?tag={{href}}{{/href}}" class="badge badge-{{badge}}">
-                            <strong>#{{tag}} ({{tag_count}})</strong>
-                            </a>
-                        {{/headerTags}}
-                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="accordion w-100" id="accordion1">
+                                <div class="card shadow">
+                                    <div class="card-header" id="heading1">
+                                        <a role="button" href="#collapse1" data-toggle="collapse"
+                                           data-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
+                                            <strong>Tags</strong>
+                                        </a>
+                                    </div>
+                                    <div id="collapse1" class="collapse" aria-labelledby="heading1"
+                                         data-parent="#accordion1">
+                                        <div class="card-body">
+                                            {{#headerTags}}
+                                            <a role="button" href="/highlights{{#href}}?tag={{href}}{{/href}}"
+                                                class="badge badge-{{badge}}
+                                                ">
+                                                <strong>#{{tag}} ({{tag_count}})</strong>
+                                                </a>
+                                            {{/headerTags}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- end section -->
 
                     <br>
 
@@ -87,7 +106,8 @@
                                 {{{highlight}}}
 
                                 <footer class="blockquote-footer">
-                                    {{author}} <cite>{{source}}</cite> ~ {{created_at_formatted}}/{{updated_at_formatted}}
+                                    {{author}} <cite>{{source}}</cite> ~ {{created_at_formatted}}
+                                    /{{updated_at_formatted}}
 
                                     {{#tags}}
                                         <br><br>
@@ -123,6 +143,9 @@
                         </div>
                         <br class="highlightCardBR">
                     {{/highlights}}
+
+
+
 
                     </script>
                     <%={{ }}=%>
