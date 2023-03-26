@@ -2,6 +2,7 @@
 
 namespace App\controller;
 
+use App\entity\Book;
 use App\model\TagModel;
 use App\util\EncryptionUtil;
 use Slim\Http\StatusCode;
@@ -28,7 +29,18 @@ class HighlightController extends Controller
     {
         $queryString = $request->getQueryParams();
 
-        $highlights = $this->highlightModel->getHighlights($queryString['tag'], $_ENV['HIGHLIGHT_LIMIT']);
+        if (isset($queryString['tag'])) {
+            $highlights = $this->highlightModel->getHighlightsByTag($queryString['tag'], $_ENV['HIGHLIGHT_LIMIT']);
+        } elseif (isset($queryString['author'])) {
+            $highlights = $this->highlightModel->getHighlightsByGivenField(Book::COLUMN_AUTHOR, $queryString['author'],
+                $_ENV['HIGHLIGHT_LIMIT']);
+        } elseif (isset($queryString['source'])) {
+            $highlights = $this->highlightModel->getHighlightsByGivenField(Book::COLUMN_SOURCE, $queryString['source'],
+                $_ENV['HIGHLIGHT_LIMIT']);
+        } else {
+            $highlights = $this->highlightModel->getHighlights($_ENV['HIGHLIGHT_LIMIT']);
+        }
+
 
         $tags = $this->tagModel->getSourceTagsByType(self::SOURCE_TYPE, $queryString['tag']);
 
@@ -68,7 +80,7 @@ class HighlightController extends Controller
 
     public function all(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $highlights = $this->highlightModel->getHighlights(null, 100);
+        $highlights = $this->highlightModel->getHighlights(100);
 
         $data = [
             'highlights' => $highlights

@@ -24,69 +24,113 @@ class HighlightModel
         $this->tagModel = new TagModel($container);
     }
 
-    public function getHighlights($tag = null, $limit = null)
+    public function getHighlights($limit = null)
     {
         $limit = $limit ? $limit : 500;
         $list = [];
 
         $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted
-                FROM highlights h';
-
-        if ($tag) {
-            $sql .= ' LEFT JOIN tag_relationships tr ON h.id = tr.source_id
-                LEFT JOIN tags t ON tr.tag_id = t.id';
-        }
-
-        $sql .= ' WHERE h.is_deleted = 0 AND h.user_id = :user_id';
-
-        if ($tag) {
-            $sql .= ' AND t.tag = :tag AND tr.type = 1';
-        }
-
-        $sql .= ' ORDER BY h.updated DESC LIMIT :limit';
+                FROM highlights h
+                WHERE h.is_deleted = 0 AND h.user_id = :user_id
+                ORDER BY h.updated DESC LIMIT :limit';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':limit', $limit, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
-
-        if ($tag) {
-            $stm->bindParam(':tag', $tag, \PDO::PARAM_STR);
-        }
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            if ($row['is_encrypted']) {
-                $row['highlight'] = EncryptionUtil::decrypt($row['highlight']);
-                if ($row['highlight'] === null) {
-                    $row['highlight'] = 'Could not be decrypted, your encryption key might be broken. Do not update this highlight otherwise you might loss your highlight';
-                }
-            }
-
-            $row['highlight'] = MarkdownUtil::convertToHTML($row['highlight']);
-            $row['highlight'] = str_replace('<img src="', '<img class="lazy" data-src="', $row['highlight']);
-            $decimalHashtags = StringUtil::getDecimalHashtags($row['highlight']);
-
-            if ($decimalHashtags) {
-                foreach ($decimalHashtags as $id) {
-                    $row['highlight'] = str_replace('#' . $id, "<a href='/highlights/$id'>#$id</a>", $row['highlight']);
-                }
-            }
-
-            $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
-            $row['updated_at_formatted'] = date('Y-m-d H:i:s', $row['updated']);
-            $tags = $this->tagModel->getTagsBySourceId($row['id'], HighlightController::SOURCE_TYPE);
-
-            if ($tags) {
-                $row['tags'] = $tags;
-            }
-
-            $list[] = $row;
+            $list[] = $this->processHighlightRecord($row);
         }
 
         return $list;
+    }
+
+    public function getHighlightsByGivenField($field, $param, $limit = null)
+    {
+        $limit = $limit ? $limit : 500;
+        $list = [];
+
+        $sql = "SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted
+                FROM highlights h
+                WHERE h.is_deleted = 0 AND h.user_id = :user_id AND $field = :param 
+                ORDER BY h.updated DESC LIMIT :limit";
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':limit', $limit, \PDO::PARAM_INT);
+        $stm->bindParam(':param', $param, \PDO::PARAM_STR);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $list[] = $this->processHighlightRecord($row);
+        }
+
+        return $list;
+    }
+
+    public function getHighlightsByTag($tag, $limit = null)
+    {
+        $limit = $limit ? $limit : 500;
+        $list = [];
+
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted
+                FROM highlights h LEFT JOIN tag_relationships tr ON h.id = tr.source_id
+                LEFT JOIN tags t ON tr.tag_id = t.id
+                WHERE h.is_deleted = 0 AND h.user_id = :user_id AND t.tag = :tag AND tr.type = 1
+                ORDER BY h.updated DESC LIMIT :limit';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':limit', $limit, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+        $stm->bindParam(':tag', $tag, \PDO::PARAM_STR);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $list[] = $this->processHighlightRecord($row);
+        }
+
+        return $list;
+    }
+
+    public function processHighlightRecord($highlight)
+    {
+        if ($highlight['is_encrypted']) {
+            $highlight['highlight'] = EncryptionUtil::decrypt($highlight['highlight']);
+            if ($highlight['highlight'] === null) {
+                $highlight['highlight'] = 'Could not be decrypted, your encryption key might be broken. Do not update this highlight otherwise you might loss your highlight';
+            }
+        }
+
+        $highlight['highlight'] = MarkdownUtil::convertToHTML($highlight['highlight']);
+        $highlight['highlight'] = str_replace('<img src="', '<img class="lazy" data-src="', $highlight['highlight']);
+        $decimalHashtags = StringUtil::getDecimalHashtags($highlight['highlight']);
+
+        if ($decimalHashtags) {
+            foreach ($decimalHashtags as $id) {
+                $highlight['highlight'] = str_replace('#' . $id, "<a href='/highlights/$id'>#$id</a>",
+                    $highlight['highlight']);
+            }
+        }
+
+        $highlight['created_at_formatted'] = date('Y-m-d H:i:s', $highlight['created']);
+        $highlight['updated_at_formatted'] = date('Y-m-d H:i:s', $highlight['updated']);
+        $tags = $this->tagModel->getTagsBySourceId($highlight['id'], HighlightController::SOURCE_TYPE);
+
+        if ($tags) {
+            $highlight['tags'] = $tags;
+        }
+
+        return $highlight;
     }
 
     public function getHighlightByID($id)
@@ -449,6 +493,50 @@ class HighlightModel
         }
 
         return $list;
+    }
+
+    public function getHighlightAuthors()
+    {
+        $result = [];
+
+        $sql = 'SELECT count(*) AS highlightCount, author FROM highlights 
+                WHERE user_id = :user_id
+                GROUP BY author';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $result[] = $row;
+        }
+
+        return $result;
+    }
+
+    public function getHighlightSources()
+    {
+        $result = [];
+
+        $sql = 'SELECT count(*) AS highlightCount, source FROM highlights 
+                WHERE user_id = :user_id
+                GROUP BY source';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $result[] = $row;
+        }
+
+        return $result;
     }
 
 }
