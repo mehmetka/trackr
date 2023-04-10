@@ -5,6 +5,7 @@
 </head>
 <body class="vertical dark">
 <div class="wrapper">
+    {{> include}}
     {{> navbar }}
     <main role="main" class="main-content">
         <div class="container-fluid">
@@ -42,9 +43,7 @@
     </main> <!-- main -->
 </div> <!-- .wrapper -->
 
-{{> include}}
 {{> menu }}
-{{> navbar }}
 
 <script>
     $(document).ready(function () {
