@@ -34,13 +34,30 @@
                         </div>
                     </div>
 
-                    <div>
-                        {{#bookmarkCategories}}
-                        <a role="button" href="/bookmarks{{#href}}?tag={{tag}}{{/href}}" class="badge badge-{{badge}}">
-                            <strong>#{{tag}} ({{tag_count}})</strong>
-                            </a>
-                        {{/bookmarkCategories}}
-                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="accordion w-100" id="accordion1">
+                                <div class="card shadow">
+                                    <div class="card-header" id="heading1">
+                                        <a role="button" href="#collapse1" data-toggle="collapse"
+                                           data-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
+                                            <strong>Tags</strong>
+                                        </a>
+                                    </div>
+                                    <div id="collapse1" class="collapse" aria-labelledby="heading1"
+                                         data-parent="#accordion1">
+                                        <div class="card-body">
+                                            {{#bookmarkCategories}}
+                                            <a role="button" href="/bookmarks{{#href}}?tag={{tag}}{{/href}}" class="badge badge-{{badge}}">
+                                                <strong>#{{tag}} ({{tag_count}})</strong>
+                                                </a>
+                                            {{/bookmarkCategories}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- end section -->
 
                     <br>
 
