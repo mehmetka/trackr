@@ -300,7 +300,7 @@ function process_message($message)
 
         $headers = [
             "Content-Type: application/json",
-            "Authorization: Bearer {$_ENV['OPENAI_CHATGPT_API_KEY']}"
+            "Authorization: Bearer {$_ENV['OPENAI_API_KEY']}"
         ];
 
         $response = RequestUtil::makeHttpRequest($requestGoesTo, RequestUtil::HTTP_POST, $bodyParams, $headers);

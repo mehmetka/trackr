@@ -26,7 +26,7 @@ RABBITMQ_USER=guest
 RABBITMQ_PASSWORD=guest
 RABBITMQ_VHOST=/
 
-OPENAI_CHATGPT_API_KEY=xyz
+OPENAI_API_KEY=xyz
 ```
 
 ### Themes and Used Libraries
