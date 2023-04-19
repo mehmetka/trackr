@@ -144,7 +144,7 @@ class BookController extends Controller
                     $resource['message'] = "You can't add progress more than remaining amount!";
                 } else {
                     if ($params['amount'] > 0) {
-                        $recordTime = $params['readYesterday'] ? time() - 86400 : time();
+                        $recordTime = $params['readYesterday'] ? strtotime("today 1 sec ago") : time();
                         $this->bookModel->insertProgressRecord($bookId, $pathDetails['id'], $params['amount'], $recordTime);
                         $resource['responseCode'] = StatusCode::HTTP_OK;
                         $resource['message'] = "Success!";
