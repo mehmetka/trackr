@@ -574,7 +574,9 @@ class BookModel
                        bo.created_at,
                        b.info_link,
                        b.thumbnail,
-                       b.thumbnail_small
+                       b.thumbnail_small,
+                       b.pdf,
+                       b.epub
                 FROM books b
                          LEFT JOIN books_ownership bo ON b.id = bo.book_id AND bo.user_id = :user_id
                 ORDER BY b.id DESC";
@@ -595,6 +597,10 @@ class BookModel
             }
 
             $row['created_at'] = date("Y-m-d", $row['created_at']);
+
+            if ($row['pdf'] || $row['epub']) {
+                $row['ebook'] = true;
+            }
 
             $list[] = $row;
         }
