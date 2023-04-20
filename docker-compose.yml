@@ -4,6 +4,7 @@ services:
   db:
     container_name: trackr-db
     image: mysql:5.7
+    restart: always
     ports:
       - "3307:3306"
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql_mode="TRADITIONAL"
@@ -18,6 +19,7 @@ services:
     container_name: trackr-web
     build: .
     image: phpdev
+    restart: always
     ports:
       - "8081:80"
     depends_on:
@@ -28,6 +30,7 @@ services:
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: trackr-rabbitmq
+    restart: always
     ports:
       - "5673:5672"
       - "15673:15672"
@@ -38,7 +41,7 @@ services:
     container_name: trackr-consumer
     build: ./src/rabbitmq
     image: trackr-amqp-consumer
-    entrypoint: ['php', '/trackr/src/rabbitmq/consumer.php']
+    entrypoint: [ 'php', '/trackr/src/rabbitmq/consumer.php' ]
     volumes:
       - .:/trackr
     restart: on-failure
@@ -48,6 +51,14 @@ services:
     networks:
       trackr:
         ipv4_address: 192.168.3.5
+  redis:
+    image: redis:7-alpine
+    container_name: trackr-redis
+    restart: always
+    networks:
+      trackr:
+        ipv4_address: 192.168.3.6
+
 networks:
   trackr:
     ipam:
