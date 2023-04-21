@@ -34,6 +34,7 @@ class LogController extends Controller
         $data['base_url'] = $_ENV['TRACKR_BASE_URL'];
         $data['todaysLog'] = $todayLog['log'];
         $data['today'] = $today;
+        $data['activeLogs'] = 'active';
 
         return $this->view->render($response, 'logs.mustache', $data);
     }
