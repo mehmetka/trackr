@@ -20,8 +20,8 @@ if(!strpos($_ENV['TRACKR_BASE_URL'], $_SERVER['HTTP_HOST'])){
 }
 
 $settings['settings'] = [
-    'displayErrorDetails' => $_ENV['displayErrorDetails'],
-    'debug' => $_ENV['debug']
+    'displayErrorDetails' => $_ENV['DISPLAY_ERROR_DETAILS'],
+    'debug' => $_ENV['DEBUG']
 ];
 
 $app = new App($settings);
