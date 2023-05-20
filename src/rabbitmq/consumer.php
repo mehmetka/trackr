@@ -101,7 +101,7 @@ function process_message($message)
                 try {
                     $bookmarkModel->updateParentBookmark($bookmarkDetails['id'], $newBookmarkDetails);
                 } catch (Exception $exception) {
-                    echo 'Error occured: ' . $exception->getMessage() . PHP_EOL;
+                    printLog('Error occured: ' . $exception->getMessage());
                 }
 
                 printLog("completed 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}");
