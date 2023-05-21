@@ -66,14 +66,22 @@
                                         </div>
                                     {{/link}}
 
-                                    <div class="form-group">
-                                        <input id="filename" placeholder="File Name" type="text" class="form-control"
-                                               value="{{file_name}}">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-6">
+                                            <input id="blog_path" placeholder="Blog Path" type="text" class="form-control"
+                                                   value="{{blog_path}}">
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <input id="filename" placeholder="File Name" type="text" class="form-control"
+                                                   value="{{file_name}}">
+                                        </div>
                                     </div>
+
                                     <div class="form-group">
                                         <input id="tags" placeholder="Tags" type="text" class="form-control"
                                                value="{{#tags}}{{imploded_comma}}{{/tags}}">
                                     </div>
+
                                     <div class="form-group custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input" id="is_secret"
                                                {{#is_secret}}checked="checked"{{/is_secret}}>
@@ -218,6 +226,7 @@
             var fileName = $('#filename').val();
             var tags = $('#tags').val();
             var highlightID = $(this).data('id');
+            var blogPath = $('#blog_path').val();
             var is_secret = $('#is_secret').is(":checked") ? 1 : 0;
             var is_encrypted = $('#is_encrypted').is(":checked") ? 'Yes' : 'No';
             var data = "highlight=" + encodeURIComponent(highlight) +
@@ -228,6 +237,7 @@
                     "&link=" + link +
                     "&filename=" + encodeURIComponent(fileName) +
                     "&tags=" + tags +
+                    "&blogPath=" + encodeURIComponent(blogPath) +
                     "&is_secret=" + is_secret +
                     "&is_encrypted=" + encodeURIComponent(is_encrypted);
 

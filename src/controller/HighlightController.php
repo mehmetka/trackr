@@ -152,11 +152,16 @@ class HighlightController extends Controller
             $params['highlight'] = trim($params['highlight']);
         }
 
-        $highlightId = $this->highlightModel->create($params);
-
         if (!$params['tags']) {
             $params['tags'] = 'general';
+            $params['blogPath'] = 'general';
+        } else {
+            $params['tags'] = str_replace(' ', '', trim($params['tags']));
+            $params['blogPath'] = str_replace(',', '/', $params['tags']);
         }
+
+        $highlightId = $this->highlightModel->create($params);
+
         $this->tagModel->updateSourceTags($params['tags'], $highlightId, self::SOURCE_TYPE);
 
         $_SESSION['badgeCounts']['highlightsCount'] += 1;

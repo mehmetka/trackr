@@ -186,6 +186,7 @@ CREATE TABLE `highlights`
     `location`     varchar(45) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
     `link`         int(11)                                 DEFAULT NULL,
     `file_name`    varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `blog_path`    varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
     `type`         int(11)                                 DEFAULT '0',
     `is_secret`    int(11)                                 DEFAULT '1',
     `is_encrypted` int(11)                                 DEFAULT '0',
@@ -295,7 +296,8 @@ CREATE TABLE `tag_relationships`
     `deleted_at` int(11) DEFAULT NULL,
     `user_id`    int(11) DEFAULT NULL,
     PRIMARY KEY (`id`),
-    KEY `idx_source_id` (`source_id`)
+    KEY `idx_source_id` (`source_id`),
+    KEY `idx_tag_id` (`tag_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
