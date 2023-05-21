@@ -64,7 +64,6 @@ class BookmarkController extends Controller
             'highlights' => $highlights,
             'activeBookmarks' => 'active',
             'bookmarkUID' => $bookmarkUid,
-            'base_url' => $_ENV['TRACKR_BASE_URL'],
             'tags' => $tags['imploded_comma']
         ];
 

@@ -49,8 +49,7 @@ class HighlightController extends Controller
             'tag' => htmlentities($queryString['tag']),
             'headerTags' => $tags,
             'highlights' => $highlights,
-            'activeHighlights' => 'active',
-            'base_url' => $_ENV['TRACKR_BASE_URL']
+            'activeHighlights' => 'active'
         ];
 
         return $this->view->render($response, 'highlights/index.mustache', $data);
@@ -71,8 +70,7 @@ class HighlightController extends Controller
             'subHighlights' => $subHighlights,
             'activeHighlights' => 'active',
             'nextID' => $nextID,
-            'previousID' => $previousID,
-            'base_url' => $_ENV['TRACKR_BASE_URL']
+            'previousID' => $previousID
         ];
 
         return $this->view->render($response, 'highlights/details.mustache', $data);

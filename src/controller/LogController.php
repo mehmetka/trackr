@@ -31,7 +31,6 @@ class LogController extends Controller
         }
 
         $data['logs'] = $this->logModel->getLogs();
-        $data['base_url'] = $_ENV['TRACKR_BASE_URL'];
         $data['todaysLog'] = $todayLog['log'];
         $data['today'] = $today;
         $data['activeLogs'] = 'active';
