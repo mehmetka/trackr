@@ -2,7 +2,7 @@
 
 namespace App\model;
 
-use App\controller\BookmarkController;
+use App\enum\Sources;
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
 use Slim\Http\StatusCode;
@@ -263,7 +263,7 @@ class BookmarkModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
 
-            $tags = $this->tagModel->getTagsBySourceId($row['id'], BookmarkController::SOURCE_TYPE);
+            $tags = $this->tagModel->getTagsBySourceId($row['id'], Sources::BOOKMARK);
 
             if ($tags) {
                 $row['tags'] = $tags;
@@ -303,7 +303,7 @@ class BookmarkModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
 
-            $tags = $this->tagModel->getTagsBySourceId($row['id'], BookmarkController::SOURCE_TYPE);
+            $tags = $this->tagModel->getTagsBySourceId($row['id'], Sources::BOOKMARK);
 
             if ($tags) {
                 $row['tags'] = $tags;

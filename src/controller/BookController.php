@@ -2,6 +2,7 @@
 
 namespace App\controller;
 
+use App\enum\Sources;
 use App\exception\CustomException;
 use App\model\BookModel;
 use App\model\TagModel;
@@ -14,7 +15,6 @@ use Slim\Http\StatusCode;
 
 class BookController extends Controller
 {
-    public const SOURCE_TYPE = 3;
     private $bookModel;
     private $tagModel;
 
@@ -310,7 +310,7 @@ class BookController extends Controller
         $authors = $params['authors'];
 
         if ($params['tags']) {
-            $this->tagModel->updateSourceTags($params['tags'], $bookId, self::SOURCE_TYPE);
+            $this->tagModel->updateSourceTags($params['tags'], $bookId, Sources::BOOK);
         }
 
         foreach ($authors as $authorId) {

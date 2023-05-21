@@ -3,6 +3,7 @@
 namespace App\controller;
 
 use App\entity\Book;
+use App\enum\Sources;
 use App\model\TagModel;
 use App\util\EncryptionUtil;
 use Slim\Http\StatusCode;
@@ -14,7 +15,6 @@ use \Psr\Http\Message\ServerRequestInterface;
 
 class HighlightController extends Controller
 {
-    public const SOURCE_TYPE = 1;
     private $highlightModel;
     private $tagModel;
 
@@ -42,7 +42,7 @@ class HighlightController extends Controller
         }
 
 
-        $tags = $this->tagModel->getSourceTagsByType(self::SOURCE_TYPE, $queryString['tag']);
+        $tags = $this->tagModel->getSourceTagsByType(Sources::HIGHLIGHT, $queryString['tag']);
 
         $data = [
             'title' => 'Highlights | trackr',
@@ -113,8 +113,8 @@ class HighlightController extends Controller
             $params['highlight'] = trim($params['highlight']);
         }
 
-        $this->tagModel->deleteTagsBySourceId($highlightID, self::SOURCE_TYPE);
-        $this->tagModel->updateSourceTags($params['tags'], $highlightID, self::SOURCE_TYPE);
+        $this->tagModel->deleteTagsBySourceId($highlightID, Sources::HIGHLIGHT);
+        $this->tagModel->updateSourceTags($params['tags'], $highlightID, Sources::HIGHLIGHT);
         $this->highlightModel->update($highlightID, $params);
 
         if ($highlightDetails['highlight'] !== $params['highlight']) {
@@ -160,7 +160,7 @@ class HighlightController extends Controller
 
         $highlightId = $this->highlightModel->create($params);
 
-        $this->tagModel->updateSourceTags($params['tags'], $highlightId, self::SOURCE_TYPE);
+        $this->tagModel->updateSourceTags($params['tags'], $highlightId, Sources::HIGHLIGHT);
 
         $_SESSION['badgeCounts']['highlightsCount'] += 1;
 
@@ -193,7 +193,7 @@ class HighlightController extends Controller
             $subHighlightID = $this->highlightModel->create($params);
 
             if ($params['tags']) {
-                $this->tagModel->updateSourceTags($params['tags'], $subHighlightID, self::SOURCE_TYPE);
+                $this->tagModel->updateSourceTags($params['tags'], $subHighlightID, Sources::HIGHLIGHT);
             }
 
             $this->highlightModel->createSubHighlight($highlightID, $subHighlightID);
@@ -214,7 +214,7 @@ class HighlightController extends Controller
         $highlightID = $args['id'];
 
         $this->highlightModel->deleteHighlight($highlightID);
-        $this->tagModel->updateIsDeletedStatusBySourceId(HighlightController::SOURCE_TYPE, $highlightID,
+        $this->tagModel->updateIsDeletedStatusBySourceId(Sources::HIGHLIGHT, $highlightID,
             HighlightModel::NOT_DELETED);
 
         $_SESSION['badgeCounts']['highlightsCount'] -= 1;
