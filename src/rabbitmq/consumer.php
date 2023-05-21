@@ -13,6 +13,7 @@ use App\util\EncodingUtil;
 use App\util\RequestUtil;
 use App\util\TwitterUtil;
 use App\rabbitmq\AmqpJobPublisher;
+use App\enum\LogTypes;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
 use ForceUTF8\Encoding;
@@ -31,12 +32,11 @@ $app = new App($settings);
 $container = $app->getContainer();
 
 $container['db'] = function ($container) {
-
     $dsn = "mysql:host=" . $_ENV['MYSQL_HOST'] . ";dbname=" . $_ENV['MYSQL_DATABASE'] . ";charset=utf8mb4";
     try {
         $db = new \PDO($dsn, $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASSWORD']);
     } catch (\Exception $e) {
-        printLog('Database access problem: ' . $e->getMessage());
+        printLog('Database access problem: ' . $e->getMessage(), LogTypes::ERROR);
         die;
     }
 
@@ -75,7 +75,7 @@ function process_message($message)
         $bookmarkDetails = $bookmarkModel->getParentBookmarkById($messageBody['id']);
 
         if (!$bookmarkDetails) {
-            printLog("bookmark not found. given bookmark id: {$messageBody['id']}");
+            printLog("bookmark not found. given bookmark id: {$messageBody['id']}", LogTypes::WARNING);
             return;
         }
 
@@ -101,14 +101,14 @@ function process_message($message)
                 try {
                     $bookmarkModel->updateParentBookmark($bookmarkDetails['id'], $newBookmarkDetails);
                 } catch (Exception $exception) {
-                    printLog('Error occured: ' . $exception->getMessage());
+                    printLog('error occured: ' . $exception->getMessage(), LogTypes::ERROR);
                 }
 
                 printLog("completed 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}");
 
             } else {
                 if ($messageBody['retry_count'] < 5) {
-                    printLog("Retry count: {$messageBody['retry_count']}");
+                    printLog("Retry count: {$messageBody['retry_count']}", LogTypes::WARNING);
                     $messageBody['retry_count']++;
                     $amqpPublisher = new AmqpJobPublisher();
 
@@ -126,7 +126,7 @@ function process_message($message)
         $bookmarkDetails = $bookmarkModel->getChildBookmarkById($messageBody['id'], $messageBody['user_id']);
 
         if (!$bookmarkDetails) {
-            printLog("bookmark not found. given bookmark id: {$messageBody['id']}");
+            printLog("bookmark not found. given bookmark id: {$messageBody['id']}" , LogTypes::WARNING);
             return;
         }
 
@@ -156,7 +156,7 @@ function process_message($message)
                         $bookmarkModel->updateChildBookmark($bookmarkDetails['id'], $newBookmarkDetails,
                             $messageBody['user_id']);
                     } catch (Exception $exception) {
-                        printLog('Error occured: ' . $exception->getMessage());
+                        printLog('error occured: ' . $exception->getMessage(), LogTypes::ERROR);
                         $web = new \spekulatius\phpscraper;
                         $web->go($bookmarkDetails['bookmark']);
                         $newBookmarkDetails['title'] = strip_tags(trim($web->title));
@@ -174,7 +174,7 @@ function process_message($message)
 
                 } else {
                     if ($messageBody['retry_count'] < 5) {
-                        printLog("Retry count: {$messageBody['retry_count']}");
+                        printLog("Retry count: {$messageBody['retry_count']}", LogTypes::WARNING);
                         $messageBody['retry_count']++;
                         $amqpPublisher = new AmqpJobPublisher();
 
@@ -235,7 +235,7 @@ function process_message($message)
 
                 $bookData['info_link'] = $link->getUri();
             } catch (Exception $e) {
-                printLog('Error occured while scraping book on Idefix: ' . $e->getMessage());
+                printLog('error occured while scraping book on Idefix: ' . $e->getMessage(), LogTypes::ERROR);
             }
 
             $bookData['isbn'] = $isbn;
@@ -284,7 +284,7 @@ function process_message($message)
         $bookmarkDetails = $bookmarkModel->getParentBookmarkById($bookmarkId);
 
         if (!$bookmarkDetails) {
-            printLog("bookmark not found. given bookmark id: $bookmarkId");
+            printLog("bookmark not found. given bookmark id: $bookmarkId", LogTypes::ERROR);
             return;
         }
 
@@ -335,7 +335,7 @@ function getTextBySelector($crawler, $selector)
     try {
         return trim($crawler->filter($selector)->text());
     } catch (Exception $exception) {
-        printLog("error occured while fetching '$selector', error: " . $exception->getMessage());
+        printLog("error occured while fetching '$selector', error: " . $exception->getMessage(), LogTypes::ERROR);
         return null;
     }
 }
@@ -345,12 +345,32 @@ function getAttrBySelector($crawler, $selector, $attrName)
     try {
         return trim($crawler->filter($selector)->attr($attrName));
     } catch (Exception $exception) {
-        printLog("error occured while fetching '$selector', error: " . $exception->getMessage());
+        printLog("error occured while fetching '$selector', error: " . $exception->getMessage(), LogTypes::ERROR);
         return null;
     }
 }
 
-function printLog($message)
+function printLog($message, $type = LogTypes::INFO)
 {
-    echo '[' . date('Y-m-d H:i:s', time()) . '] ' . $message . PHP_EOL;
+    $timestamp = '[' . date('Y-m-d H:i:s', time()) . '] ';
+    $message = $timestamp . $message;
+
+    switch ($type) {
+        case LogTypes::ERROR:
+            echo "\033[31m$message \033[0m\n";
+            break;
+        case LogTypes::SUCCESS:
+            echo "\033[32m$message \033[0m\n";
+            break;
+        case LogTypes::WARNING:
+            echo "\033[33m$message \033[0m\n";
+            break;
+        case LogTypes::INFO:
+            echo "\033[36m$message \033[0m\n";
+            break;
+        default:
+            echo $message . PHP_EOL;
+            break;
+    }
+
 }
