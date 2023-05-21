@@ -251,8 +251,7 @@ function process_message($message)
                 }
             }
 
-            printLog('author: ' . $bookData['author']);
-            printLog('title: ' . $bookData['bookTitle']);
+            printLog("author: {$bookData['author']}, title: {$bookData['bookTitle']}");
 
             $exist = $bookModel->getBookByGivenColumn(Book::COLUMN_TITLE, $bookData['bookTitle']);
 
