@@ -310,7 +310,7 @@ class BookController extends Controller
         $authors = $params['authors'];
 
         if ($params['tags']) {
-            $this->tagModel->updateSourceTags($params['tags'], $bookId, Sources::BOOK);
+            $this->tagModel->updateSourceTags($params['tags'], $bookId, Sources::BOOK->value);
         }
 
         foreach ($authors as $authorId) {

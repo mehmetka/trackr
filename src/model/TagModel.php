@@ -2,8 +2,10 @@
 
 namespace App\model;
 
+use App\enum\Sources;
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
+use Slim\Http\StatusCode;
 
 class TagModel
 {
@@ -59,7 +61,7 @@ class TagModel
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         return $this->dbConnection->lastInsertId();
@@ -74,13 +76,13 @@ class TagModel
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':source_id', $sourceId, \PDO::PARAM_INT);
-        $stm->bindParam(':type', $sourceType, \PDO::PARAM_INT);
+        $stm->bindParam(':type',$sourceType, \PDO::PARAM_INT);
         $stm->bindParam(':tag_id', $tagId, \PDO::PARAM_INT);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         return true;
@@ -97,7 +99,7 @@ class TagModel
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         return true;
@@ -121,7 +123,7 @@ class TagModel
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         $list = [];
@@ -158,7 +160,7 @@ class TagModel
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         $list = [];
@@ -189,7 +191,7 @@ class TagModel
         $stm->bindParam(':tag', $tag, \PDO::PARAM_STR);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         $list = [];
@@ -221,7 +223,7 @@ class TagModel
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         return true;

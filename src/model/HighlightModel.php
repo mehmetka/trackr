@@ -124,7 +124,7 @@ class HighlightModel
 
         $highlight['created_at_formatted'] = date('Y-m-d H:i:s', $highlight['created']);
         $highlight['updated_at_formatted'] = date('Y-m-d H:i:s', $highlight['updated']);
-        $tags = $this->tagModel->getTagsBySourceId($highlight['id'], Sources::HIGHLIGHT);
+        $tags = $this->tagModel->getTagsBySourceId($highlight['id'], Sources::HIGHLIGHT->value);
 
         if ($tags) {
             $highlight['tags'] = $tags;
@@ -151,7 +151,7 @@ class HighlightModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['tags'] = $this->tagModel->getTagsBySourceId($row['id'], Sources::HIGHLIGHT);
+            $row['tags'] = $this->tagModel->getTagsBySourceId($row['id'], Sources::HIGHLIGHT->value);
             $row['is_secret'] = $row['is_secret'] ? true : false;
             $row['is_encrypted'] = $row['is_encrypted'] ? true : false;
 
@@ -198,7 +198,7 @@ class HighlightModel
             }
 
             $row['highlight'] = MarkdownUtil::convertToHTML($row['highlight']);
-            $tags = $this->tagModel->getTagsBySourceId($row['id'], Sources::HIGHLIGHT);
+            $tags = $this->tagModel->getTagsBySourceId($row['id'], Sources::HIGHLIGHT->value);
 
             if ($tags) {
                 $row['tags'] = $tags;
@@ -450,7 +450,7 @@ class HighlightModel
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['highlight'] = MarkdownUtil::convertToHTML($row['highlight']);
             $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
-            $tags = $this->tagModel->getTagsBySourceId($row['id'], Sources::HIGHLIGHT);
+            $tags = $this->tagModel->getTagsBySourceId($row['id'], Sources::HIGHLIGHT->value);
 
             if ($tags) {
                 $row['tags'] = $tags;
@@ -485,7 +485,7 @@ class HighlightModel
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['highlight'] = MarkdownUtil::convertToHTML($row['highlight']);
             $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
-            $tags = $this->tagModel->getTagsBySourceId($row['id'], Sources::HIGHLIGHT);
+            $tags = $this->tagModel->getTagsBySourceId($row['id'], Sources::HIGHLIGHT->value);
 
             if ($tags) {
                 $row['tags'] = $tags;

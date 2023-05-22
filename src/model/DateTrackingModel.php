@@ -5,6 +5,7 @@ namespace App\model;
 use App\util\TimeUtil;
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
+use Slim\Http\StatusCode;
 
 class DateTrackingModel
 {
@@ -29,7 +30,7 @@ class DateTrackingModel
         $stm->bindParam(':created', $created, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         return true;
@@ -48,7 +49,7 @@ class DateTrackingModel
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {

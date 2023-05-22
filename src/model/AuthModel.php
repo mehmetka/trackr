@@ -58,7 +58,7 @@ class AuthModel
         $stm->bindParam(':username', $username, \PDO::PARAM_STR);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(500, 'Something went wrong');
+            throw CustomException::dbError(StatusCode::HTTP_INTERNAL_SERVER_ERROR, 'Something went wrong');
         }
 
         if ($stm->rowCount()) {
@@ -86,7 +86,7 @@ class AuthModel
         $stm->bindParam(':encryption_key', $encryptionKey, \PDO::PARAM_STR);
 
         if (!$stm->execute()) {
-            throw CustomException::dbError(503, json_encode($stm->errorInfo()));
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
         return true;

@@ -32,7 +32,7 @@ class BookmarkController extends Controller
 
         $bookmarks = $this->bookmarkModel->getBookmarks($queryString['tag']);
 
-        $bookmarkCategories = $this->tagModel->getSourceTagsByType(Sources::BOOKMARK, $queryString['tag']);
+        $bookmarkCategories = $this->tagModel->getSourceTagsByType(Sources::BOOKMARK->value, $queryString['tag']);
 
         $data = [
             'title' => 'Bookmarks | trackr',
@@ -51,7 +51,7 @@ class BookmarkController extends Controller
         $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
         $details = $this->bookmarkModel->getChildBookmarkById($bookmarkId, $_SESSION['userInfos']['user_id']);
         $highlights = $this->bookmarkModel->getHighlights($bookmarkId);
-        $tags = $this->tagModel->getTagsBySourceId($bookmarkId, Sources::BOOKMARK);
+        $tags = $this->tagModel->getTagsBySourceId($bookmarkId, Sources::BOOKMARK->value);
 
         if ($details['keyword'] && !in_array($details['keyword'], $tags['tags'])) {
             $tags['imploded_comma'] .= ', ' . $details['keyword'];
@@ -115,7 +115,7 @@ class BookmarkController extends Controller
         }
 
         if ($params['tags']) {
-            $this->tagModel->updateSourceTags($params['tags'], $bookmarkID, Sources::BOOKMARK);
+            $this->tagModel->updateSourceTags($params['tags'], $bookmarkID, Sources::BOOKMARK->value);
         }
 
         $rabbitmq->publishParentBookmarkTitleJob([
@@ -150,7 +150,7 @@ class BookmarkController extends Controller
 
         $this->bookmarkModel->updateChildBookmark($bookmarkId, $params, $_SESSION['userInfos']['user_id']);
 
-        $this->tagModel->deleteTagsBySourceId($bookmarkId, Sources::BOOKMARK);
+        $this->tagModel->deleteTagsBySourceId($bookmarkId, Sources::BOOKMARK->value);
 
         if ($params['title'] !== $bookmarkDetails['title']) {
             $this->bookmarkModel->updateIsTitleEditedStatus($bookmarkId, BookmarkModel::TITLE_EDITED);
@@ -162,24 +162,24 @@ class BookmarkController extends Controller
             $this->bookmarkModel->updateStartedDate($bookmarkId, null);
             $this->bookmarkModel->updateDoneDate($bookmarkId, null);
             $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
-            $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK, $bookmarkId,
+            $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
                 BookmarkModel::NOT_DELETED);
         } elseif ($params['status'] == 1) {
             $this->bookmarkModel->updateStartedDate($bookmarkId, time());
             $this->bookmarkModel->updateDoneDate($bookmarkId, null);
             $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
-            $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK, $bookmarkId,
+            $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
                 BookmarkModel::NOT_DELETED);
         } elseif ($params['status'] == 2) {
             $this->bookmarkModel->updateDoneDate($bookmarkId, time());
             $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
-            $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK, $bookmarkId,
+            $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
                 BookmarkModel::NOT_DELETED);
             $_SESSION['badgeCounts']['bookmarkCount'] -= 1;
         }
 
         if ($params['tags']) {
-            $this->tagModel->updateSourceTags($params['tags'], $bookmarkId, Sources::BOOKMARK);
+            $this->tagModel->updateSourceTags($params['tags'], $bookmarkId, Sources::BOOKMARK->value);
         }
 
         $resource = [
@@ -221,7 +221,7 @@ class BookmarkController extends Controller
             $params['tags'] = 'general';
         }
 
-        $this->tagModel->updateSourceTags($params['tags'], $highlightId, Sources::BOOKMARK);
+        $this->tagModel->updateSourceTags($params['tags'], $highlightId, Sources::BOOKMARK->value);
 
         if ($bookmarkDetail['status'] != 2) {
             $this->bookmarkModel->updateStartedDate($bookmarkDetail['id'], time());
@@ -265,7 +265,7 @@ class BookmarkController extends Controller
         $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
 
         $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::DELETED);
-        $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK, $bookmarkId,
+        $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
             BookmarkModel::DELETED);
 
         $_SESSION['badgeCounts']['bookmarkCount'] -= 1;
