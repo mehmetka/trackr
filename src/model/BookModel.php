@@ -3,6 +3,9 @@
 namespace App\model;
 
 use App\entity\Book;
+use App\enum\BookStatus;
+use App\enum\PathStatus;
+use App\enum\StatusColors;
 use App\util\TimeUtil;
 use App\exception\CustomException;
 use Psr\Container\ContainerInterface;
@@ -12,34 +15,10 @@ class BookModel
 {
     /** @var \PDO $dbConnection */
     private $dbConnection;
-    private $pathStatusInfos;
 
     public function __construct(ContainerInterface $container)
     {
         $this->dbConnection = $container->get('db');
-        $this->pathStatusInfos = [
-            'not_started' => [
-                'status_label' => 'badge-secondary',
-                'status_label_text' => 'Not Started',
-                'id' => 0
-            ],
-            'reading' => [
-                'status_label' => 'badge-warning',
-                'status_label_text' => 'Reading',
-                'id' => 1
-
-            ],
-            'done' => [
-                'status_label' => 'badge-success',
-                'status_label_text' => 'Done',
-                'id' => 2
-            ],
-            'list_out' => [
-                'status_label' => 'badge-danger',
-                'status_label_text' => 'List Out',
-                'id' => 3
-            ]
-        ];
     }
 
     public function getStartOfReadings()
@@ -222,7 +201,7 @@ class BookModel
         foreach ($paths as $path) {
 
             if ($today > $path['finish_epoch']) {
-                $this->changePathStatus($path['path_id'], 1);
+                $this->changePathStatus($path['path_id'], PathStatus::DONE->value);
                 $path['status'] = 1;
                 $path['expired'] = true;
                 $path['today_processed_text'] = 'EXPIRED!';
@@ -307,7 +286,7 @@ class BookModel
                     $total += $diff;
                 } else {
                     $this->insertNewReadRecord($pathId, $row['id']);
-                    $this->setBookPathStatus($pathId, $row['id'], $this->pathStatusInfos['done']['id']);
+                    $this->setBookPathStatus($pathId, $row['id'], BookStatus::DONE->value);
                 }
             }
 
@@ -754,7 +733,7 @@ class BookModel
                 INNER JOIN path_books pb ON b.id = pb.book_id
                 INNER JOIN paths p ON pb.path_id = p.id
                 WHERE pb.path_id = :path_id AND p.user_id = :user_id
-                ORDER BY pb.status DESC, b.page_count";
+                ORDER BY FIELD(pb.status, 1, 4, 0, 2, 3), b.page_count";
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':path_id', $pathId, \PDO::PARAM_STR);
@@ -768,10 +747,10 @@ class BookModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
 
-            if ($row['path_status'] == 2) {
+            if ($row['path_status'] === BookStatus::DONE->value) {
 
                 if (!$status) {
-                    $row['status_label'] = 'bg-success-dark';
+                    $row['status_label'] = StatusColors::DONE->value;
                     $row['cardBodyBg'] = 'bg-success-light';
                     $row['readStatus'] = '<i class="fe fe-check fe-16"></i>';
                     $row['amount'] = true;
@@ -789,24 +768,27 @@ class BookModel
 
             if ($pageCount != 0 && $diff <= 0) {
                 $this->insertNewReadRecord($row['path_id'], $row['id']);
-                $this->setBookPathStatus($row['path_id'], $row['id'], $this->pathStatusInfos['done']['id']);
-                $this->setBookStatus($row['id'], $this->pathStatusInfos['done']['id']);
+                $this->setBookPathStatus($row['path_id'], $row['id'], BookStatus::DONE->value);
+                $this->setBookStatus($row['id'], BookStatus::DONE->value);
                 $_SESSION['badgeCounts']['finishedBookCount']++;
                 continue;
             }
 
             $row['divId'] = "div-{$row['id']}-" . uniqid();
-            $row['status_label'] = 'bg-secondary-dark';
+            $row['status_label'] = StatusColors::NEW->value;
             $row['readStatus'] = "$readAmount / {$row['page_count']}";
             $row['ebook_exist'] = $row['pdf'] || $row['epub'] ? true : false;
             $row['remove'] = $readAmount ? true : false;
 
-            if ($readAmount) {
-                $row['status_label'] = 'bg-warning-dark';
-                array_unshift($list, $row);
-            } else {
-                $list[] = $row;
+            if ($row['path_status'] === BookStatus::PRIORITIZED->value) {
+                $row['status_label'] = StatusColors::PRIORITIZED->value;
             }
+
+            if ($readAmount) {
+                $row['status_label'] = StatusColors::STARTED->value;
+            }
+
+            $list[] = $row;
         }
 
         return $list;
@@ -831,7 +813,7 @@ class BookModel
 
     public function insertProgressRecord($bookId, $pathId, $amount, $recordDate)
     {
-        $this->setBookPathStatus($pathId, $bookId, $this->pathStatusInfos['reading']['id']);
+        $this->setBookPathStatus($pathId, $bookId, BookStatus::STARTED->value);
 
         $sql = 'INSERT INTO book_trackings (book_id, path_id, record_date, amount, user_id)
                 VALUES(:book_id,:path_id,:record_date,:amount, :user_id)';
@@ -993,7 +975,7 @@ class BookModel
     public function saveBook($params)
     {
         $now = time();
-        $status = $this->pathStatusInfos['not_started']['id'];
+        $status = BookStatus::NEW->value;
 
         $sql = 'INSERT INTO books (uid, title, subtitle, publisher, pdf, epub, added_date, page_count, status, published_date, description, isbn, thumbnail, thumbnail_small, info_link)
                 VALUES(UUID(), :title, :subtitle, :publisher, :pdf, :epub, :added_date, :page_count, :status, :published_date, :description, :isbn, :thumbnail, :thumbnail_small, :info_link)';
