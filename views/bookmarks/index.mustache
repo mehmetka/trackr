@@ -48,7 +48,8 @@
                                          data-parent="#accordion1">
                                         <div class="card-body">
                                             {{#bookmarkCategories}}
-                                            <a role="button" href="/bookmarks{{#href}}?tag={{tag}}{{/href}}" class="badge badge-{{badge}}">
+                                            <a role="button" href="/bookmarks{{#href}}?tag={{tag}}{{/href}}"
+                                                class="badge badge-{{badge}}">
                                                 <strong>#{{tag}} ({{tag_count}})</strong>
                                                 </a>
                                             {{/bookmarkCategories}}
@@ -93,16 +94,19 @@
                                                 {{/complete}}
                                             </td>
                                             <td class="go-to-bookmark-highlight" data-uid="{{bookmarkUID}}">
-                                                <a href="{{bookmark}}" target="_blank">{{{title}}}
+                                                <a href="{{bookmark}}" target="_blank" class="{{bookmark_text_label}}">{{{title}}}
 
                                                     <a class="btn btn-sm btnDeleteBookmark2 float-right"
                                                        data-uid="{{bookmarkUID}}">
                                                         <i class="fe fe-trash fe-4"></i>
                                                     </a>
+
                                                     {{#keyword}}
-                                                        <span class="badge badge-pill badge-primary float-right">{{keyword}}</span>{{/keyword}}
+                                                        <span class="badge badge-pill badge-primary float-right">{{keyword}}</span>
+                                                    {{/keyword}}
                                                     {{#imploded_tags}}
-                                                        <span class="badge badge-pill badge-warning float-right">{{imploded_tags}}</span>{{/imploded_tags}}
+                                                        <span class="badge badge-pill badge-warning float-right">{{imploded_tags}}</span>
+                                                    {{/imploded_tags}}
                                                 </a>
                                             </td>
                                             <td>
@@ -122,6 +126,8 @@
                                                     </a>
                                                     <a class="dropdown-item"
                                                        href="/bookmarks/{{bookmarkUID}}">Edit</a>
+                                                    <a class="dropdown-item btnStatusAction" data-status="4"
+                                                       data-uid="{{bookmarkUID}}">Make Prioritized</a>
                                                     {{#startAction}}
                                                         <a class="dropdown-item btnStatusAction" data-status="1"
                                                            data-uid="{{bookmarkUID}}"><i class="fe fe-play fe-4"></i>
@@ -159,7 +165,7 @@
 <script>
     $(document).ready(function () {
 
-        function saveBook() {
+        function saveBookmark() {
             var bookmark = $('#bookmark').val();
             var tags = $('#tags').val();
             var note = $('#note').val();
@@ -180,12 +186,12 @@
 
         $('.enterButtonKeyPress').bind('keypress', function (e) {
             if (e.keyCode == 13) {
-                saveBook();
+                saveBookmark();
             }
         });
 
         $("#addBookmark").on('click', function (e) {
-            saveBook();
+            saveBookmark();
         });
 
         // $(".go-to-bookmark-highlight").on('click', function (e) {

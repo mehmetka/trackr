@@ -2,6 +2,7 @@
 
 namespace App\model;
 
+use App\enum\BookmarkStatus;
 use App\enum\Sources;
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
@@ -57,7 +58,7 @@ class BookmarkModel
         }
 
         $sql .= ' AND bo.user_id = :user_id';
-        $sql .= ' ORDER BY FIELD(bo.status, 1, 0, 2), bo.updated_at DESC, b.id DESC';
+        $sql .= ' ORDER BY FIELD(bo.status, 1, 4, 0, 2), bo.updated_at DESC, b.id DESC';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
@@ -98,6 +99,10 @@ class BookmarkModel
                 $row['doneAction'] = true;
             } else {
                 $row['complete'] = true;
+            }
+
+            if ($row['status'] === BookmarkStatus::PRIORITIZED->value) {
+                $row['bookmark_text_label'] = 'text-danger';
             }
 
             $row['title'] = htmlspecialchars($row['title']);
@@ -309,12 +314,14 @@ class BookmarkModel
                 $row['tags'] = $tags;
             }
 
-            if ($row['status'] == 0) {
+            if ($row['status'] == BookmarkStatus::NEW->value) {
                 $row['selectedNew'] = true;
-            } elseif ($row['status'] == 1) {
+            } elseif ($row['status'] == BookmarkStatus::STARTED->value) {
                 $row['selectedStarted'] = true;
-            } elseif ($row['status'] == 2) {
+            } elseif ($row['status'] == BookmarkStatus::DONE->value) {
                 $row['selectedDone'] = true;
+            } elseif ($row['status'] == BookmarkStatus::PRIORITIZED->value) {
+                $row['selectedNew'] = true;
             }
 
             $list = $row;
@@ -432,13 +439,16 @@ class BookmarkModel
 
     public function updateChildBookmarkTitleByID($id, $title, $userId)
     {
+        $now = time();
+
         $sql = 'UPDATE bookmarks_ownership 
-                SET title = :title
+                SET title = :title, updated_at = :updated_at
                 WHERE bookmark_id = :bookmark_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':title', $title, \PDO::PARAM_STR);
         $stm->bindParam(':bookmark_id', $id, \PDO::PARAM_INT);
+        $stm->bindParam(':updated_at', $now, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $userId, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
@@ -448,7 +458,7 @@ class BookmarkModel
         return true;
     }
 
-    public function updateOrderNumber($id)
+    public function updateUpdatedAt($id)
     {
         $now = time();
 
@@ -465,24 +475,25 @@ class BookmarkModel
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
+        file_put_contents('/tmp/update.txt', var_export($stm, true), FILE_APPEND);
+        file_put_contents('/tmp/update.txt', $id . ' ' . $now . ' ' . $_SESSION['userInfos']['user_id'], FILE_APPEND);
+
         return true;
     }
 
     public function updateIsDeletedStatus($id, $status)
     {
-        if ($status == self::NOT_DELETED) {
-            $now = null;
-        } else {
-            $now = time();
-        }
+        $deletedAt = $status == self::NOT_DELETED ? null : time();
+        $updatedAt = time();
 
         $sql = 'UPDATE bookmarks_ownership 
-                SET is_deleted = :is_deleted, deleted_at = :deleted_at 
+                SET is_deleted = :is_deleted, deleted_at = :deleted_at, updated_at = :updated_at
                 WHERE bookmark_id = :bookmark_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':bookmark_id', $id, \PDO::PARAM_INT);
-        $stm->bindParam(':deleted_at', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':deleted_at', $deletedAt, \PDO::PARAM_INT);
+        $stm->bindParam(':updated_at', $updatedAt, \PDO::PARAM_INT);
         $stm->bindParam(':is_deleted', $status, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
@@ -495,13 +506,16 @@ class BookmarkModel
 
     public function updateDoneDate($id, $doneDate)
     {
+        $now = time();
+
         $sql = 'UPDATE bookmarks_ownership 
-                SET done = :done 
+                SET done = :done, updated_at = :updated_at
                 WHERE bookmark_id = :bookmark_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':bookmark_id', $id, \PDO::PARAM_INT);
         $stm->bindParam(':done', $doneDate, \PDO::PARAM_INT);
+        $stm->bindParam(':updated_at', $now, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
@@ -513,13 +527,16 @@ class BookmarkModel
 
     public function updateStartedDate($id, $started)
     {
+        $now = time();
+
         $sql = 'UPDATE bookmarks_ownership
-                SET started = :started 
+                SET started = :started, updated_at = :updated_at
                 WHERE bookmark_id = :bookmark_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':bookmark_id', $id, \PDO::PARAM_INT);
         $stm->bindParam(':started', $started, \PDO::PARAM_INT);
+        $stm->bindParam(':updated_at', $now, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
@@ -600,13 +617,16 @@ class BookmarkModel
 
     public function updateIsTitleEditedStatus($bookmarkID, $status)
     {
+        $now = time();
+
         $sql = 'UPDATE bookmarks_ownership
-                SET is_title_edited = :is_title_edited
+                SET is_title_edited = :is_title_edited, updated_at = :updated_at
                 WHERE bookmark_id = :bookmark_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':is_title_edited', $status, \PDO::PARAM_INT);
         $stm->bindParam(':bookmark_id', $bookmarkID, \PDO::PARAM_INT);
+        $stm->bindParam(':updated_at', $now, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {

@@ -2,6 +2,7 @@
 
 namespace App\controller;
 
+use App\enum\BookmarkStatus;
 use App\enum\Sources;
 use App\exception\CustomException;
 use App\model\BookmarkModel;
@@ -109,7 +110,7 @@ class BookmarkController extends Controller
             $_SESSION['userInfos']['user_id']);
 
         if ($bookmarkCreatedBefore && $bookmarkAddedToReadingList) {
-            $this->bookmarkModel->updateOrderNumber($bookmarkID);
+            $this->bookmarkModel->updateUpdatedAt($bookmarkID);
             $this->bookmarkModel->updateIsDeletedStatus($bookmarkID, BookmarkModel::NOT_DELETED);
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Bookmark exist!');
         }
@@ -158,24 +159,33 @@ class BookmarkController extends Controller
                 $_SESSION['userInfos']['user_id']);
         }
 
-        if ($params['status'] == 0) {
+        if ($params['status'] === BookmarkStatus::NEW->value) {
             $this->bookmarkModel->updateStartedDate($bookmarkId, null);
             $this->bookmarkModel->updateDoneDate($bookmarkId, null);
             $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
             $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
                 BookmarkModel::NOT_DELETED);
-        } elseif ($params['status'] == 1) {
+        } elseif ($params['status'] === BookmarkStatus::STARTED->value) {
             $this->bookmarkModel->updateStartedDate($bookmarkId, time());
             $this->bookmarkModel->updateDoneDate($bookmarkId, null);
             $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
             $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
                 BookmarkModel::NOT_DELETED);
-        } elseif ($params['status'] == 2) {
+        } elseif ($params['status'] === BookmarkStatus::DONE->value) {
             $this->bookmarkModel->updateDoneDate($bookmarkId, time());
             $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
             $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
                 BookmarkModel::NOT_DELETED);
             $_SESSION['badgeCounts']['bookmarkCount'] -= 1;
+        } elseif ($params['status'] === BookmarkStatus::PRIORITIZED->value) {
+            $this->bookmarkModel->updateBookmarkStatus($bookmarkId, BookmarkStatus::PRIORITIZED->value);
+            $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
+            $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
+                BookmarkModel::NOT_DELETED);
+        } else {
+            return $this->response(StatusCode::HTTP_BAD_REQUEST, [
+                'message' => 'Status not found'
+            ]);
         }
 
         if ($params['tags']) {
@@ -225,7 +235,7 @@ class BookmarkController extends Controller
 
         if ($bookmarkDetail['status'] != 2) {
             $this->bookmarkModel->updateStartedDate($bookmarkDetail['id'], time());
-            $this->bookmarkModel->updateBookmarkStatus($bookmarkDetail['id'], 1);
+            $this->bookmarkModel->updateBookmarkStatus($bookmarkDetail['id'], BookmarkStatus::STARTED->value);
         }
 
         $resource = [
@@ -242,14 +252,21 @@ class BookmarkController extends Controller
         $params = $request->getParsedBody();
         $bookmarkUid = $args['uid'];
         $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
+        $status = (int)$params['status'];
 
-        if ($params['status'] == 1) {
+        if ($status === BookmarkStatus::STARTED->value) {
             $this->bookmarkModel->updateStartedDate($bookmarkId, time());
-            $this->bookmarkModel->updateBookmarkStatus($bookmarkId, 1);
-        } elseif ($params['status'] == 2) {
+            $this->bookmarkModel->updateBookmarkStatus($bookmarkId, BookmarkStatus::STARTED->value);
+        } elseif ($status === BookmarkStatus::DONE->value) {
             $this->bookmarkModel->updateDoneDate($bookmarkId, time());
-            $this->bookmarkModel->updateBookmarkStatus($bookmarkId, 2);
+            $this->bookmarkModel->updateBookmarkStatus($bookmarkId, BookmarkStatus::DONE->value);
             $_SESSION['badgeCounts']['bookmarkCount'] -= 1;
+        } elseif ($status === BookmarkStatus::PRIORITIZED->value) {
+            $this->bookmarkModel->updateBookmarkStatus($bookmarkId, BookmarkStatus::PRIORITIZED->value);
+        } else {
+            return $this->response(StatusCode::HTTP_BAD_REQUEST, [
+                'message' => 'Status not found'
+            ]);
         }
 
         $resource = [
