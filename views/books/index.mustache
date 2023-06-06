@@ -19,8 +19,19 @@
                                 <div class="card-header {{status_label}}">
                                     Read: {{{readStatus}}}
 
+                                    <button class="btn btn-sm dropdown-toggle more-horizontal float-right"
+                                            type="button" data-toggle="dropdown" aria-haspopup="true"
+                                            aria-expanded="false">
+                                        <span class="text-muted sr-only">Action</span>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item btnMakePrioritized"
+                                           data-uid="{{bookUID}}" data-path="{{pathUID}}">Make Prioritized</a>
+                                    </div>
+
                                     {{#ebook_exist}}
-                                        <span class="badge badge-pill badge-success float-right">Ebook</span>{{/ebook_exist}}
+                                        <span class="badge badge-pill badge-success">Ebook</span>
+                                    {{/ebook_exist}}
                                 </div>
                                 <div class="card-body">
                                     <blockquote class="blockquote mb-0">
@@ -84,6 +95,18 @@
 
             if (result !== false) {
                 $('#' + bookUID).val('');
+                location.reload();
+            }
+
+        });
+
+        $(".btnMakePrioritized").on('click', function (e) {
+
+            var bookUID = $(this).data("uid");
+            var pathUID = $(this).data("path");
+            var result = ajaxCall('PUT', "/books/" + bookUID + "/status", "pathUID=" + pathUID + "&status=4")
+
+            if (result !== false) {
                 location.reload();
             }
 

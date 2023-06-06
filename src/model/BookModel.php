@@ -1186,6 +1186,27 @@ class BookModel
         return true;
     }
 
+    public function changePathBookStatus($pathId, $bookId, $status)
+    {
+        $now = time();
+
+        $sql = 'UPDATE path_books
+                SET status = :status, updated = :updated
+                WHERE path_id = :path_id AND book_id = :book_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':status', $status, \PDO::PARAM_INT);
+        $stm->bindParam(':path_id', $pathId, \PDO::PARAM_INT);
+        $stm->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
+        $stm->bindParam(':updated', $now, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
     public function getReadingHistory($bookID = null)
     {
         $history = [];

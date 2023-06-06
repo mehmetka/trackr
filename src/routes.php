@@ -37,6 +37,7 @@ $app->group('', function () {
     $this->get('/books/trackings/graphic-datas', BookController::class . ':getBookTrackingsGraphicData');
     $this->get('/books', BookController::class . ':allBooks');
     $this->get('/books/my-library', BookController::class . ':myBooks');
+    $this->put('/books/{bookUID}/status', BookController::class . ':changeStatus');
     $this->put('/books/{bookUID}/add-to-library', BookController::class . ':addToLibrary');
     $this->get('/books/finished', BookController::class . ':finishedBooks');
     $this->post('/books/{bookUID}/progress', BookController::class . ':addProgress');

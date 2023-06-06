@@ -175,6 +175,28 @@ class BookController extends Controller
         return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
+    public function changeStatus(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $params = $request->getParsedBody();
+
+        if (!isset($args['bookUID']) || !isset($params['pathUID']) || !isset($params['status'])) {
+            return $this->response(StatusCode::HTTP_BAD_REQUEST, [
+                'message' => 'Missing required params'
+            ]);
+        }
+
+        $pathId = $this->bookModel->getPathIdByUid($params['pathUID']);
+        $bookId = $this->bookModel->getBookIdByUid($args['bookUID']);
+
+        $this->bookModel->changePathBookStatus($pathId, $bookId, $params['status']);
+
+        $resource = [
+            "message" => "Changed status successfully"
+        ];
+
+        return $this->response(StatusCode::HTTP_OK, $resource);
+    }
+
     public function addToLibrary(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $bookId = $this->bookModel->getBookIdByUid($args['bookUID']);
@@ -254,11 +276,11 @@ class BookController extends Controller
             $bookResponse = RequestUtil::makeHttpRequest($url, RequestUtil::HTTP_GET, [], []);
 
             if (!$bookResponse['totalItems']) {
-                $rabbitmq->publishScrapeBookOnIdefixJob([
-                    'isbn' => $params['isbn'],
-                    'retry_count' => 0,
-                    'user_id' => $_SESSION['userInfos']['user_id']
-                ]);
+//                $rabbitmq->publishScrapeBookOnIdefixJob([
+//                    'isbn' => $params['isbn'],
+//                    'retry_count' => 0,
+//                    'user_id' => $_SESSION['userInfos']['user_id']
+//                ]);
                 throw CustomException::clientError(StatusCode::HTTP_NOT_FOUND, "Book not found");
             }
 
