@@ -359,7 +359,7 @@ class BookController extends Controller
     {
         $params = $request->getParsedBody();
 
-        if (!isset($params['pathName']) || !isset($params['pathFinish'])) {
+        if (!isset($params['pathName']) || !$params['pathName'] || !isset($params['pathFinish'])) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Path Name or Path Finish Date cannot be null');
         }
 
