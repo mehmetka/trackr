@@ -263,13 +263,14 @@ class BookModel
     {
         $total = 0;
 
-        $sql = 'SELECT b.id, b.page_count
+        $sql = 'SELECT b.id, b.page_count, (SELECT sum(amount) FROM book_trackings WHERE book_id=pb.book_id AND path_id=:path_id AND user_id = :user_id) AS readAmount
                 FROM books b
                 INNER JOIN path_books pb ON b.id = pb.book_id
-                WHERE pb.path_id = :path_id AND pb.status < 2';
+                WHERE pb.path_id = :path_id AND (pb.status < 2 OR pb.status = 4)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':path_id', $pathId, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
@@ -277,7 +278,7 @@ class BookModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
 
-            $readAmount = $this->getReadAmount($row['id'], $pathId);
+            $readAmount = $row['readAmount']; //$this->getReadAmount($row['id'], $pathId);
             $pageCount = $row['page_count'];
             $diff = $pageCount - $readAmount;
 
@@ -728,11 +729,28 @@ class BookModel
 
     public function getBooksPathInside($pathId, $status = false)
     {
-        $sql = "SELECT b.uid AS bookUID, b.title, b.id, b.page_count, b.pdf, b.epub, b.status AS book_status, pb.status AS path_status, pb.path_id, p.uid AS pathUID, CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ') FROM book_authors ba INNER JOIN author a ON ba.author_id = a.id WHERE ba.book_id = b.id)) AS author
+        $sql = "SELECT b.uid AS bookUID,
+                       b.title,
+                       b.id,
+                       b.page_count,
+                       b.pdf,
+                       b.epub,
+                       b.status AS book_status,
+                       pb.status AS path_status,
+                       pb.path_id,
+                       p.uid AS pathUID,
+                       CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ')
+                               FROM book_authors ba
+                                        INNER JOIN author a ON ba.author_id = a.id
+                               WHERE ba.book_id = b.id)) AS author,
+                       (SELECT sum(amount)
+                        FROM book_trackings
+                        WHERE book_id = b.id AND path_id = :path_id AND user_id = :user_id) AS readAmount
                 FROM books b
-                INNER JOIN path_books pb ON b.id = pb.book_id
-                INNER JOIN paths p ON pb.path_id = p.id
-                WHERE pb.path_id = :path_id AND p.user_id = :user_id
+                         INNER JOIN path_books pb ON b.id = pb.book_id
+                         INNER JOIN paths p ON pb.path_id = p.id
+                WHERE pb.path_id = :path_id
+                  AND p.user_id = :user_id
                 ORDER BY FIELD(pb.status, 1, 4, 0, 2, 3), b.page_count";
 
         $stm = $this->dbConnection->prepare($sql);
@@ -761,7 +779,7 @@ class BookModel
                 continue;
             }
 
-            $readAmount = $this->getReadAmount($row['id'], $row['path_id']) ?? 0;
+            $readAmount = $row['readAmount'] ?? 0; // $this->getReadAmount($row['id'], $row['path_id'])
 
             $pageCount = $row['page_count'];
             $diff = $pageCount - $readAmount;
@@ -1143,8 +1161,8 @@ class BookModel
         $bookCount = 0;
 
         if ($status == 'active') {
-            $status = 'pb.status < 2';
-        } else {
+            $status = '(pb.status < 2 OR pb.status = 4)';
+        } elseif ($status == 'done') {
             $status = 'pb.status = 2';
         }
 
