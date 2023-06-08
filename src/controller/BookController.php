@@ -358,6 +358,11 @@ class BookController extends Controller
     public function createPath(ServerRequestInterface $request, ResponseInterface $response)
     {
         $params = $request->getParsedBody();
+
+        if (!isset($params['pathName']) || !isset($params['pathFinish'])) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Path Name or Path Finish Date cannot be null');
+        }
+
         $pathID = $this->bookModel->createPath($params['pathName'], $params['pathFinish']);
 
         $this->bookModel->addActivityLog($pathID, null, 'created new path');
