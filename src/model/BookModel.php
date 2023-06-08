@@ -1285,27 +1285,6 @@ class BookModel
         return true;
     }
 
-    public function fetchBookByISBN($pathID, $bookID, $activity)
-    {
-        $timestamp = time();
-
-        $sql = 'INSERT INTO activity_logs (path_id, book_id, activity, timestamp, user_id) 
-                VALUES (:path_id, :book_id, :activity, :timestamp, :user_id)';
-
-        $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':path_id', $pathID, \PDO::PARAM_INT);
-        $stm->bindParam(':book_id', $bookID, \PDO::PARAM_INT);
-        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
-        $stm->bindParam(':activity', $activity, \PDO::PARAM_STR);
-        $stm->bindParam(':timestamp', $timestamp, \PDO::PARAM_INT);
-
-        if (!$stm->execute()) {
-            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
-        }
-
-        return true;
-    }
-
     public function createAuthorOperations($rawAuthor)
     {
         $resultIds = [];
