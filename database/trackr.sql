@@ -115,17 +115,6 @@ CREATE TABLE `books_finished`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE `books_googleapi_responses`
-(
-    `id`         int(11) NOT NULL AUTO_INCREMENT,
-    `book_id`    int(11) DEFAULT NULL,
-    `response`   longtext COLLATE utf8mb4_unicode_ci,
-    `created_at` int(11) DEFAULT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci;
-
 CREATE TABLE `books_ownership`
 (
     `id`         int(11) NOT NULL AUTO_INCREMENT,
