@@ -95,6 +95,7 @@ CREATE TABLE `books`
     `thumbnail`       varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
     `thumbnail_small` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
     `info_link`       varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `ebook_version`   int(11)                                 DEFAULT '0',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
