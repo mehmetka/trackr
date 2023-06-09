@@ -44,6 +44,8 @@
 
 {{> menu }}
 <script src="/js/simplemde.min.js"></script>
+<script src="/js/codemirror-4.inline-attachment.min.js"></script>
+
 <script>
     $(document).ready(function () {
 
@@ -54,6 +56,10 @@
         });
 
         $('#highlight').show();
+
+        inlineAttachment.editors.codemirror4.attach(simplemde.codemirror, {
+            uploadUrl: '/images'
+        });
 
         $('.enterButtonKeyPress').bind('keypress', function (e) {
             if (e.keyCode == 13) {

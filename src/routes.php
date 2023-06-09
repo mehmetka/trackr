@@ -7,6 +7,7 @@ use App\controller\BookController;
 use App\controller\BookmarkController;
 use App\controller\DateTrackingController;
 use App\controller\HighlightController;
+use App\controller\ImageController;
 use App\controller\LogController;
 
 $app->group('', function () {
@@ -72,6 +73,8 @@ $app->group('', function () {
     $this->post('/highlights/{id:[0-9]+}/sub', HighlightController::class . ':createSub');
     $this->post('/highlights/search', HighlightController::class . ':search');
     $this->get('/highlights-all', HighlightController::class . ':all');
+
+    $this->post('/images', ImageController::class . ':upload');
 
     $this->get('/logout', AuthController::class . ':logout');
 

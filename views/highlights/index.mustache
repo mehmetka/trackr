@@ -140,7 +140,7 @@
                                 <footer class="blockquote-footer">
                                     {{author}} <cite>{{source}}</cite> ~ {{created_at_formatted}}
 
-                        {{#tags}}
+                                    {{#tags}}
                                         <br><br>
                                         <strong>{{imploded_hashtag_blank}}</strong>
                                     {{/tags}}
@@ -150,10 +150,6 @@
                         </div>
                         <br class="highlightCardBR">
                     {{/highlights}}
-
-
-
-
 
                     </script>
                     <%={{ }}=%>
@@ -171,6 +167,7 @@
 <script src="/js/highlight.min.js"></script>
 <script src="/js/jquery.lazy.min.js"></script>
 <script src="/js/jquery.lazy.plugins.min.js"></script>
+<script src="/js/codemirror-4.inline-attachment.min.js"></script>
 
 <script>
     $(document).ready(function () {
@@ -191,6 +188,10 @@
         });
 
         $('#highlight').show();
+
+        inlineAttachment.editors.codemirror4.attach(simplemde.codemirror, {
+            uploadUrl: '/images'
+        });
 
         $('#searchHighlights').bind('keypress', function (e) {
             if (e.keyCode == 13) {

@@ -173,16 +173,22 @@
 {{> menu }}
 
 <script src="/js/simplemde.min.js"></script>
+<script src="/js/codemirror-4.inline-attachment.min.js"></script>
+
 <script>
     $(document).ready(function () {
 
-        if ($('#highlight').length) {
+        if ($('#highlight').length) { // TODO WTF?
             var simplemdeHighlight = new SimpleMDE({
                 element: $("#highlight")[0],
                 toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
                 insertTexts: {"image": ["[", "](/img/)"]},
             });
             $('#highlight').show();
+
+            inlineAttachment.editors.codemirror4.attach(simplemdeHighlight.codemirror, {
+                uploadUrl: '/images'
+            });
         }
 
         var simplemdeComment = new SimpleMDE({
@@ -191,6 +197,10 @@
             insertTexts: {"image": ["[", "](/img/)"]},
         });
         $('#comment').show();
+
+        inlineAttachment.editors.codemirror4.attach(simplemdeComment.codemirror, {
+            uploadUrl: '/images'
+        });
 
         $('#addComment').on('click', function (e) {
 
