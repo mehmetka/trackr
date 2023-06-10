@@ -22,6 +22,10 @@ function ajaxCall(method, url, data, async = false, successAlert = true, errorAl
         },
         error: function (data, status, xhr) {
 
+            if (data.responseJSON.status === 401) {
+                window.location.replace('/login')
+            }
+
             $.bootstrapPurr(data.responseJSON.message, {
                 type: 'danger'
             });

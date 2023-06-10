@@ -1,5 +1,6 @@
 <?php
 
+use App\exception\CustomException;
 use Slim\Http\StatusCode;
 
 $container['db'] = function ($container) {
@@ -54,21 +55,17 @@ $container['errorHandler'] = function ($container) {
         /** @var Monolog\Logger $logger */
         $logger = $container->get('logger');
 
-        /** @var Exception $exception */
         if ($exception instanceof CustomException) {
 
             if ($exception->getErrorType() == 'client_error') {
-                $data['status'] = 400;
                 $logger->warning($exception->getMessage() . " detail:" . $exception->getErrorDetail() . ' trace:' . $exception->getBackTrace());
             }
 
             if ($exception->getErrorType() == 'server_error') {
-                $data['status'] = 500;
                 $logger->error($exception->getMessage() . " detail:" . $exception->getErrorDetail() . ' trace:' . $exception->getBackTrace());
             }
 
             if ($exception->getErrorType() == 'db_error') {
-                $data['status'] = 503;
                 $logger->critical($exception->getMessage() . " detail:" . $exception->getErrorDetail() . ' trace:' . $exception->getBackTrace());
             }
 

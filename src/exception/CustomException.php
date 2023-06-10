@@ -59,10 +59,10 @@ class CustomException extends \Exception
     public function editBackTrace($backTraceArray)
     {
         $result = array();
-        $result['file'] = isset($backTraceArray['file']) ? $backTraceArray['file'] : 'null';
-        $result['line'] = isset($backTraceArray['line']) ? $backTraceArray['line'] : 'null';
-        $result['class'] = isset($backTraceArray['class']) ? $backTraceArray['class'] : 'null';
-        $result['function'] = isset($backTraceArray['function']) ? $backTraceArray['function'] : 'null';
+        $result['file'] = $backTraceArray['file'] ?? 'null';
+        $result['line'] = $backTraceArray['line'] ?? 'null';
+        $result['class'] = $backTraceArray['class'] ?? 'null';
+        $result['function'] = $backTraceArray['function'] ?? 'null';
 
         return $result;
     }
@@ -125,7 +125,7 @@ class CustomException extends \Exception
             $message,
             $code,
             'client_error',
-            400,
+            $code,
             $errorDetail,
             debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[1]
         );

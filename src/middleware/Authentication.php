@@ -5,6 +5,7 @@ namespace App\middleware;
 use App\exception\CustomException;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
+use Slim\Http\StatusCode;
 
 class Authentication extends Middleware
 {
@@ -14,7 +15,7 @@ class Authentication extends Middleware
         if (!isset($_SESSION['userInfos']) || !$_SESSION['userInfos']['user_id']) {
 
             if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-                throw CustomException::clientError(401, 'Please log in again!');
+                throw CustomException::clientError(StatusCode::HTTP_UNAUTHORIZED, 'Please log in again!');
             }
 
             return $response->withRedirect($this->container->router->pathFor('login'));
