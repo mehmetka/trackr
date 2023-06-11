@@ -3,6 +3,8 @@
 namespace App\exception;
 
 
+use Slim\Http\StatusCode;
+
 class CustomException extends \Exception
 {
     /**
@@ -101,31 +103,31 @@ class CustomException extends \Exception
         return $this->backTrace;
     }
 
-    public static function notFound($code, $errorDetail = null)
+    public static function notFound($httpStatusCode, $errorDetail = null)
     {
         return new static(
             "404 Not Found",
-            $code,
+            $httpStatusCode,
             'not_found',
-            404,
+            StatusCode::HTTP_NOT_FOUND,
             $errorDetail,
             debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[1]
         );
     }
 
     /**
-     * @param $code
+     * @param $httpStatusCode
      * @param $message
      * @param null $errorDetail
      * @return static
      */
-    public static function clientError($code, $message, $errorDetail = null)
+    public static function clientError($httpStatusCode, $message, $errorDetail = null)
     {
         return new static(
             $message,
-            $code,
+            $httpStatusCode,
             'client_error',
-            $code,
+            $httpStatusCode,
             $errorDetail,
             debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[1]
         );
@@ -133,23 +135,23 @@ class CustomException extends \Exception
 
 
     /**
-     * @param $code
+     * @param $httpStatusCode
      * @param $errorDetail
      * @param null $message
      * @return static
      *
      * @codeCoverageIgnore
      */
-    public static function serverError($code, $errorDetail, $message = null)
+    public static function serverError($httpStatusCode, $errorDetail, $message = null)
     {
         if ($message == null) {
             $message = 'Something went wrong, please try again!' . json_encode($errorDetail);
         }
         return new static(
             $message,
-            $code,
+            $httpStatusCode,
             'server_error',
-            500,
+            $httpStatusCode,
             $errorDetail,
             debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[1]
         );
@@ -163,7 +165,7 @@ class CustomException extends \Exception
      *
      * @codeCoverageIgnore
      */
-    public static function dbError($code, $errorDetail, $message = null)
+    public static function dbError($httpStatusCode, $errorDetail, $message = null)
     {
         if ($message == null) {
             $message = 'Something went wrong, please try again! ' . json_encode($errorDetail);
@@ -176,9 +178,9 @@ class CustomException extends \Exception
 
         return new static(
             $message,
-            $code,
+            $httpStatusCode,
             'db_error',
-            500,
+            $httpStatusCode,
             $errorDetail,
             debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[1]
         );
