@@ -2,6 +2,7 @@
 
 namespace App\controller;
 
+use App\enum\BookStatus;
 use App\enum\Sources;
 use App\exception\CustomException;
 use App\model\BookModel;
@@ -145,7 +146,8 @@ class BookController extends Controller
                 } else {
                     if ($params['amount'] > 0) {
                         $recordTime = $params['readYesterday'] ? strtotime("today 1 sec ago") : time();
-                        $this->bookModel->insertProgressRecord($bookId, $pathDetails['id'], $params['amount'], $recordTime);
+                        $this->bookModel->insertProgressRecord($bookId, $pathDetails['id'], $params['amount'],
+                            $recordTime);
                         $resource['responseCode'] = StatusCode::HTTP_OK;
                         $resource['message'] = "Success!";
                         $this->bookModel->addActivityLog($pathDetails['id'], $bookId,
@@ -187,6 +189,15 @@ class BookController extends Controller
 
         $pathId = $this->bookModel->getPathIdByUid($params['pathUID']);
         $bookId = $this->bookModel->getBookIdByUid($args['bookUID']);
+        $details = $this->bookModel->getBookDetailByBookIdAndPathId($bookId, $pathId);
+
+        if ($details['status'] === BookStatus::PRIORITIZED->value) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Already prioritized!");
+        }
+
+        if ($details['status'] !== BookStatus::NEW->value) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Book status is not 'New'!");
+        }
 
         $this->bookModel->changePathBookStatus($pathId, $bookId, $params['status']);
 
@@ -360,7 +371,8 @@ class BookController extends Controller
         $params = $request->getParsedBody();
 
         if (!isset($params['pathName']) || !$params['pathName'] || !isset($params['pathFinish'])) {
-            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Path Name or Path Finish Date cannot be null');
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST,
+                'Path Name or Path Finish Date cannot be null');
         }
 
         $pathID = $this->bookModel->createPath($params['pathName'], $params['pathFinish']);
