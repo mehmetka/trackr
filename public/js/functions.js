@@ -9,9 +9,7 @@ function ajaxCall(method, url, data, async = false, successAlert = true, errorAl
         async: async,
         success: function (data, status, xhr) {
 
-            if (status === 'success') {
-                result = data;
-            }
+            result = data;
 
             if (successAlert === true) {
                 $.bootstrapPurr(xhr.responseJSON.message, {
