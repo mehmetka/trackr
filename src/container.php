@@ -9,7 +9,7 @@ $container['db'] = function ($container) {
     try {
         $db = new \PDO($dsn, $_ENV['MYSQL_USER'], $_ENV['MYSQL_PASSWORD']);
     } catch (\Exception $e) {
-        throw new Exception("Database access problem : " . $e->getMessage(), 500);
+        throw new Exception("Database access problem : " . $e->getMessage(), StatusCode::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     return $db;
@@ -34,14 +34,14 @@ $container['view'] = function ($container) {
 $container['logger'] = function ($container) {
     $logger = new Monolog\Logger('trackr');
     $logger->pushProcessor(new Monolog\Processor\UidProcessor());
-    $logger->pushHandler(new Monolog\Handler\StreamHandler(__DIR__ . '/../logs/skeleton.log', \Monolog\Logger::DEBUG));
+    $logger->pushHandler(new Monolog\Handler\StreamHandler(__DIR__ . '/../logs/application.log', \Monolog\Logger::DEBUG));
     return $logger;
 };
 
 $container['notFoundHandler'] = function ($container) {
     return function ($request, $response) use ($container) {
         $data = [
-            'status' => 404,
+            'status' => StatusCode::HTTP_NOT_FOUND,
             'message' => 'Not Found'
         ];
         return $container->get('response')->withStatus($data['status'])->withHeader('Content-Type', 'application/json')->write(json_encode($data));
@@ -57,16 +57,18 @@ $container['errorHandler'] = function ($container) {
 
         if ($exception instanceof CustomException) {
 
+            $errorMessage = $exception->getMessage() . " detail:" . $exception->getErrorDetail() . ' trace:' . $exception->getBackTrace();
+
             if ($exception->getErrorType() == 'client_error') {
-                $logger->warning($exception->getMessage() . " detail:" . $exception->getErrorDetail() . ' trace:' . $exception->getBackTrace());
+                $logger->warning($errorMessage);
             }
 
             if ($exception->getErrorType() == 'server_error') {
-                $logger->error($exception->getMessage() . " detail:" . $exception->getErrorDetail() . ' trace:' . $exception->getBackTrace());
+                $logger->error($errorMessage);
             }
 
             if ($exception->getErrorType() == 'db_error') {
-                $logger->critical($exception->getMessage() . " detail:" . $exception->getErrorDetail() . ' trace:' . $exception->getBackTrace());
+                $logger->critical($errorMessage);
             }
 
             $data = [
