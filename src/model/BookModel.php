@@ -263,7 +263,7 @@ class BookModel
     {
         $total = 0;
 
-        $sql = 'SELECT b.id, b.page_count, (SELECT sum(amount) FROM book_trackings WHERE book_id=pb.book_id AND path_id=:path_id AND user_id = :user_id) AS readAmount
+        $sql = 'SELECT b.id, b.page_count, b.ebook_version, b.ebook_page_count, (SELECT sum(amount) FROM book_trackings WHERE book_id=pb.book_id AND path_id=:path_id AND user_id = :user_id) AS readAmount
                 FROM books b
                 INNER JOIN path_books pb ON b.id = pb.book_id
                 WHERE pb.path_id = :path_id AND (pb.status < 2 OR pb.status = 4)';
@@ -279,6 +279,11 @@ class BookModel
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
 
             $readAmount = $row['readAmount']; //$this->getReadAmount($row['id'], $pathId);
+
+            if (intval($row['ebook_version']) === 1) {
+                $row['page_count'] = $row['ebook_page_count'];
+            }
+
             $pageCount = $row['page_count'];
             $diff = $pageCount - $readAmount;
 
@@ -681,7 +686,7 @@ class BookModel
 
     public function finishedBooks()
     {
-        $sql = "SELECT bf.id, b.uid, bf.book_id, b.title, b.page_count, b.status, bf.start_date, bf.finish_date, bf.rate, p.name AS pathName,
+        $sql = "SELECT bf.id, b.uid, bf.book_id, b.title, b.page_count, b.ebook_version, b.ebook_page_count, b.status, bf.start_date, bf.finish_date, bf.rate, p.name AS pathName,
                         CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ') FROM book_authors ba INNER JOIN author a ON ba.author_id = a.id WHERE ba.book_id = b.id)) AS author
                 FROM books_finished bf
                 LEFT JOIN books b ON bf.book_id = b.id
@@ -698,6 +703,11 @@ class BookModel
         $books = [];
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+
+            if (intval($row['ebook_version']) === 1) {
+                $row['page_count'] = $row['ebook_page_count'];
+            }
+
             $books[] = $row;
         }
 
@@ -733,6 +743,8 @@ class BookModel
                        b.title,
                        b.id,
                        b.page_count,
+                       b.ebook_version,
+                       b.ebook_page_count,
                        b.pdf,
                        b.epub,
                        b.status AS book_status,
@@ -780,6 +792,10 @@ class BookModel
             }
 
             $readAmount = $row['readAmount'] ?? 0; // $this->getReadAmount($row['id'], $row['path_id'])
+
+            if (intval($row['ebook_version']) === 1) {
+                $row['page_count'] = $row['ebook_page_count'];
+            }
 
             $pageCount = $row['page_count'];
             $diff = $pageCount - $readAmount;
