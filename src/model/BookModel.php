@@ -1268,7 +1268,7 @@ class BookModel
     {
         $timestamp = time();
 
-        $sql = 'INSERT INTO activity_logs (path_id, book_id, activity, timestamp, user_id) 
+        $sql = 'INSERT INTO book_activity_logs (path_id, book_id, activity, timestamp, user_id) 
                 VALUES (:path_id, :book_id, :activity, :timestamp, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);

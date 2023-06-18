@@ -1,4 +1,4 @@
-CREATE TABLE `activity_logs`
+CREATE TABLE `book_activity_logs`
 (
     `id`        int(11)                                 NOT NULL AUTO_INCREMENT,
     `path_id`   int(11) DEFAULT NULL,
