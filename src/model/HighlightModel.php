@@ -572,4 +572,20 @@ class HighlightModel
         return $result;
     }
 
+    public function incrementReadCount($highlightID)
+    {
+        $sql = 'UPDATE highlights 
+                SET read_count = read_count + 1 
+                WHERE id = :highlight_id AND user_id = :user_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':highlight_id', $highlightID, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
 }

@@ -33,6 +33,7 @@ class HomeController extends Controller
         $averageData = $this->bookModel->readingAverage();
         $today = date('d/m/Y');
         $randomHighlight = $this->highlightModel->getRandomHighlight();
+        $this->highlightModel->incrementReadCount($randomHighlight[0]['id']);
 
         $data = [
             'title' => 'Home | trackr',
@@ -44,7 +45,6 @@ class HomeController extends Controller
             'activeHome' => 'active',
             'randomHighlight' => $randomHighlight
         ];
-
 
         return $this->view->render($response, 'home.mustache', $data);
     }
