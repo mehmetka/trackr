@@ -15,7 +15,7 @@ class HomeController extends Controller
 {
     private $bookModel;
     private $bookmarkModel;
-    private $highlightsModel;
+    private $highlightModel;
     private $dateTrackingModel;
 
     public function __construct(ContainerInterface $container)
@@ -23,7 +23,7 @@ class HomeController extends Controller
         parent::__construct($container);
         $this->bookModel = new BookModel($container);
         $this->bookmarkModel = new BookmarkModel($container);
-        $this->highlightsModel = new HighlightModel($container);
+        $this->highlightModel = new HighlightModel($container);
         $this->dateTrackingModel = new DateTrackingModel($container);
     }
 
@@ -32,6 +32,7 @@ class HomeController extends Controller
         $dateTrackings = $this->dateTrackingModel->getDateTrackings();
         $averageData = $this->bookModel->readingAverage();
         $today = date('d/m/Y');
+        $randomHighlight = $this->highlightModel->getRandomHighlight();
 
         $data = [
             'title' => 'Home | trackr',
@@ -40,8 +41,10 @@ class HomeController extends Controller
             'readingTotal' => $averageData['total'],
             'dayDiff' => $averageData['diff'],
             'today' => $today,
-            'activeHome' => 'active'
+            'activeHome' => 'active',
+            'randomHighlight' => $randomHighlight
         ];
+
 
         return $this->view->render($response, 'home.mustache', $data);
     }
@@ -53,7 +56,7 @@ class HomeController extends Controller
             $_SESSION['badgeCounts']['allBookCount'] = $this->bookModel->getAllBookCount();
             $_SESSION['badgeCounts']['finishedBookCount'] = $this->bookModel->getFinishedBookCount();
             $_SESSION['badgeCounts']['bookmarkCount'] = $this->bookmarkModel->getUncompleteBookmarks();
-            $_SESSION['badgeCounts']['highlightsCount'] = $this->highlightsModel->getHighlightsCount();
+            $_SESSION['badgeCounts']['highlightsCount'] = $this->highlightModel->getHighlightsCount();
             $_SESSION['badgeCounts']['expires_at'] = time() + 3600;
         }
 

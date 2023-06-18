@@ -541,4 +541,36 @@ class HighlightModel
         return $result;
     }
 
+    public function getRandomHighlight()
+    {
+        $minAndMaxID = $this->getMinMaxIdOfHighlights();
+        $randomID = rand($minAndMaxID['minID'], $minAndMaxID['maxID']);
+        return $this->getHighlightsByGivenField('id', $randomID);
+    }
+
+    /*
+     * TODO should come from session
+     */
+    public function getMinMaxIdOfHighlights()
+    {
+        $result = [];
+
+        $sql = 'SELECT MIN(id) AS minID, MAX(id) AS maxID 
+                FROM highlights
+                WHERE user_id = :user_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $result = $row;
+        }
+
+        return $result;
+    }
+
 }
