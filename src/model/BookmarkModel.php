@@ -357,11 +357,13 @@ class BookmarkModel
     {
         $now = time();
         $bookmark = htmlspecialchars($bookmark);
+        $uid = md5(uniqid(time(), true));
 
         $sql = 'INSERT INTO bookmarks (uid, bookmark, created)
-                VALUES(UUID(), :bookmark, :created)';
+                VALUES(:uid, :bookmark, :created)';
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':uid', $uid, \PDO::PARAM_STR);
         $stm->bindParam(':bookmark', $bookmark, \PDO::PARAM_STR);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
 

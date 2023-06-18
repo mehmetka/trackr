@@ -994,11 +994,13 @@ class BookModel
     {
         $now = time();
         $status = BookStatus::NEW->value;
+        $uid = md5(uniqid(time(), true));
 
         $sql = 'INSERT INTO books (uid, title, subtitle, publisher, pdf, epub, added_date, page_count, status, published_date, description, isbn, thumbnail, thumbnail_small, info_link)
-                VALUES(UUID(), :title, :subtitle, :publisher, :pdf, :epub, :added_date, :page_count, :status, :published_date, :description, :isbn, :thumbnail, :thumbnail_small, :info_link)';
+                VALUES(:uid, :title, :subtitle, :publisher, :pdf, :epub, :added_date, :page_count, :status, :published_date, :description, :isbn, :thumbnail, :thumbnail_small, :info_link)';
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':uid', $uid, \PDO::PARAM_STR);
         $stm->bindParam(':title', $params['bookTitle'], \PDO::PARAM_STR);
         $stm->bindParam(':subtitle', $params['subtitle'], \PDO::PARAM_STR);
         $stm->bindParam(':publisher', $params['publisher'], \PDO::PARAM_STR);
@@ -1042,11 +1044,13 @@ class BookModel
     {
         $now = time();
         $finish = strtotime($finish);
+        $uid = md5(uniqid(time(), true));
 
         $sql = 'INSERT INTO paths (uid, name, start, finish, user_id)
-                VALUES(UUID(), :name, :start, :finish, :user_id)';
+                VALUES(:uid, :name, :start, :finish, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':uid', $uid, \PDO::PARAM_STR);
         $stm->bindParam(':name', $name, \PDO::PARAM_STR);
         $stm->bindParam(':start', $now, \PDO::PARAM_INT);
         $stm->bindParam(':finish', $finish, \PDO::PARAM_INT);
