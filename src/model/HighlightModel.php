@@ -543,14 +543,11 @@ class HighlightModel
 
     public function getRandomHighlight()
     {
-        $minAndMaxID = $this->getMinMaxIdOfHighlights();
+        $minAndMaxID = $_SESSION['userInfos']['highlightMinMaxID'] ?? $this->getMinMaxIdOfHighlights();
         $randomID = rand($minAndMaxID['minID'], $minAndMaxID['maxID']);
         return $this->getHighlightsByGivenField('id', $randomID);
     }
 
-    /*
-     * TODO should come from session
-     */
     public function getMinMaxIdOfHighlights()
     {
         $result = [];
@@ -569,6 +566,8 @@ class HighlightModel
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $result = $row;
         }
+
+        $_SESSION['userInfos']['highlightMinMaxID'] = $result;
 
         return $result;
     }

@@ -168,6 +168,7 @@ class HighlightController extends Controller
             "message" => "Success!"
         ];
 
+        unset($_SESSION['userInfos']['highlightMinMaxID']);
         return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
@@ -201,6 +202,7 @@ class HighlightController extends Controller
 
             $resource['message'] = 'sub-highlight successfully added!';
 
+            unset($_SESSION['userInfos']['highlightMinMaxID']);
             return $this->response(StatusCode::HTTP_OK, $resource);
         }
 
