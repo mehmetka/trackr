@@ -32,7 +32,7 @@ class BookController extends Controller
         $active = false;
 
         if (isset($queryParams['status'])) {
-            $active = $queryParams['status'] === 'active' ? true : false;
+            $active = $queryParams['status'] === 'active';
         }
 
         $pathId = $this->bookModel->getPathIdByUid($args['pathUID']);
