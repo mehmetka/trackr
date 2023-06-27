@@ -2,6 +2,7 @@
 
 namespace App\controller;
 
+use App\exception\CustomException;
 use App\model\DateTrackingModel;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
@@ -21,6 +22,10 @@ class DateTrackingController extends Controller
     public function create(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $params = $request->getParsedBody();
+
+        if (!$params['name']) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Name cannot be null!");
+        }
 
         $this->dateTrackingModel->create($params['name'], $params['start']);
 
