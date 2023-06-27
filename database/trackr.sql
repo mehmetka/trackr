@@ -1,3 +1,13 @@
+CREATE TABLE `author`
+(
+    `id`     int(11)                                 NOT NULL AUTO_INCREMENT,
+    `author` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `NAME_UNIQUE` (`author`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
 CREATE TABLE `book_activity_logs`
 (
     `id`        int(11)                                 NOT NULL AUTO_INCREMENT,
@@ -7,16 +17,6 @@ CREATE TABLE `book_activity_logs`
     `timestamp` int(11)                                 NOT NULL,
     `user_id`   int(11) DEFAULT NULL,
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci;
-
-CREATE TABLE `author`
-(
-    `id`     int(11)                                 NOT NULL AUTO_INCREMENT,
-    `author` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `NAME_UNIQUE` (`author`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
@@ -176,6 +176,7 @@ CREATE TABLE `highlights`
     `page`         int(11)                                           DEFAULT NULL,
     `location`     varchar(45) COLLATE utf8mb4_unicode_ci            DEFAULT NULL,
     `link`         int(11)                                           DEFAULT NULL,
+    `book_id`      int(11)                                           DEFAULT NULL,
     `file_name`    varchar(255) COLLATE utf8mb4_unicode_ci           DEFAULT NULL,
     `blog_path`    varchar(255) COLLATE utf8mb4_unicode_ci           DEFAULT NULL,
     `type`         int(11)                                           DEFAULT '0',
