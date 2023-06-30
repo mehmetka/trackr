@@ -38,23 +38,22 @@
                     <h2>Reading Average: {{readingAverage}} ({{readingTotal}}/{{dayDiff}})</h2>
 
                     <hr>
-                    <h2>Random Highlight:</h2>
-<!--                    h.highlight, h.author, h.source, h.created-->
                     {{#randomHighlight}}
-                    <div class="card highlightCard">
-                        <div class="card-body">
-                            <a role="button" href="/highlights/{{id}}" class="badge badge-primary float-right"><span
-                                    class="fe fe-edit fe-8"></span></a>
-                            <br>
-                            {{{highlight}}}
+                        <h2>Random Highlight:</h2>
+                        <div class="card highlightCard">
+                            <div class="card-body">
+                                <a role="button" href="/highlights/{{id}}" class="badge badge-primary float-right"><span
+                                        class="fe fe-edit fe-8"></span></a>
+                                <br>
+                                {{{highlight}}}
 
-                            <footer class="blockquote-footer">
-                                {{author}} <cite>{{source}}</cite> ~ {{created_at_formatted}}
-                                /{{updated_at_formatted}}
-                            </footer>
+                                <footer class="blockquote-footer">
+                                    {{author}} <cite>{{source}}</cite> ~ {{created_at_formatted}}
+                                    /{{updated_at_formatted}}
+                                </footer>
 
+                            </div>
                         </div>
-                    </div>
                     {{/randomHighlight}}
 
                 </div> <!-- .col-12 -->
