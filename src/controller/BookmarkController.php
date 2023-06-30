@@ -148,6 +148,7 @@ class BookmarkController extends Controller
         $bookmarkDetails = $this->bookmarkModel->getBookmarkByUid($bookmarkUid);
         $bookmarkId = $bookmarkDetails['id'];
         $params = $request->getParsedBody();
+        $status = intval($params['status']);
 
         $this->bookmarkModel->updateChildBookmark($bookmarkId, $params, $_SESSION['userInfos']['user_id']);
 
@@ -159,25 +160,25 @@ class BookmarkController extends Controller
                 $_SESSION['userInfos']['user_id']);
         }
 
-        if ($params['status'] === BookmarkStatus::NEW->value) {
+        if ($status === BookmarkStatus::NEW->value) {
             $this->bookmarkModel->updateStartedDate($bookmarkId, null);
             $this->bookmarkModel->updateDoneDate($bookmarkId, null);
             $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
             $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
                 BookmarkModel::NOT_DELETED);
-        } elseif ($params['status'] === BookmarkStatus::STARTED->value) {
+        } elseif ($status === BookmarkStatus::STARTED->value) {
             $this->bookmarkModel->updateStartedDate($bookmarkId, time());
             $this->bookmarkModel->updateDoneDate($bookmarkId, null);
             $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
             $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
                 BookmarkModel::NOT_DELETED);
-        } elseif ($params['status'] === BookmarkStatus::DONE->value) {
+        } elseif ($status === BookmarkStatus::DONE->value) {
             $this->bookmarkModel->updateDoneDate($bookmarkId, time());
             $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
             $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
                 BookmarkModel::NOT_DELETED);
             $_SESSION['badgeCounts']['bookmarkCount'] -= 1;
-        } elseif ($params['status'] === BookmarkStatus::PRIORITIZED->value) {
+        } elseif ($status === BookmarkStatus::PRIORITIZED->value) {
             $this->bookmarkModel->updateBookmarkStatus($bookmarkId, BookmarkStatus::PRIORITIZED->value);
             $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
             $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
