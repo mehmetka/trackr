@@ -100,11 +100,10 @@ function process_message($message)
 
                 try {
                     $bookmarkModel->updateParentBookmark($bookmarkDetails['id'], $newBookmarkDetails);
+                    printLog("completed 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}");
                 } catch (Exception $exception) {
                     printLog('error occured: ' . $exception->getMessage(), LogTypes::ERROR);
                 }
-
-                printLog("completed 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}");
 
             } else {
                 if ($messageBody['retry_count'] < 5) {
@@ -126,7 +125,7 @@ function process_message($message)
         $bookmarkDetails = $bookmarkModel->getChildBookmarkById($messageBody['id'], $messageBody['user_id']);
 
         if (!$bookmarkDetails) {
-            printLog("bookmark not found. given bookmark id: {$messageBody['id']}" , LogTypes::WARNING);
+            printLog("bookmark not found. given bookmark id: {$messageBody['id']}", LogTypes::WARNING);
             return;
         }
 
@@ -155,6 +154,7 @@ function process_message($message)
                     try {
                         $bookmarkModel->updateChildBookmark($bookmarkDetails['id'], $newBookmarkDetails,
                             $messageBody['user_id']);
+                        printLog("completed 'get_child_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}");
                     } catch (Exception $exception) {
                         printLog('error occured: ' . $exception->getMessage(), LogTypes::ERROR);
                         $web = new \spekulatius\phpscraper;
@@ -169,8 +169,6 @@ function process_message($message)
                         $bookmarkModel->updateHighlightAuthor($bookmarkDetails['id'], $newBookmarkDetails['title'],
                             $messageBody['user_id']);
                     }
-
-                    printLog("completed 'get_child_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}");
 
                 } else {
                     if ($messageBody['retry_count'] < 5) {
