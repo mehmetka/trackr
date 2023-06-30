@@ -103,6 +103,17 @@ function process_message($message)
                     printLog("completed 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}");
                 } catch (Exception $exception) {
                     printLog('error occured: ' . $exception->getMessage(), LogTypes::ERROR);
+
+                    try {
+                        $web = new \spekulatius\phpscraper;
+                        $web->go($bookmarkDetails['bookmark']);
+                        $newBookmarkDetails['title'] = strip_tags(trim($web->title));
+                        $newBookmarkDetails['description'] = strip_tags(trim($web->description));
+                        $bookmarkModel->updateParentBookmark($bookmarkDetails['id'], $newBookmarkDetails);
+                        printLog("completed 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']} with spekulatius\phpscraper, title: {$newBookmarkDetails['title']}");
+                    } catch (Exception $exception) {
+                        printLog("error occured 'get_parent_bookmark_title' job for: {$bookmarkDetails['id']} with spekulatius\phpscraper, details: {$exception->getMessage()}");
+                    }
                 }
 
             } else {
@@ -156,13 +167,21 @@ function process_message($message)
                             $messageBody['user_id']);
                         printLog("completed 'get_child_bookmark_title' job for: {$bookmarkDetails['id']}, title: {$newBookmarkDetails['title']}");
                     } catch (Exception $exception) {
+
                         printLog('error occured: ' . $exception->getMessage(), LogTypes::ERROR);
-                        $web = new \spekulatius\phpscraper;
-                        $web->go($bookmarkDetails['bookmark']);
-                        $newBookmarkDetails['title'] = strip_tags(trim($web->title));
-                        $newBookmarkDetails['description'] = strip_tags(trim($web->description));
-                        $bookmarkModel->updateChildBookmark($bookmarkDetails['id'], $newBookmarkDetails,
-                            $messageBody['user_id']);
+
+                        try {
+                            $web = new \spekulatius\phpscraper;
+                            $web->go($bookmarkDetails['bookmark']);
+                            $newBookmarkDetails['title'] = strip_tags(trim($web->title));
+                            $newBookmarkDetails['description'] = strip_tags(trim($web->description));
+                            $bookmarkModel->updateChildBookmark($bookmarkDetails['id'], $newBookmarkDetails,
+                                $messageBody['user_id']);
+                            printLog("completed 'get_child_bookmark_title' job for: {$bookmarkDetails['id']} with spekulatius\phpscraper, title: {$newBookmarkDetails['title']}");
+                        } catch (Exception $exception) {
+                            printLog("error occured 'get_child_bookmark_title' job for: {$bookmarkDetails['id']} with spekulatius\phpscraper, details: {$exception->getMessage()}");
+                        }
+
                     }
 
                     if ($bookmarkDetails['title'] !== $newBookmarkDetails['title']) {
