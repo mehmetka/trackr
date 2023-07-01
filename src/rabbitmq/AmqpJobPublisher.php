@@ -2,6 +2,7 @@
 
 namespace App\rabbitmq;
 
+use App\enum\JobTypes;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -12,7 +13,8 @@ class AmqpJobPublisher
 
     public function __construct()
     {
-        $this->connection = new AMQPStreamConnection($_ENV['RABBITMQ_HOST'], $_ENV['RABBITMQ_PORT'], $_ENV['RABBITMQ_USER'], $_ENV['RABBITMQ_PASSWORD'], $_ENV['RABBITMQ_VHOST']);
+        $this->connection = new AMQPStreamConnection($_ENV['RABBITMQ_HOST'], $_ENV['RABBITMQ_PORT'],
+            $_ENV['RABBITMQ_USER'], $_ENV['RABBITMQ_PASSWORD'], $_ENV['RABBITMQ_VHOST']);
     }
 
     public function __destruct()
@@ -20,78 +22,8 @@ class AmqpJobPublisher
         $this->connection->close();
     }
 
-    public function publishParentBookmarkTitleJob($details)
+    public function publishJob(JobTypes $jobType, array $details)
     {
-        $jobType = 'get_parent_bookmark_title';
-        $exchange = 'router';
-        $queue = 'msgs';
-
-        $channel = $this->connection->channel();
-        $channel->queue_declare($queue, false, true, false, false);
-        $channel->exchange_declare($exchange, AMQPExchangeType::DIRECT, false, true, false);
-        $channel->queue_bind($queue, $exchange);
-
-        $messageBody = [
-            'job_type' => $jobType
-        ];
-
-        $messageBody = array_merge($messageBody, $details);
-
-        $message = new AMQPMessage(serialize($messageBody), array('content_type' => 'text/plain', 'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT));
-        $channel->basic_publish($message, $exchange);
-
-        $channel->close();
-    }
-
-    public function publishChildBookmarkTitleJob($details)
-    {
-        $jobType = 'get_child_bookmark_title';
-        $exchange = 'router';
-        $queue = 'msgs';
-
-        $channel = $this->connection->channel();
-        $channel->queue_declare($queue, false, true, false, false);
-        $channel->exchange_declare($exchange, AMQPExchangeType::DIRECT, false, true, false);
-        $channel->queue_bind($queue, $exchange);
-
-        $messageBody = [
-            'job_type' => $jobType
-        ];
-
-        $messageBody = array_merge($messageBody, $details);
-
-        $message = new AMQPMessage(serialize($messageBody), array('content_type' => 'text/plain', 'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT));
-        $channel->basic_publish($message, $exchange);
-
-        $channel->close();
-    }
-
-    public function publishScrapeBookOnIdefixJob($details)
-    {
-        $jobType = 'scrape_book_on_idefix';
-        $exchange = 'router';
-        $queue = 'msgs';
-
-        $channel = $this->connection->channel();
-        $channel->queue_declare($queue, false, true, false, false);
-        $channel->exchange_declare($exchange, AMQPExchangeType::DIRECT, false, true, false);
-        $channel->queue_bind($queue, $exchange);
-
-        $messageBody = [
-            'job_type' => $jobType
-        ];
-
-        $messageBody = array_merge($messageBody, $details);
-
-        $message = new AMQPMessage(serialize($messageBody), array('content_type' => 'text/plain', 'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT));
-        $channel->basic_publish($message, $exchange);
-
-        $channel->close();
-    }
-
-    public function publishGetKeywordAboutBookmarkWithChatGPT($details)
-    {
-        $jobType = 'get_keyword_about_bookmark';
         $exchange = 'router';
         $queue = 'msgs';
 

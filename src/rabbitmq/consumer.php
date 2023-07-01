@@ -14,6 +14,7 @@ use App\util\RequestUtil;
 use App\util\TwitterUtil;
 use App\rabbitmq\AmqpJobPublisher;
 use App\enum\LogTypes;
+use App\enum\JobTypes;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Exchange\AMQPExchangeType;
 use ForceUTF8\Encoding;
@@ -70,7 +71,7 @@ function process_message($message)
     $container = $GLOBALS['container'];
     $bookmarkModel = new BookmarkModel($container);
 
-    if ($messageBody['job_type'] === 'get_parent_bookmark_title') {
+    if ($messageBody['job_type'] === JobTypes::GET_PARENT_BOOKMARK_TITLE) {
 
         $bookmarkDetails = $bookmarkModel->getParentBookmarkById($messageBody['id']);
 
@@ -122,7 +123,7 @@ function process_message($message)
                     $messageBody['retry_count']++;
                     $amqpPublisher = new AmqpJobPublisher();
 
-                    $amqpPublisher->publishParentBookmarkTitleJob([
+                    $amqpPublisher->publishJob(JobTypes::GET_PARENT_BOOKMARK_TITLE, [
                         'id' => $bookmarkDetails['id'],
                         'retry_count' => $messageBody['retry_count']
                     ]);
@@ -131,7 +132,7 @@ function process_message($message)
             }
         }
 
-    } elseif ($messageBody['job_type'] === 'get_child_bookmark_title') {
+    } elseif ($messageBody['job_type'] === JobTypes::GET_CHILD_BOOKMARK_TITLE) {
 
         $bookmarkDetails = $bookmarkModel->getChildBookmarkById($messageBody['id'], $messageBody['user_id']);
 
@@ -195,7 +196,7 @@ function process_message($message)
                         $messageBody['retry_count']++;
                         $amqpPublisher = new AmqpJobPublisher();
 
-                        $amqpPublisher->publishChildBookmarkTitleJob([
+                        $amqpPublisher->publishJob(JobTypes::GET_CHILD_BOOKMARK_TITLE, [
                             'id' => $bookmarkDetails['id'],
                             'retry_count' => $messageBody['retry_count'],
                             'user_id' => $messageBody['user_id']
@@ -206,7 +207,7 @@ function process_message($message)
                 }
             }
         }
-    } elseif ($messageBody['job_type'] === 'scrape_book_on_idefix') {
+    } elseif ($messageBody['job_type'] === JobTypes::SCRAPE_BOOK_ON_IDEFIX) {
 
         session_start();
         $_SESSION['userInfos']['user_id'] = $messageBody['user_id'];
@@ -293,7 +294,7 @@ function process_message($message)
 
         printLog('user id: ' . $_SESSION['userInfos']['user_id']);
         session_destroy();
-    } elseif ($messageBody['job_type'] === 'get_keyword_about_bookmark') {
+    } elseif ($messageBody['job_type'] === JobTypes::GET_KEYWORD_ABOUT_BOOKMARK) {
         $bookmarkId = $messageBody['id'];
         $requestGoesTo = 'https://api.openai.com/v1/completions';
         $bookmarkModel = new BookmarkModel($container);

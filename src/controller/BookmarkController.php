@@ -3,6 +3,7 @@
 namespace App\controller;
 
 use App\enum\BookmarkStatus;
+use App\enum\JobTypes;
 use App\enum\Sources;
 use App\exception\CustomException;
 use App\model\BookmarkModel;
@@ -119,14 +120,14 @@ class BookmarkController extends Controller
             $this->tagModel->updateSourceTags($params['tags'], $bookmarkID, Sources::BOOKMARK->value);
         }
 
-        $rabbitmq->publishParentBookmarkTitleJob([
+        $rabbitmq->publishJob(JobTypes::GET_PARENT_BOOKMARK_TITLE, [
             'id' => $bookmarkID,
             'retry_count' => 0,
             'user_id' => $_SESSION['userInfos']['user_id']
         ]);
 
         if (!$_ENV['DISABLE_ASK_CHATGPT']) {
-            $rabbitmq->publishGetKeywordAboutBookmarkWithChatGPT([
+            $rabbitmq->publishJob(JobTypes::GET_KEYWORD_ABOUT_BOOKMARK, [
                 'id' => $bookmarkID
             ]);
         }
@@ -302,7 +303,7 @@ class BookmarkController extends Controller
         $bookmarkUid = $args['uid'];
         $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
 
-        $rabbitmq->publishChildBookmarkTitleJob([
+        $rabbitmq->publishJob(JobTypes::GET_CHILD_BOOKMARK_TITLE, [
             'id' => $bookmarkId,
             'retry_count' => 0,
             'user_id' => $_SESSION['userInfos']['user_id']

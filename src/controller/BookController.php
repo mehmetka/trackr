@@ -3,6 +3,7 @@
 namespace App\controller;
 
 use App\enum\BookStatus;
+use App\enum\JobTypes;
 use App\enum\Sources;
 use App\exception\CustomException;
 use App\model\BookModel;
@@ -287,7 +288,7 @@ class BookController extends Controller
             $bookResponse = RequestUtil::makeHttpRequest($url, RequestUtil::HTTP_GET, [], []);
 
             if (!$bookResponse['totalItems']) {
-//                $rabbitmq->publishScrapeBookOnIdefixJob([
+//                $rabbitmq->publishJob(JobTypes::SCRAPE_BOOK_ON_IDEFIX, [
 //                    'isbn' => $params['isbn'],
 //                    'retry_count' => 0,
 //                    'user_id' => $_SESSION['userInfos']['user_id']
