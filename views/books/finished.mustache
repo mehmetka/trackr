@@ -30,6 +30,7 @@
                                         <th>Finished</th>
                                         <th>Rate</th>
                                         <th>History</th>
+                                        <th>Highlights</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -67,6 +68,9 @@
                                             <td>
                                                 <a class="btn btn-sm btn-info btnReadingHistory" data-uid="{{uid}}"
                                                    data-toggle="modal" data-target="#readingHistoryModal">History</a>
+                                            </td>
+                                            <td>
+                                                <a class="btn btn-sm btn-info" href="/highlights?bookUID={{uid}}">Highlights</a>
                                             </td>
                                         </tr>
                                     {{/books}}

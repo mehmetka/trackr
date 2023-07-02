@@ -4,6 +4,7 @@ namespace App\controller;
 
 use App\entity\Book;
 use App\enum\Sources;
+use App\model\BookModel;
 use App\model\TagModel;
 use App\util\EncryptionUtil;
 use Slim\Http\StatusCode;
@@ -17,12 +18,14 @@ class HighlightController extends Controller
 {
     private $highlightModel;
     private $tagModel;
+    private $bookModel;
 
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
         $this->highlightModel = new HighlightModel($container);
         $this->tagModel = new TagModel($container);
+        $this->bookModel = new BookModel($container);
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
@@ -37,10 +40,12 @@ class HighlightController extends Controller
         } elseif (isset($queryString['source'])) {
             $highlights = $this->highlightModel->getHighlightsByGivenField(Book::COLUMN_SOURCE, $queryString['source'],
                 $_ENV['HIGHLIGHT_LIMIT']);
+        } elseif (isset($queryString['bookUID'])) {
+            $bookId = $this->bookModel->getBookIdByUid($queryString['bookUID']);
+            $highlights = $this->highlightModel->getHighlightsByGivenField(Book::COLUMN_BOOK_ID, $bookId);
         } else {
             $highlights = $this->highlightModel->getHighlights($_ENV['HIGHLIGHT_LIMIT']);
         }
-
 
         $tags = $this->tagModel->getSourceTagsByType(Sources::HIGHLIGHT->value, $queryString['tag']);
 
