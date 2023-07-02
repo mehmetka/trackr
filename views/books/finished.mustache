@@ -56,11 +56,11 @@
                                                             Rate
                                                         </button>
                                                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                                            <a class="dropdown-item rateBook" data-id="{{id}}">1</a>
-                                                            <a class="dropdown-item rateBook" data-id="{{id}}">2</a>
-                                                            <a class="dropdown-item rateBook" data-id="{{id}}">3</a>
-                                                            <a class="dropdown-item rateBook" data-id="{{id}}">4</a>
-                                                            <a class="dropdown-item rateBook" data-id="{{id}}">5</a>
+                                                            <a class="dropdown-item rateBook" data-uid="{{uid}}">1</a>
+                                                            <a class="dropdown-item rateBook" data-uid="{{uid}}">2</a>
+                                                            <a class="dropdown-item rateBook" data-uid="{{uid}}">3</a>
+                                                            <a class="dropdown-item rateBook" data-uid="{{uid}}">4</a>
+                                                            <a class="dropdown-item rateBook" data-uid="{{uid}}">5</a>
                                                         </div>
                                                     </div>
                                                 {{/rate}}
@@ -92,10 +92,10 @@
     $(document).ready(function () {
 
         $(".rateBook").on('click', function (e) {
-            var finishedBookID = $(this).data('id');
+            var finishedBookUID = $(this).data('uid');
             var rating = $(this).text();
 
-            var result = ajaxCall('PUT', "/books/rate/" + finishedBookID, "rate=" + rating)
+            var result = ajaxCall('PUT', "/books/rate/" + finishedBookUID, "rate=" + rating)
 
             if (result !== false) {
                 location.reload();
