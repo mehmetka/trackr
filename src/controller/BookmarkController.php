@@ -161,33 +161,35 @@ class BookmarkController extends Controller
                 $_SESSION['userInfos']['user_id']);
         }
 
-        if ($status === BookmarkStatus::NEW->value) {
-            $this->bookmarkModel->updateStartedDate($bookmarkId, null);
-            $this->bookmarkModel->updateDoneDate($bookmarkId, null);
-            $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
-            $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
-                BookmarkModel::NOT_DELETED);
-        } elseif ($status === BookmarkStatus::STARTED->value) {
-            $this->bookmarkModel->updateStartedDate($bookmarkId, time());
-            $this->bookmarkModel->updateDoneDate($bookmarkId, null);
-            $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
-            $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
-                BookmarkModel::NOT_DELETED);
-        } elseif ($status === BookmarkStatus::DONE->value) {
-            $this->bookmarkModel->updateDoneDate($bookmarkId, time());
-            $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
-            $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
-                BookmarkModel::NOT_DELETED);
-            $_SESSION['badgeCounts']['bookmarkCount'] -= 1;
-        } elseif ($status === BookmarkStatus::PRIORITIZED->value) {
-            $this->bookmarkModel->updateBookmarkStatus($bookmarkId, BookmarkStatus::PRIORITIZED->value);
-            $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
-            $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
-                BookmarkModel::NOT_DELETED);
-        } else {
-            return $this->response(StatusCode::HTTP_BAD_REQUEST, [
-                'message' => 'Status not found'
-            ]);
+        if ($status !== $bookmarkDetails['status']) {
+            if ($status === BookmarkStatus::NEW->value) {
+                $this->bookmarkModel->updateStartedDate($bookmarkId, null);
+                $this->bookmarkModel->updateDoneDate($bookmarkId, null);
+                $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
+                $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
+                    BookmarkModel::NOT_DELETED);
+            } elseif ($status === BookmarkStatus::STARTED->value) {
+                $this->bookmarkModel->updateStartedDate($bookmarkId, time());
+                $this->bookmarkModel->updateDoneDate($bookmarkId, null);
+                $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
+                $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
+                    BookmarkModel::NOT_DELETED);
+            } elseif ($status === BookmarkStatus::DONE->value) {
+                $this->bookmarkModel->updateDoneDate($bookmarkId, time());
+                $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
+                $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
+                    BookmarkModel::NOT_DELETED);
+                $_SESSION['badgeCounts']['bookmarkCount'] -= 1;
+            } elseif ($status === BookmarkStatus::PRIORITIZED->value) {
+                $this->bookmarkModel->updateBookmarkStatus($bookmarkId, BookmarkStatus::PRIORITIZED->value);
+                $this->bookmarkModel->updateIsDeletedStatus($bookmarkId, BookmarkModel::NOT_DELETED);
+                $this->tagModel->updateIsDeletedStatusBySourceId(Sources::BOOKMARK->value, $bookmarkId,
+                    BookmarkModel::NOT_DELETED);
+            } else {
+                return $this->response(StatusCode::HTTP_BAD_REQUEST, [
+                    'message' => 'Status not found'
+                ]);
+            }
         }
 
         if ($params['tags']) {
