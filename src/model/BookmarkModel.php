@@ -477,9 +477,6 @@ class BookmarkModel
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
-        file_put_contents('/tmp/update.txt', var_export($stm, true), FILE_APPEND);
-        file_put_contents('/tmp/update.txt', $id . ' ' . $now . ' ' . $_SESSION['userInfos']['user_id'], FILE_APPEND);
-
         return true;
     }
 
