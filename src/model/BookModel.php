@@ -720,10 +720,10 @@ class BookModel
 
         $sql = "SELECT * 
                 FROM books_finished
-                WHERE id = :id AND user_id = :user_id";
+                WHERE book_id = :book_id AND user_id = :user_id";
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':id', $finishedBookId, \PDO::PARAM_INT);
+        $stm->bindParam(':book_id', $finishedBookId, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
@@ -1210,7 +1210,7 @@ class BookModel
     {
         $sql = 'UPDATE books_finished
                 SET rate = :rate
-                WHERE id = :finishedBookID AND user_id = :user_id';
+                WHERE book_id = :finishedBookID AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':finishedBookID', $finishedBookID, \PDO::PARAM_INT);

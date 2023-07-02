@@ -414,7 +414,13 @@ class BookController extends Controller
     public function rateBook(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $params = $request->getParsedBody();
-        $finishedBookId = $args['finishedBookId'];
+        $finishedBookUid = $args['bookUid'];
+        $finishedBookId = $this->bookModel->getBookIdByUid($finishedBookUid);
+
+        if (!$finishedBookId) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Book not found');
+        }
+
         $finishedBookDetails = $this->bookModel->finishedBookByID($finishedBookId);
 
         $this->bookModel->rateBook($finishedBookId, $params['rate']);
