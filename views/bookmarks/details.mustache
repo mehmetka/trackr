@@ -54,12 +54,16 @@
                                     </div>
                                     <div class="form-group">
                                         <select id="status" class="form-control">
-                                            <option value="0" {{#selectedNew}}selected="selected" {{/selectedNew}}>New
+                                            <option value="0" {{#selectedNew}}selected="selected"{{/selectedNew}}>New
                                             </option>
-                                            <option value="1" {{#selectedStarted}}selected="selected"
-                                            {{/selectedStarted}}>Started
+                                            <option value="1"
+                                                    {{#selectedStarted}}selected="selected"{{/selectedStarted}}>Started
                                             </option>
-                                            <option value="2" {{#selectedDone}}selected="selected" {{/selectedDone}}>
+                                            <option value="4"
+                                                    {{#selectedPrioritized}}selected="selected"{{/selectedPrioritized}}>
+                                                Prioritized
+                                            </option>
+                                            <option value="2" {{#selectedDone}}selected="selected"{{/selectedDone}}>
                                                 Done
                                             </option>
                                         </select>

@@ -274,12 +274,14 @@ class BookmarkModel
                 $row['tags'] = $tags;
             }
 
-            if ($row['status'] == 0) {
+            if ($row['status'] === BookmarkStatus::NEW->value) {
                 $row['selectedNew'] = true;
-            } elseif ($row['status'] == 1) {
+            } elseif ($row['status'] === BookmarkStatus::STARTED->value) {
                 $row['selectedStarted'] = true;
-            } elseif ($row['status'] == 2) {
+            } elseif ($row['status'] === BookmarkStatus::DONE->value) {
                 $row['selectedDone'] = true;
+            } elseif ($row['status'] === BookmarkStatus::PRIORITIZED->value) {
+                $row['selectedPrioritized'] = true;
             }
 
             $list = $row;
