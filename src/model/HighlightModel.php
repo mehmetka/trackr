@@ -282,7 +282,7 @@ class HighlightModel
         $stm->bindParam(':author', $params['author'], \PDO::PARAM_STR);
         $stm->bindParam(':source', $params['source'], \PDO::PARAM_STR);
         $stm->bindParam(':page', $params['page'], \PDO::PARAM_INT);
-        $stm->bindParam(':location', $params['location'], \PDO::PARAM_INT);
+        $stm->bindParam(':location', $params['location'], \PDO::PARAM_STR);
         $stm->bindParam(':file_name', $params['filename'], \PDO::PARAM_STR);
         $stm->bindParam(':blog_path', $params['blogPath'], \PDO::PARAM_STR);
         $stm->bindParam(':is_secret', $params['is_secret'], \PDO::PARAM_INT);
