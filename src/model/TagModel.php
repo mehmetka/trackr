@@ -148,6 +148,7 @@ class TagModel
     {
         $tags = [];
         $hashtags = [];
+        $list = [];
 
         $sql = "SELECT t.id, t.tag, CONCAT('#', t.tag) AS hashtag, CONCAT('<span class=\"badge badge-info\">', t.tag, '</span>') AS html
                 FROM tag_relationships tr
@@ -162,8 +163,6 @@ class TagModel
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
-
-        $list = [];
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $tags[] = $row['tag'];
