@@ -124,6 +124,11 @@ class BookController extends Controller
     public function addProgress(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $params = $request->getParsedBody();
+
+        if (!isset($params['amount']) || !$params['amount']) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Amount cannot be null!");
+        }
+
         $pathId = $this->bookModel->getPathIdByUid($params['pathUID']);
 
         $pathDetails = $this->bookModel->getPathById($pathId);
@@ -168,6 +173,10 @@ class BookController extends Controller
     public function createAuthor(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $params = $request->getParsedBody();
+
+        if (!isset($params['author']) || !$params['author']) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Author cannot be null!");
+        }
 
         $this->bookModel->createAuthorOperations($params['author']);
 
