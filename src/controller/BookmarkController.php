@@ -229,11 +229,15 @@ class BookmarkController extends Controller
             $bookmarkDetail['source'] = 'Bookmark Highlight';
         }
 
-        $highlightId = $this->bookmarkModel->addHighlight($bookmarkDetail);
-
         if (!$params['tags']) {
             $params['tags'] = 'general';
+            $bookmarkDetail['blogPath'] = 'general';
+        } else {
+            $params['tags'] = str_replace(' ', '', trim($params['tags']));
+            $bookmarkDetail['blogPath'] = str_replace(',', '/', $bookmarkDetail['tags']);
         }
+
+        $highlightId = $this->bookmarkModel->addHighlight($bookmarkDetail);
 
         $this->tagModel->updateSourceTags($params['tags'], $highlightId, Sources::HIGHLIGHT->value);
 
