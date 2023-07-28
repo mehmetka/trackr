@@ -9,6 +9,8 @@ use App\exception\CustomException;
 use App\model\BookmarkModel;
 use App\model\TagModel;
 use App\rabbitmq\AmqpJobPublisher;
+use App\util\HighlightUtil;
+use App\util\TagUtil;
 use App\util\TwitterUtil;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
@@ -233,8 +235,7 @@ class BookmarkController extends Controller
             $params['tags'] = 'general';
             $bookmarkDetail['blogPath'] = 'general';
         } else {
-            $params['tags'] = str_replace(' ', '', trim($params['tags']));
-            $bookmarkDetail['blogPath'] = str_replace(',', '/', $bookmarkDetail['tags']);
+            $bookmarkDetail['blogPath'] = HighlightUtil::prepareBlogPath(TagUtil::prepareTagsAsArray($params['tags']));
         }
 
         $highlightId = $this->bookmarkModel->addHighlight($bookmarkDetail);
