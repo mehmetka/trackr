@@ -7,6 +7,8 @@ use App\enum\Sources;
 use App\model\BookModel;
 use App\model\TagModel;
 use App\util\EncryptionUtil;
+use App\util\HighlightUtil;
+use App\util\TagUtil;
 use Slim\Http\StatusCode;
 use App\model\HighlightModel;
 use App\exception\CustomException;
@@ -159,8 +161,7 @@ class HighlightController extends Controller
             $params['tags'] = 'general';
             $params['blogPath'] = 'general';
         } else {
-            $params['tags'] = str_replace(' ', '', trim($params['tags']));
-            $params['blogPath'] = str_replace(',', '/', $params['tags']);
+            $params['blogPath'] = HighlightUtil::prepareBlogPath(TagUtil::prepareTagsAsArray($params['tags']));
         }
 
         $highlightId = $this->highlightModel->create($params);
