@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-  db:
+  trackr-db:
     container_name: trackr-db
     image: mysql:5.7
     restart: always
@@ -13,9 +13,8 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       TZ: 'Europe/Istanbul'
     networks:
-      trackr:
-        ipv4_address: 192.168.3.2
-  trackr:
+      - trackr
+  trackr-web:
     container_name: trackr-web
     build: .
     image: phpdev
@@ -23,11 +22,10 @@ services:
     ports:
       - "8081:80"
     depends_on:
-      - db
+      - trackr-db
     networks:
-      trackr:
-        ipv4_address: 192.168.3.3
-  rabbitmq:
+      - trackr
+  trackr-rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: trackr-rabbitmq
     restart: always
@@ -35,9 +33,8 @@ services:
       - "5673:5672"
       - "15673:15672"
     networks:
-      trackr:
-        ipv4_address: 192.168.3.4
-  rabbitmq_consumer:
+      - trackr
+  trackr-consumer:
     container_name: trackr-consumer
     build: ./src/rabbitmq
     image: trackr-amqp-consumer
@@ -46,22 +43,16 @@ services:
       - .:/trackr
     restart: on-failure
     depends_on:
-      - db
-      - rabbitmq
+      - trackr-db
+      - trackr-rabbitmq
     networks:
-      trackr:
-        ipv4_address: 192.168.3.5
-  redis:
+      - trackr
+  trackr-redis:
     image: redis:7-alpine
     container_name: trackr-redis
     restart: always
     networks:
-      trackr:
-        ipv4_address: 192.168.3.6
+      - trackr
 
 networks:
   trackr:
-    ipam:
-      driver: default
-      config:
-        - subnet: 192.168.3.0/24

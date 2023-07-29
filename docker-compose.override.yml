@@ -1,11 +1,11 @@
 version: '3'
 
 services:
-  trackr:
+  trackr-web:
     volumes:
       - .:/var/www/html/trackr
       - ./z-extended-php.ini:/usr/local/etc/php/conf.d/z-extended-php.ini
-  db:
+  trackr-db:
     volumes:
       - ./database/trackr-data:/var/lib/mysql
       - ./database:/docker-entrypoint-initdb.d
