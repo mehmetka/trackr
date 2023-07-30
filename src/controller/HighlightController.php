@@ -184,6 +184,10 @@ class HighlightController extends Controller
         $params = $request->getParsedBody();
         $highlightID = $args['id'];
 
+        if (!$params['highlight'] || !trim($params['highlight'])) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Sub Highlight cannot be null!");
+        }
+
         $parentHighlightDetails = $this->highlightModel->getHighlightByID($highlightID);
 
         if ($parentHighlightDetails) {
