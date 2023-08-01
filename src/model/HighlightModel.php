@@ -111,6 +111,24 @@ class HighlightModel
             }
         }
 
+        if (!$highlight['author'] && !$highlight['source']) {
+            $source = 'Unknown';
+        }
+
+        if ($highlight['author'] && !$highlight['source']) {
+            $source = $highlight['author'];
+        }
+
+        if (!$highlight['author'] && $highlight['source']) {
+            $source = $highlight['source'];
+        }
+
+        if ($highlight['author'] && $highlight['source']) {
+            $source = $highlight['author'] . ' - ' . $highlight['source'];
+        }
+
+        $highlight['ultimate_source'] = $source;
+
         $highlight['highlight'] = MarkdownUtil::convertToHTML($highlight['highlight']);
         $highlight['highlight'] = str_replace('<img src="', '<img class="lazy" data-src="', $highlight['highlight']);
         $decimalHashtags = StringUtil::getDecimalHashtags($highlight['highlight']);
