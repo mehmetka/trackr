@@ -53,13 +53,13 @@ class BookmarkController extends Controller
     {
         $bookmarkUid = $args['uid'];
         $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
-        $details = $this->bookmarkModel->getChildBookmarkById($bookmarkId, $_SESSION['userInfos']['user_id']);
+//        $details = $this->bookmarkModel->getChildBookmarkById($bookmarkId, $_SESSION['userInfos']['user_id']);
         $highlights = $this->bookmarkModel->getHighlights($bookmarkId);
         $tags = $this->tagModel->getTagsBySourceId($bookmarkId, Sources::BOOKMARK->value);
 
-        if ($details['keyword'] && !in_array($details['keyword'], $tags['tags'])) {
-            $tags['imploded_comma'] .= ', ' . $details['keyword'];
-        }
+//        if ($details['keyword'] && !in_array($details['keyword'], $tags['tags'])) {
+//            $tags['imploded_comma'] .= ', ' . $details['keyword'];
+//        }
 
         $_SESSION['bookmarks']['highlights']['bookmarkID'] = $bookmarkId;
 
