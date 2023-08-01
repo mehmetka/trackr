@@ -159,9 +159,9 @@ class HighlightController extends Controller
 
         if (!$params['tags']) {
             $params['tags'] = 'general';
-            $params['blogPath'] = 'general';
+            $params['blogPath'] = $params['blogPath'] ?? 'general';
         } else {
-            $params['blogPath'] = HighlightUtil::prepareBlogPath(TagUtil::prepareTagsAsArray($params['tags']));
+            $params['blogPath'] = $params['blogPath'] ?? HighlightUtil::prepareBlogPath(TagUtil::prepareTagsAsArray($params['tags']));
         }
 
         $highlightId = $this->highlightModel->create($params);
