@@ -235,7 +235,9 @@ class BookmarkController extends Controller
             $params['tags'] = 'general';
             $bookmarkDetail['blogPath'] = 'general';
         } else {
-            $bookmarkDetail['blogPath'] = HighlightUtil::prepareBlogPath(TagUtil::prepareTagsAsArray($params['tags']));
+            $tagsArray = TagUtil::prepareTagsAsArray($params['tags']);
+            $bookmarkDetail['blogPath'] = $tagsArray[0];
+            $bookmarkDetail['filename'] = $tagsArray[1];
         }
 
         $highlightId = $this->bookmarkModel->addHighlight($bookmarkDetail);
