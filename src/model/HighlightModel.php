@@ -214,8 +214,8 @@ class HighlightModel
     {
         $now = time();
 
-        $params['author'] = $params['author'] ? trim($params['author']) : $_SESSION['userInfos']['username'];
-        $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
+//        $params['author'] = $params['author'] ? trim($params['author']) : $_SESSION['userInfos']['username'];
+//        $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
@@ -265,8 +265,8 @@ class HighlightModel
     {
         $update = time();
 
-        $params['author'] = $params['author'] ? trim($params['author']) : $_SESSION['userInfos']['username'];
-        $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
+//        $params['author'] = $params['author'] ? trim($params['author']) : $_SESSION['userInfos']['username'];
+//        $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
