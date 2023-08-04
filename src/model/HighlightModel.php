@@ -466,15 +466,7 @@ class HighlightModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['highlight'] = MarkdownUtil::convertToHTML($row['highlight']);
-            $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
-            $tags = $this->tagModel->getTagsBySourceId($row['id'], Sources::HIGHLIGHT->value);
-
-            if ($tags) {
-                $row['tags'] = $tags;
-            }
-
-            $list[] = $row;
+            $list[] = $this->processHighlightRecord($row);
         }
 
         return $list;
@@ -501,15 +493,7 @@ class HighlightModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['highlight'] = MarkdownUtil::convertToHTML($row['highlight']);
-            $row['created_at_formatted'] = date('Y-m-d H:i:s', $row['created']);
-            $tags = $this->tagModel->getTagsBySourceId($row['id'], Sources::HIGHLIGHT->value);
-
-            if ($tags) {
-                $row['tags'] = $tags;
-            }
-
-            $list[] = $row;
+            $list[] = $this->processHighlightRecord($row);
         }
 
         return $list;
