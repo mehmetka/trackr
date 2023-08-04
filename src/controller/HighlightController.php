@@ -6,7 +6,6 @@ use App\enum\Sources;
 use App\model\BookModel;
 use App\model\TagModel;
 use App\util\EncryptionUtil;
-use App\util\HighlightUtil;
 use App\util\TagUtil;
 use Slim\Http\StatusCode;
 use App\model\HighlightModel;
