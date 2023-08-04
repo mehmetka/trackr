@@ -334,12 +334,17 @@ class HighlightModel
         return $this->dbConnection->lastInsertId();
     }
 
-    public function getHighlightsCount()
+    public function getHighlightsCount($column = null, $value = null)
     {
         $count = 0;
+        $specifiedCondition = '';
 
-        $sql = 'SELECT COUNT(*) AS count
-                FROM highlights WHERE is_deleted = 0 AND user_id = :user_id';
+        if ($column !== null && $value !== null) {
+            $specifiedCondition = " $column = '$value' AND ";
+        }
+
+        $sql = "SELECT COUNT(*) AS count
+                FROM highlights WHERE is_deleted = 0 AND $specifiedCondition user_id = :user_id";
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);

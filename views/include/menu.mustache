@@ -2,6 +2,7 @@
     <a href="#" class="btn collapseSidebar toggle-btn d-lg-none text-muted ml-2 mt-3" data-toggle="toggle">
         <i class="fe fe-x"><span class="sr-only"></span></i>
     </a>
+
     <nav class="vertnav navbar navbar-light">
         <!-- nav bar -->
         <div class="w-100 mb-4 d-flex">
@@ -11,6 +12,7 @@
         </div>
 
         <ul class="navbar-nav flex-fill w-100 mb-2">
+
             <li class="nav-item dropdown {{activeHome}}">
                 <a href="/" class="nav-link">
                     <i class="fe fe-home fe-16"></i>
@@ -30,12 +32,28 @@
                     <span id="bookmarksBadgeCount" class="badge badge-pill badge-warning"></span>
                 </a>
             </li>
+
             <li class="nav-item dropdown {{activeHighlights}}">
-                <a href="/highlights" class="nav-link">
+                <a href="/highlights" class="nav-link"  aria-expanded="false" class="dropdown-toggle nav-link">
                     <i class="fe fe-scissors fe-16"></i>
                     <span class="ml-3 item-text">Highlights</span>
                     <span id="highlightsBadgeCount" class="badge badge-pill badge-warning"></span>
                 </a>
+                <ul class="list-unstyled pl-4 w-100" id="ui-elements">
+                    <li class="nav-item">
+                        <a class="nav-link pl-3" href="/highlights?is_secret=true">
+                            <span class="ml-1 item-text">Private</span>
+                            <span id="privateHighlightsBadgeCount" class="badge badge-pill badge-warning"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link pl-3" href="/highlights?is_secret=false">
+                            <span class="ml-1 item-text">Public</span>
+                            <span id="publicHighlightsBadgeCount" class="badge badge-pill badge-warning"></span>
+                        </a>
+                    </li>
+                </ul>
+
             </li>
             <li class="nav-item dropdown {{activeReadingHistory}}">
                 <a href="/books/reading-history" class="nav-link">
@@ -91,5 +109,7 @@
         $('#todosBadgeCount').text(result.todosCount);
         $('#videosBadgeCount').text(result.videosCount);
         $('#highlightsBadgeCount').text(result.highlightsCount);
+        $('#publicHighlightsBadgeCount').text(result.publicHighlightsCount);
+        $('#privateHighlightsBadgeCount').text(result.privateHighlightsCount);
     });
 </script>
