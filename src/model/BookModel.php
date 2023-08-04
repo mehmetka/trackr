@@ -2,7 +2,6 @@
 
 namespace App\model;
 
-use App\entity\Book;
 use App\enum\BookStatus;
 use App\enum\PathStatus;
 use App\enum\StatusColors;
@@ -1360,7 +1359,8 @@ class BookModel
 
     public function getBookTrackingsGraphicData()
     {
-        $fetchAfter = time() - (Book::TRACKING_DATA_DATE_LIMIT * 86400);
+        $trackingDataDateLimit = 30;
+        $fetchAfter = time() - ($trackingDataDateLimit * 86400);
         $paths = $this->getPathsList();
         $result = [];
 
@@ -1379,7 +1379,7 @@ class BookModel
             $result['trackings'][] = $preparedData;
         }
 
-        $result['dates'] = TimeUtil::generateDateListKV(Book::TRACKING_DATA_DATE_LIMIT);
+        $result['dates'] = TimeUtil::generateDateListKV($trackingDataDateLimit);
 
         return $result;
     }
@@ -1418,7 +1418,8 @@ class BookModel
 
     public function prepareBookTrackingsGraphicData($bookTrackings)
     {
-        $dates = TimeUtil::generateDateListArray(Book::TRACKING_DATA_DATE_LIMIT);
+        $trackingDataDateLimit = 30;
+        $dates = TimeUtil::generateDateListArray($trackingDataDateLimit);
         $amountData = [];
 
         foreach ($bookTrackings as $trackingData) {

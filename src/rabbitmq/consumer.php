@@ -6,7 +6,6 @@ ini_set('display_errors', 0);
 require __DIR__ . '/../../vendor/autoload.php';
 
 use Slim\App;
-use App\entity\Book;
 use App\model\BookmarkModel;
 use App\model\BookModel;
 use App\util\EncodingUtil;
@@ -271,7 +270,7 @@ function process_message($message)
 
             printLog("author: {$bookData['author']}, title: {$bookData['bookTitle']}");
 
-            $exist = $bookModel->getBookByGivenColumn(Book::COLUMN_TITLE, $bookData['bookTitle']);
+            $exist = $bookModel->getBookByGivenColumn('title', $bookData['bookTitle']);
 
             if (!$exist && $bookData['bookTitle'] && $bookData['author']) {
 

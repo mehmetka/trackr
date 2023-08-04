@@ -2,7 +2,6 @@
 
 namespace App\controller;
 
-use App\entity\Book;
 use App\enum\Sources;
 use App\model\BookModel;
 use App\model\TagModel;
@@ -37,10 +36,10 @@ class HighlightController extends Controller
         if (isset($queryString['tag'])) {
             $highlights = $this->highlightModel->getHighlightsByTag($queryString['tag'], $_ENV['HIGHLIGHT_LIMIT']);
         } elseif (isset($queryString['author'])) {
-            $highlights = $this->highlightModel->getHighlightsByGivenField(Book::COLUMN_AUTHOR, $queryString['author'],
+            $highlights = $this->highlightModel->getHighlightsByGivenField('author', $queryString['author'],
                 $_ENV['HIGHLIGHT_LIMIT']);
         } elseif (isset($queryString['source'])) {
-            $highlights = $this->highlightModel->getHighlightsByGivenField(Book::COLUMN_SOURCE, $queryString['source'],
+            $highlights = $this->highlightModel->getHighlightsByGivenField('source', $queryString['source'],
                 $_ENV['HIGHLIGHT_LIMIT']);
         } elseif (isset($queryString['bookUID'])) {
             $bookId = $this->bookModel->getBookIdByUid($queryString['bookUID']);
