@@ -563,6 +563,16 @@ class HighlightModel
     {
         $minAndMaxID = $_SESSION['userInfos']['highlightMinMaxID'] ?? $this->getMinMaxIdOfHighlights();
         $randomID = rand($minAndMaxID['minID'], $minAndMaxID['maxID']);
+        $tags = $this->tagModel->getTagsBySourceId($randomID, Sources::HIGHLIGHT->value);
+
+        foreach ($tags['tags'] as $tag) {
+
+            if ($tag['tag'] === 'private') {
+                return [];
+            }
+
+        }
+
         return $this->getHighlightsByGivenField('id', $randomID);
     }
 
