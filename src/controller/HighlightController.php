@@ -42,7 +42,10 @@ class HighlightController extends Controller
                 $_ENV['HIGHLIGHT_LIMIT']);
         } elseif (isset($queryString['bookUID'])) {
             $bookId = $this->bookModel->getBookIdByUid($queryString['bookUID']);
-            $highlights = $this->highlightModel->getHighlightsByGivenField(Book::COLUMN_BOOK_ID, $bookId);
+            $highlights = $this->highlightModel->getHighlightsByGivenField('book_id', $bookId);
+        } elseif (isset($queryString['is_secret'])) {
+            $isSecret = $queryString['is_secret'] === 'true' ? 1 : 0;
+            $highlights = $this->highlightModel->getHighlightsByGivenField('is_secret', $isSecret);
         } else {
             $highlights = $this->highlightModel->getHighlights($_ENV['HIGHLIGHT_LIMIT']);
         }
