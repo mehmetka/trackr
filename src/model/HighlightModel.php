@@ -26,12 +26,12 @@ class HighlightModel
 
     public function getHighlights($limit = null)
     {
-        $limit = $limit ? $limit : 500;
+        $limit = $limit ?? 500;
         $list = [];
 
         $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted
                 FROM highlights h
-                WHERE h.is_deleted = 0 AND h.user_id = :user_id
+                WHERE h.is_deleted = 0 AND h.user_id = :user_id AND h.type=0
                 ORDER BY h.updated DESC LIMIT :limit';
 
         $stm = $this->dbConnection->prepare($sql);
