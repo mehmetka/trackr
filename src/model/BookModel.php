@@ -690,7 +690,7 @@ class BookModel
                 FROM books_finished bf
                 LEFT JOIN books b ON bf.book_id = b.id
                 INNER JOIN paths p ON bf.path_id = p.id
-                WHERE bf.user_id = :user_id
+                WHERE bf.user_id = :user_id AND bf.is_complete_book = 1
                 ORDER BY finish_date DESC";
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
@@ -1011,8 +1011,8 @@ class BookModel
         $status = BookStatus::NEW->value;
         $uid = md5(uniqid(time(), true));
 
-        $sql = 'INSERT INTO books (uid, title, subtitle, publisher, pdf, epub, added_date, page_count, status, published_date, description, isbn, thumbnail, thumbnail_small, info_link)
-                VALUES(:uid, :title, :subtitle, :publisher, :pdf, :epub, :added_date, :page_count, :status, :published_date, :description, :isbn, :thumbnail, :thumbnail_small, :info_link)';
+        $sql = 'INSERT INTO books (uid, title, subtitle, publisher, pdf, epub, added_date, page_count, status, published_date, description, isbn, thumbnail, thumbnail_small, info_link, is_complete_book)
+                VALUES(:uid, :title, :subtitle, :publisher, :pdf, :epub, :added_date, :page_count, :status, :published_date, :description, :isbn, :thumbnail, :thumbnail_small, :info_link, :is_complete_book)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':uid', $uid, \PDO::PARAM_STR);
@@ -1030,6 +1030,7 @@ class BookModel
         $stm->bindParam(':thumbnail', $params['thumbnail'], \PDO::PARAM_STR);
         $stm->bindParam(':thumbnail_small', $params['thumbnail_small'], \PDO::PARAM_STR);
         $stm->bindParam(':info_link', $params['info_link'], \PDO::PARAM_STR);
+        $stm->bindParam(':is_complete_book', $params['is_complete_book'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
@@ -1138,7 +1139,8 @@ class BookModel
         $allBookCount = 0;
 
         $sql = "SELECT COUNT(*) AS allBookCount
-                FROM books";
+                FROM books
+                WHERE is_complete_book = 1";
 
         $stm = $this->dbConnection->prepare($sql);
 
@@ -1159,7 +1161,7 @@ class BookModel
 
         $sql = "SELECT COUNT(*) AS finishedBookCount
                 FROM books_finished
-                WHERE user_id = :user_id";
+                WHERE user_id = :user_id AND is_complete_book = 1";
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);

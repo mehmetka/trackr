@@ -97,6 +97,7 @@ CREATE TABLE `books`
     `info_link`        varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
     `ebook_version`    int(11)                                 DEFAULT '0',
     `ebook_page_count` int(11)                                 DEFAULT '0',
+    `is_complete_book` int(11)                                 DEFAULT '1',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -104,13 +105,14 @@ CREATE TABLE `books`
 
 CREATE TABLE `books_finished`
 (
-    `id`          int(11) NOT NULL AUTO_INCREMENT,
-    `book_id`     int(11) NOT NULL,
-    `path_id`     int(11) NOT NULL,
-    `start_date`  varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-    `finish_date` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-    `rate`        int(11)                                 DEFAULT NULL,
-    `user_id`     int(11) NOT NULL,
+    `id`               int(11) NOT NULL AUTO_INCREMENT,
+    `book_id`          int(11) NOT NULL,
+    `path_id`          int(11) NOT NULL,
+    `start_date`       varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `finish_date`      varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `rate`             int(11)                                 DEFAULT NULL,
+    `user_id`          int(11) NOT NULL,
+    `is_complete_book` int(11)                                 DEFAULT '1',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
