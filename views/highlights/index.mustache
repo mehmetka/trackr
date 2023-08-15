@@ -57,11 +57,17 @@
                                         <input id="tags" placeholder="Tags" type="text"
                                                class="form-control enterButtonKeyPress">
                                     </div>
-                                    <div class="form-group col-3">
+                                    <div class="form-group col-2">
                                         <input id="blogPath" placeholder="Blog Path" type="text"
                                                class="form-control enterButtonKeyPress">
                                     </div>
-                                    <div class="form-group col-3">
+                                    <div class="form-group col-2">
+                                        <select id="is_secret" class="form-control">
+                                            <option>Public</option>
+                                            <option selected>Private</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-2">
                                         <select id="is_encrypted" class="form-control">
                                             <option disabled selected>Store encrypted?</option>
                                             <option>Yes</option>
@@ -233,6 +239,7 @@
                 var tags = $('#tags').val();
                 var is_encrypted = $('#is_encrypted').val();
                 var blogPath = $('#blogPath').val();
+                var is_secret = $('#is_secret').val();
 
                 var data = "highlight=" + encodeURIComponent(highlight) +
                         "&author=" + encodeURIComponent(author) +
@@ -241,7 +248,8 @@
                         "&tags=" + encodeURIComponent(tags) +
                         "&filename=" + encodeURIComponent(fileName) +
                         "&blogPath=" + encodeURIComponent(blogPath) +
-                        "&is_encrypted=" + encodeURIComponent(is_encrypted);
+                        "&is_encrypted=" + encodeURIComponent(is_encrypted) +
+                        "&is_secret=" + encodeURIComponent(is_secret);
                 var result = ajaxCall('POST', "/highlights", data)
 
                 if (result !== false) {

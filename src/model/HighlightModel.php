@@ -237,8 +237,8 @@ class HighlightModel
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
-        $sql = 'INSERT INTO highlights (highlight, author, source, page, file_name, blog_path, is_encrypted, created, updated, user_id)
-                VALUES(:highlight, :author, :source, :page, :file_name, :blog_path, :is_encrypted, :created, :updated, :user_id)';
+        $sql = 'INSERT INTO highlights (highlight, author, source, page, file_name, blog_path, is_encrypted, is_secret, created, updated, user_id)
+                VALUES(:highlight, :author, :source, :page, :file_name, :blog_path, :is_encrypted, :is_secret, :created, :updated, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':highlight', $params['highlight'], \PDO::PARAM_STR);
@@ -247,7 +247,8 @@ class HighlightModel
         $stm->bindParam(':page', $params['page'], \PDO::PARAM_INT);
         $stm->bindParam(':file_name', $params['filename'], \PDO::PARAM_STR);
         $stm->bindParam(':blog_path', $params['blogPath'], \PDO::PARAM_STR);
-        $stm->bindParam(':is_encrypted', $params['is_encrypted'], \PDO::PARAM_STR);
+        $stm->bindParam(':is_encrypted', $params['is_encrypted'], \PDO::PARAM_INT);
+        $stm->bindParam(':is_secret', $params['is_secret'], \PDO::PARAM_INT);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
         $stm->bindParam(':updated', $now, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);

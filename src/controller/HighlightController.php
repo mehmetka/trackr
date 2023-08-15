@@ -158,6 +158,12 @@ class HighlightController extends Controller
             $params['highlight'] = trim($params['highlight']);
         }
 
+        if (isset($params['is_secret']) && $params['is_secret'] === 'Public') {
+            $params['is_secret'] = 0;
+        } else {
+            $params['is_secret'] = 1;
+        }
+
         if (!$params['tags']) {
             $params['tags'] = 'general';
 
