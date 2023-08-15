@@ -168,11 +168,12 @@ class HighlightController extends Controller
 
             if (!isset($params['blogPath']) || !$params['blogPath']) {
                 $tagsArray = TagUtil::prepareTagsAsArray($params['tags']);
-                $params['blogPath'] = $tagsArray[0];
+                $params['blogPath']  = implode('/', $tagsArray);
+//                $params['blogPath'] = $tagsArray[0];
 
-                if (!isset($params['filename']) || !$params['filename']) {
-                    $params['filename'] = $tagsArray[1];
-                }
+//                if (!isset($params['filename']) || !$params['filename']) {
+//                    $params['filename'] = $tagsArray[1];
+//                }
 
             }
 
