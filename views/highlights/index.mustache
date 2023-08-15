@@ -118,6 +118,10 @@
                                     {{#tags}}
                                         <br><br>
                                         <strong>{{imploded_hashtag_blank}}</strong>
+
+                                        {{#is_secret}}
+                                            <i class="fe fe-lock fe-12"></i>
+                                        {{/is_secret}}
                                     {{/tags}}
                                 </footer>
 

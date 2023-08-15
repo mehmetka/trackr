@@ -29,7 +29,7 @@ class HighlightModel
         $limit = $limit ?? 500;
         $list = [];
 
-        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted, h.is_secret
                 FROM highlights h
                 WHERE h.is_deleted = 0 AND h.user_id = :user_id AND h.type=0
                 ORDER BY h.updated DESC LIMIT :limit';
@@ -54,7 +54,7 @@ class HighlightModel
         $limit = $limit ? $limit : 500;
         $list = [];
 
-        $sql = "SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted
+        $sql = "SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted, h.is_secret
                 FROM highlights h
                 WHERE h.is_deleted = 0 AND h.user_id = :user_id AND $field = :param 
                 ORDER BY h.updated DESC LIMIT :limit";
@@ -80,7 +80,7 @@ class HighlightModel
         $limit = $limit ? $limit : 500;
         $list = [];
 
-        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted, h.is_secret
                 FROM highlights h LEFT JOIN tag_relationships tr ON h.id = tr.source_id
                 LEFT JOIN tags t ON tr.tag_id = t.id
                 WHERE h.is_deleted = 0 AND h.user_id = :user_id AND t.tag = :tag AND tr.type = 1
