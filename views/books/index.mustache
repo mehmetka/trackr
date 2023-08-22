@@ -19,15 +19,17 @@
                                 <div class="card-header {{status_label}}">
                                     Read: {{{readStatus}}}
 
-                                    <button class="btn btn-sm dropdown-toggle more-horizontal float-right"
-                                            type="button" data-toggle="dropdown" aria-haspopup="true"
-                                            aria-expanded="false">
-                                        <span class="text-muted sr-only">Action</span>
-                                    </button>
-                                    <div class="dropdown-menu dropdown-menu-right">
-                                        <a class="dropdown-item btnMakePrioritized"
-                                           data-uid="{{bookUID}}" data-path="{{pathUID}}">Make Prioritized</a>
-                                    </div>
+                                    {{^remove}}
+                                        <button class="btn btn-sm dropdown-toggle more-horizontal float-right"
+                                                type="button" data-toggle="dropdown" aria-haspopup="true"
+                                                aria-expanded="false">
+                                            <span class="text-muted sr-only">Action</span>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a class="dropdown-item btnMakePrioritized"
+                                               data-uid="{{bookUID}}" data-path="{{pathUID}}">Make Prioritized</a>
+                                        </div>
+                                    {{/remove}}
 
                                     {{#ebook_exist}}
                                         <span class="badge badge-pill badge-success">Ebook</span>
