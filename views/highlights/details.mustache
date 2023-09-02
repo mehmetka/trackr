@@ -38,22 +38,27 @@
 
                                     <br>
 
-                                    <div class="form-group">
-                                        <input id="author" placeholder="Author" type="text" class="form-control"
-                                               value="{{author}}">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <input id="source" placeholder="Source" type="text" class="form-control"
-                                               value="{{source}}">
+                                    <div class="form-row">
+                                        <div class="form-group col-md-6">
+                                            <input id="author" placeholder="Author" type="text" class="form-control"
+                                                   value="{{author}}">
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <input id="source" placeholder="Source" type="text" class="form-control"
+                                                   value="{{source}}">
+                                        </div>
                                     </div>
 
                                     <div class="form-row">
                                         <div class="form-group col-md-6">
+                                            <input id="blog_path" placeholder="Blog Path" type="text" class="form-control"
+                                                   value="{{blog_path}}">
+                                        </div>
+                                        <div class="form-group col-md-3">
                                             <input id="page" placeholder="Page" type="number" class="form-control"
                                                    value="{{page}}">
                                         </div>
-                                        <div class="form-group col-md-6">
+                                        <div class="form-group col-md-3">
                                             <input id="location" placeholder="Location" type="text" class="form-control"
                                                    value="{{location}}">
                                         </div>
@@ -65,17 +70,6 @@
                                                    value="{{link}}" disabled>
                                         </div>
                                     {{/link}}
-
-                                    <div class="form-row">
-                                        <div class="form-group col-md-6">
-                                            <input id="blog_path" placeholder="Blog Path" type="text" class="form-control"
-                                                   value="{{blog_path}}">
-                                        </div>
-                                        <div class="form-group col-md-6">
-                                            <input id="filename" placeholder="File Name" type="text" class="form-control"
-                                                   value="{{file_name}}">
-                                        </div>
-                                    </div>
 
                                     <div class="form-group">
                                         <input id="tags" placeholder="Tags" type="text" class="form-control"
@@ -233,7 +227,6 @@
             var page = $('#page').val();
             var highlightLocation = $('#location').val();
             var link = $('#link').val();
-            var fileName = $('#filename').val();
             var tags = $('#tags').val();
             var highlightID = $(this).data('id');
             var blogPath = $('#blog_path').val();
@@ -245,7 +238,6 @@
                     "&page=" + page +
                     "&location=" + highlightLocation +
                     "&link=" + link +
-                    "&filename=" + encodeURIComponent(fileName) +
                     "&tags=" + tags +
                     "&blogPath=" + encodeURIComponent(blogPath) +
                     "&is_secret=" + is_secret +
