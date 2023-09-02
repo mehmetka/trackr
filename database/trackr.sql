@@ -179,7 +179,6 @@ CREATE TABLE `highlights`
     `location`     varchar(45) COLLATE utf8mb4_unicode_ci       DEFAULT NULL,
     `link`         int(11)                                      DEFAULT NULL,
     `book_id`      int(11)                                      DEFAULT NULL,
-    `file_name`    varchar(255) COLLATE utf8mb4_unicode_ci      DEFAULT NULL,
     `blog_path`    varchar(255) COLLATE utf8mb4_unicode_ci      DEFAULT NULL,
     `type`         int(11)                                      DEFAULT '0',
     `is_secret`    int(11)                                      DEFAULT '1',
