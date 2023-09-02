@@ -231,10 +231,6 @@ class BookmarkController extends Controller
             $bookmarkDetail['source'] = 'Bookmark Highlight';
         }
 
-        if (!$params['tags']) {
-            $params['tags'] = 'general';
-        }
-
         $highlightId = $this->bookmarkModel->addHighlight($bookmarkDetail);
 
         $this->tagModel->updateSourceTags($params['tags'], $highlightId, Sources::HIGHLIGHT->value);

@@ -164,10 +164,6 @@ class HighlightController extends Controller
             $params['is_secret'] = 1;
         }
 
-        if (!$params['tags']) {
-            $params['tags'] = 'general';
-        }
-
         $highlightId = $this->highlightModel->create($params);
 
         $this->tagModel->updateSourceTags($params['tags'], $highlightId, Sources::HIGHLIGHT->value);
