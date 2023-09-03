@@ -216,6 +216,7 @@
                         Mustache.parse(template);
                         var rendered = Mustache.render(template, result);
                         $("#search-results").html(rendered);
+                        $(".lazy").Lazy();
                     }
                 }
             }
