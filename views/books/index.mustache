@@ -60,6 +60,11 @@
                                                     yesterday</label>
                                             </div>
 
+                                            {{#remove}}
+                                                <a class="btn btn-sm btn-info btnReadingHistory" data-uid="{{bookUID}}"
+                                                   data-toggle="modal" data-target="#readingHistoryModal">History</a>
+                                            {{/remove}}
+
                                             {{^remove}}
                                                 <div>
                                                     <button class="btn btn-sm btn-danger btnRemoveFromPath"
@@ -84,6 +89,7 @@
 
 {{> menu }}
 {{> add-book }}
+{{> reading-history-by-books }}
 
 <script>
     $(document).ready(function () {
