@@ -118,14 +118,12 @@
 
                                 <footer class="blockquote-footer">
                                     {{ultimate_source}} ~ {{created_at_formatted}}/{{updated_at_formatted}}
-
+                                    {{#is_secret}}
+                                        <i class="fe fe-lock fe-12"></i>
+                                    {{/is_secret}}
                                     {{#tags}}
                                         <br><br>
                                         <strong>{{imploded_hashtag_blank}}</strong>
-
-                                        {{#is_secret}}
-                                            <i class="fe fe-lock fe-12"></i>
-                                        {{/is_secret}}
                                     {{/tags}}
                                 </footer>
 
