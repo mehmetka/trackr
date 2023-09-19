@@ -222,6 +222,7 @@ class BookController extends Controller
     {
         $bookId = $this->bookModel->getBookIdByUid($args['bookUID']);
         $this->bookModel->addToLibrary($bookId);
+        $_SESSION['badgeCounts']['myBookCount'] += 1;
 
         $this->bookModel->addActivityLog(null, $bookId, "added to library");
 
