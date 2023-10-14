@@ -56,7 +56,7 @@ class HighlightModel
 
         $sql = "SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted, h.is_secret
                 FROM highlights h
-                WHERE h.is_deleted = 0 AND h.user_id = :user_id AND $field = :param 
+                WHERE h.is_deleted = 0 AND h.user_id = :user_id AND $field = :param AND h.is_deleted = 0
                 ORDER BY h.updated DESC LIMIT :limit";
 
         $stm = $this->dbConnection->prepare($sql);
@@ -158,7 +158,7 @@ class HighlightModel
         $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.page, h.location, b.bookmark AS link, h.link AS linkID, h.blog_path, h.type, h.is_secret, h.is_encrypted, h.created, h.updated
                 FROM highlights h
                 LEFT JOIN bookmarks b ON h.link = b.id
-                WHERE h.id = :highlightID AND h.user_id = :user_id';
+                WHERE h.id = :highlightID AND h.user_id = :user_id AND h.is_deleted = 0';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':highlightID', $id, \PDO::PARAM_INT);
@@ -364,7 +364,7 @@ class HighlightModel
         $next = $id;
 
         $sql = 'SELECT * FROM highlights 
-                WHERE id = (SELECT min(id) FROM highlights WHERE id > :id AND user_id = :user_id) AND user_id = :user_id';
+                WHERE id = (SELECT min(id) FROM highlights WHERE id > :id AND user_id = :user_id) AND user_id = :user_id AND is_deleted = 0';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':id', $id, \PDO::PARAM_INT);
@@ -386,7 +386,7 @@ class HighlightModel
         $previous = $id;
 
         $sql = 'SELECT * FROM highlights 
-                WHERE id = (SELECT max(id) FROM highlights WHERE id < :id AND user_id = :user_id) AND user_id = :user_id';
+                WHERE id = (SELECT max(id) FROM highlights WHERE id < :id AND user_id = :user_id) AND user_id = :user_id AND is_deleted = 0';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':id', $id, \PDO::PARAM_INT);
