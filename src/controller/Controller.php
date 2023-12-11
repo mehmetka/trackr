@@ -6,7 +6,6 @@ use Psr\Container\ContainerInterface;
 use Slim\Http\Response;
 use Slim\Http\StatusCode;
 
-
 class Controller
 {
     protected $container;
