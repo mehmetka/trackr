@@ -26,7 +26,9 @@ class LogController extends Controller
 
         $todayLog = $this->logModel->getLog($today);
 
-        if (!$todayLog) {
+        if ($todayLog) {
+            $_SESSION['todays_log'] = $todayLog['log'];
+        } else {
             $this->logModel->insert($today, null);
         }
 
@@ -50,20 +52,28 @@ class LogController extends Controller
         $todaysLog = $this->logModel->getLog($today);
 
         if ($todaysLog) {
-            $this->logModel->update($today, $params['log']);
 
-            if ($todaysLog['log']) {
-                $this->logModel->saveOldVersion($todaysLog['id'], $todaysLog['log']);
+            $previousLog = $_SESSION['todays_log'] ?? null;
+
+            if ($params['log'] !== $previousLog) {
+                $this->logModel->update($today, $params['log']);
+
+                if ($todaysLog['log']) {
+                    $this->logModel->saveOldVersion($todaysLog['id'], $todaysLog['log']);
+                }
+                $resource['message'] = "Saved successfully";
+            } else {
+                $resource['message'] = "Did not save. Logs are equal";
             }
 
         } else {
             // while saving the log, date might change
-            $this->logModel->insert($today, null);
-            $this->logModel->update($today, $params['log']);
+            $this->logModel->insert($today, $params['log']);
         }
 
+        $_SESSION['todays_log'] = $todaysLog['log'];
+
         $resource['responseCode'] = StatusCode::HTTP_OK;
-        $resource['message'] = "Saved successfully";
 
         return $this->response($resource['responseCode'], $resource);
     }
