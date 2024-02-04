@@ -604,4 +604,26 @@ class HighlightModel
 
         return true;
     }
+
+    public function updateUpdatedFieldByHighlightId($highlightID, $updated = null)
+    {
+        $updated = $updated ?? time();
+
+        $sql = 'UPDATE highlights
+                SET updated = :updated
+                WHERE id = :id AND user_id = :user_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        $stm->bindParam(':id', $highlightID, \PDO::PARAM_INT);
+        $stm->bindParam(':updated', $updated, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
 }

@@ -71,6 +71,7 @@ class HighlightController extends Controller
         $subHighlights = $this->highlightModel->getSubHighlightsByHighlightID($highlightID);
         $nextID = $this->highlightModel->getNextHighlight($highlightID);
         $previousID = $this->highlightModel->getPreviousHighlight($highlightID);
+        $this->highlightModel->updateUpdatedFieldByHighlightId($highlightID);
 
         $data = [
             'title' => 'Highlight Details | trackr',
