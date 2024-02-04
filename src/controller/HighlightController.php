@@ -6,7 +6,6 @@ use App\enum\Sources;
 use App\model\BookModel;
 use App\model\TagModel;
 use App\util\EncryptionUtil;
-use App\util\TagUtil;
 use Slim\Http\StatusCode;
 use App\model\HighlightModel;
 use App\exception\CustomException;
@@ -148,6 +147,9 @@ class HighlightController extends Controller
         $highlightExist = $this->highlightModel->searchHighlight(trim($params['highlight']));
 
         if ($highlightExist) {
+            foreach ($highlightExist as $highlight) {
+                $this->highlightModel->updateUpdatedFieldByHighlightId($highlight['id']);
+            }
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight added before!");
         }
 
@@ -251,4 +253,5 @@ class HighlightController extends Controller
 
         return $this->response(StatusCode::HTTP_OK, $resource);
     }
+
 }
