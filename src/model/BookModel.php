@@ -328,7 +328,7 @@ class BookModel
     {
         $detail = [];
 
-        $sql = 'SELECT pb.id, pb.path_id, pb.book_id, pb.status, pb.created, pb.updated, b.page_count
+        $sql = 'SELECT pb.id, pb.path_id, pb.book_id, pb.status, pb.created, pb.updated, b.page_count, b.ebook_version, b.ebook_page_count
                 FROM path_books pb
                 INNER JOIN books b ON pb.book_id = b.id
                 WHERE pb.book_id=:book_id AND pb.path_id=:path_id';
@@ -342,6 +342,11 @@ class BookModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+
+            if ($row['ebook_version']) {
+                $row['page_count'] = $row['ebook_page_count'];
+            }
+
             $detail = $row;
         }
 
