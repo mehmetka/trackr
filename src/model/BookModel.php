@@ -356,6 +356,7 @@ class BookModel
                 VALUES(:book_id,:path_id,:start_date,:finish_date, :user_id)';
 
         $startDate = $this->findStartDateOfBook($bookId);
+        $bookDetails = $this->getBookByGivenColumn('id', $bookId)[0];
         $startDate = date("Y-m-d H:i:s", $startDate);
 
         $stm = $this->dbConnection->prepare($sql);
@@ -363,6 +364,7 @@ class BookModel
         $stm->bindParam(':path_id', $pathId, \PDO::PARAM_INT);
         $stm->bindParam(':start_date', $startDate, \PDO::PARAM_STR);
         $stm->bindParam(':finish_date', $now, \PDO::PARAM_STR);
+        $stm->bindParam(':is_complete_book', $bookDetails['is_complete_book'], \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
