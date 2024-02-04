@@ -187,8 +187,8 @@ CREATE TABLE `highlights`
     `updated`      int(11)                                      DEFAULT NULL,
     `is_deleted`   int(11)                                      DEFAULT '0',
     `deleted_at`   int(11)                                      DEFAULT NULL,
-    `user_id`      int(11)                             NOT NULL,
     `read_count`   int(11)                             NOT NULL DEFAULT '0',
+    `user_id`      int(11)                             NOT NULL,
     PRIMARY KEY (`id`),
     FULLTEXT KEY `ft_idx_highlight` (`highlight`)
 ) ENGINE = InnoDB
