@@ -311,7 +311,7 @@ class HighlightModel
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
         }
 
-        return $this->dbConnection->lastInsertId();
+        return true;
     }
 
     public function createSubHighlight($highlightID, $subHighlightID)
@@ -439,7 +439,7 @@ class HighlightModel
 
     public function deleteSubHighlightByHighlightID($highlightID)
     {
-        $sql = 'DELETE FROM sub_highlights 
+        $sql = 'DELETE FROM sub_highlights
                 WHERE highlight_id = :highlight_id OR sub_highlight_id = :highlight_id';
 
         $stm = $this->dbConnection->prepare($sql);
@@ -507,7 +507,7 @@ class HighlightModel
     {
         $result = [];
 
-        $sql = 'SELECT count(*) AS highlightCount, author FROM highlights 
+        $sql = 'SELECT count(*) AS highlightCount, author FROM highlights
                 WHERE user_id = :user_id
                 GROUP BY author';
 
@@ -529,7 +529,7 @@ class HighlightModel
     {
         $result = [];
 
-        $sql = 'SELECT count(*) AS highlightCount, source FROM highlights 
+        $sql = 'SELECT count(*) AS highlightCount, source FROM highlights
                 WHERE user_id = :user_id
                 GROUP BY source';
 
@@ -568,7 +568,7 @@ class HighlightModel
     {
         $result = [];
 
-        $sql = 'SELECT MIN(id) AS minID, MAX(id) AS maxID 
+        $sql = 'SELECT MIN(id) AS minID, MAX(id) AS maxID
                 FROM highlights
                 WHERE user_id = :user_id';
 
@@ -590,8 +590,8 @@ class HighlightModel
 
     public function incrementReadCount($highlightID)
     {
-        $sql = 'UPDATE highlights 
-                SET read_count = read_count + 1 
+        $sql = 'UPDATE highlights
+                SET read_count = read_count + 1
                 WHERE id = :highlight_id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
