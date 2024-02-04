@@ -352,8 +352,8 @@ class BookModel
     {
         $now = date("Y-m-d H:i:s");
 
-        $sql = 'INSERT INTO books_finished (book_id, path_id, start_date, finish_date, user_id)
-                VALUES(:book_id,:path_id,:start_date,:finish_date, :user_id)';
+        $sql = 'INSERT INTO books_finished (book_id, path_id, start_date, finish_date, user_id, is_complete_book)
+                VALUES(:book_id,:path_id,:start_date,:finish_date, :user_id, :is_complete_book)';
 
         $startDate = $this->findStartDateOfBook($bookId);
         $bookDetails = $this->getBookByGivenColumn('id', $bookId)[0];
