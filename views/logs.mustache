@@ -13,6 +13,7 @@
 </head>
 
 <body class="vertical dark">
+{{> include}}
 {{> navbar }}
 <div class="wrapper">
     <main role="main" class="main-content">
@@ -52,7 +53,6 @@
     </main> <!-- main -->
 </div> <!-- .wrapper -->
 
-{{> include}}
 {{> menu }}
 <script src="/js/simplemde.min.js"></script>
 <script src="/js/codemirror-4.inline-attachment.min.js"></script>
@@ -88,15 +88,21 @@
 
         });
 
-        setInterval(function () {
+        var autoSave = function () {
             var currentLog = simplemde.value();
 
             if (currentLog && currentLog !== previousLog) {
                 ajaxCall('POST', "/logs", "log=" + encodeURIComponent(currentLog))
                 previousLog = currentLog;
             }
+        }
 
-        }, 10000);
+        var timer = setInterval(autoSave, 5000);
+
+        simplemde.codemirror.on("change", function(e){
+            clearInterval(timer);
+            timer = setInterval(autoSave, 5000);
+        });
 
     });
 </script>
