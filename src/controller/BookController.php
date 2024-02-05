@@ -3,7 +3,6 @@
 namespace App\controller;
 
 use App\enum\BookStatus;
-use App\enum\JobTypes;
 use App\enum\Sources;
 use App\exception\CustomException;
 use App\model\BookModel;
@@ -275,7 +274,7 @@ class BookController extends Controller
 
     public function saveBook(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $rabbitmq = new AmqpJobPublisher();
+        //$rabbitmq = new AmqpJobPublisher();
         $params = $request->getParsedBody();
 
         $params['published_date'] = null;
