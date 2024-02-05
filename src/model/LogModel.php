@@ -23,7 +23,7 @@ class LogModel
 
         $sql = 'SELECT *
                 FROM logs
-                WHERE user_id = :user_id ORDER BY id DESC';
+                WHERE user_id = :user_id ORDER BY id DESC LIMIT 7';
 
         $stm = $this->dbConnection->prepare($sql);
 
