@@ -349,9 +349,6 @@ class BookController extends Controller
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Title cannot be null');
         }
 
-
-        $params['is_complete_book'] = substr($params['bookTitle'], -7) === '(Özet)' ? 0 : 1;
-
         $bookId = $this->bookModel->saveBook($params);
         $authors = $params['authors'];
 
