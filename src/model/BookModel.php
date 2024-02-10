@@ -508,6 +508,34 @@ class BookModel
         return $total == null ? 0 : $total;
     }
 
+    public function getDailyReadingAmount($date = null)
+    {
+        $startDay = $date ? date($date . ' 00:00:00') : date('Y-m-d 00:00:00');
+        $startDay = strtotime($startDay);
+        $finishDay = $startDay + 86400;
+        $total = 0;
+
+        $sql = 'SELECT sum(bt.amount) AS amount
+                FROM book_trackings bt
+                INNER JOIN path_books pb ON bt.book_id = pb.book_id
+                WHERE (bt.record_date > :today && bt.record_date < :tomorrow) AND user_id = :user_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':today', $startDay, \PDO::PARAM_INT);
+        $stm->bindParam(':tomorrow', $finishDay, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $total = $row['amount'];
+        }
+
+        return $total == null ? 0 : $total;
+    }
+
     public function getAuthors()
     {
         $sql = 'SELECT id,author 
