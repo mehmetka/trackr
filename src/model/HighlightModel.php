@@ -176,12 +176,12 @@ class HighlightModel
             $row['highlight'] = $row['is_encrypted'] ? EncryptionUtil::decrypt($row['highlight']) : $row['highlight'];
 
             if ($row['highlight'] === null) {
-                $_SESSION['userInfos']['not_editable_highlights'][$row['id']] = true;
+                $_SESSION['highlights']['not_editable'][$row['id']] = true;
                 $row['not_editable'] = true;
                 $row['not_deletable'] = true;
                 $row['not_editable_highlight_placeholder'] = 'Could not be decrypted, your encryption key might be broken. Do not update this highlight otherwise you might loss your highlight';
             } else {
-                unset($_SESSION['userInfos']['not_editable_highlights'][$row['id']]);
+                unset($_SESSION['highlights']['not_editable'][$row['id']]);
                 $row['highlight'] = html_entity_decode($row['highlight']);
             }
 
@@ -549,7 +549,7 @@ class HighlightModel
 
     public function getRandomHighlight()
     {
-        $minAndMaxID = $_SESSION['userInfos']['highlightMinMaxID'] ?? $this->getMinMaxIdOfHighlights();
+        $minAndMaxID = $_SESSION['highlights']['minMaxID'] ?? $this->getMinMaxIdOfHighlights();
         $randomID = rand($minAndMaxID['minID'], $minAndMaxID['maxID']);
         $tags = $this->tagModel->getTagsBySourceId($randomID, Sources::HIGHLIGHT->value);
 
@@ -583,7 +583,7 @@ class HighlightModel
             $result = $row;
         }
 
-        $_SESSION['userInfos']['highlightMinMaxID'] = $result;
+        $_SESSION['highlights']['minMaxID'] = $result;
 
         return $result;
     }

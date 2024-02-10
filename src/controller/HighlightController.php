@@ -101,7 +101,7 @@ class HighlightController extends Controller
         $params = $request->getParsedBody();
         $highlightDetails = $this->highlightModel->getHighlightByID($highlightID);
 
-        if (isset($_SESSION['userInfos']['not_editable_highlights'][$highlightID])) {
+        if (isset($_SESSION['highlights']['not_editable'][$highlightID])) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "highlight not editable");
         }
 
@@ -177,7 +177,7 @@ class HighlightController extends Controller
             "message" => "Success!"
         ];
 
-        unset($_SESSION['userInfos']['highlightMinMaxID']);
+        unset($_SESSION['highlights']['minMaxID']);
         return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
@@ -215,7 +215,7 @@ class HighlightController extends Controller
 
             $resource['message'] = 'sub-highlight successfully added!';
 
-            unset($_SESSION['userInfos']['highlightMinMaxID']);
+            unset($_SESSION['highlights']['minMaxID']);
             return $this->response(StatusCode::HTTP_OK, $resource);
         }
 

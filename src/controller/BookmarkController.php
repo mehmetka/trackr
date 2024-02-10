@@ -244,7 +244,7 @@ class BookmarkController extends Controller
             "message" => "Successfully added highlight"
         ];
 
-        unset($_SESSION['userInfos']['highlightMinMaxID']);
+        unset($_SESSION['highlights']['minMaxID']);
         unset($_SESSION['bookmarks']['highlights']['bookmarkID']);
 
         return $this->response(StatusCode::HTTP_OK, $resource);
