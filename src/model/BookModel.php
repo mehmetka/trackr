@@ -651,15 +651,24 @@ class BookModel
         return $author;
     }
 
-    public function getPathsList()
+    public function getPathsList($status = null)
     {
         $sql = 'SELECT id AS path_id, uid AS pathUID, name AS path_name, start, finish, status
                 FROM paths
-                WHERE user_id = :user_id
-                ORDER BY id DESC';
+                WHERE user_id = :user_id';
+
+        if ($status) {
+            $sql .= ' AND status = :status';
+        }
+
+        $sql .= ' ORDER BY id DESC';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if ($status) {
+            $stm->bindParam(':status', $status, \PDO::PARAM_INT);
+        }
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
