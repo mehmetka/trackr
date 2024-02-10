@@ -3,6 +3,7 @@
 namespace App\controller;
 
 use App\exception\CustomException;
+use App\model\BookModel;
 use App\model\LogModel;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -12,11 +13,13 @@ use Slim\Http\StatusCode;
 class LogController extends Controller
 {
     private $logModel;
+    private $bookModel;
 
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
         $this->logModel = new LogModel($container);
+        $this->bookModel = new BookModel($container);
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
@@ -32,7 +35,11 @@ class LogController extends Controller
             $this->logModel->insert($today, null);
         }
 
-        $data['logs'] = $this->logModel->getLogs();
+        $logs = $this->logModel->getLogs();
+        foreach ($logs as $key => $log) {
+            $logs[$key]['reading'] = $this->bookModel->getDailyReadingAmount($log['date']);
+        }
+        $data['logs'] = $logs;
         $data['todaysLog'] = $todayLog['log'];
         $data['today'] = $today;
         $data['activeLogs'] = 'active';
