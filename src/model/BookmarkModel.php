@@ -125,7 +125,7 @@ class BookmarkModel
 
 
         $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':link', $bookmarkId, \PDO::PARAM_STR);
+        $stm->bindParam(':link', $bookmarkId, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
