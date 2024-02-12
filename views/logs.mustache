@@ -42,6 +42,7 @@
                                     <h5 class="card-title"># {{date}}</h5>
                                     {{{log}}}
                                     <strong>Reading:</strong> {{reading}}
+                                    <br><br>
                                 {{/logs}}
                             </div>
                         </div>
@@ -76,17 +77,15 @@
         });
 
         $("#saveLog").on('click', function (e) {
-
             var currentLog = simplemde.value();
 
-            if (currentLog) {
-                ajaxCall('POST', "/logs", "log=" + encodeURIComponent(currentLog))
-            } else {
+            if (!currentLog) {
                 $.bootstrapPurr('Log cannot be null', {
                     type: 'danger'
                 });
+                return;
             }
-
+            autoSave();
         });
 
         var autoSave = function () {
