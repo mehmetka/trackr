@@ -655,7 +655,7 @@ class BookModel
     {
         $sql = 'SELECT id AS path_id, uid AS pathUID, name AS path_name, start, finish, status
                 FROM paths
-                WHERE user_id = :user_id';
+                WHERE user_id = :user_id AND id > 0';
 
         if ($status) {
             $sql .= ' AND status = :status';
