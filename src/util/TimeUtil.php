@@ -82,4 +82,26 @@ class TimeUtil
 
         return $result;
     }
+
+    static function calculateTimeRemaining($targetDate)
+    {
+        $now = new \DateTime();
+        $target = new \DateTime($targetDate);
+
+        $diff = $now->diff($target);
+
+        $days = $diff->days;
+        $weeks = floor($days / 7);
+        $months = $diff->m + ($diff->y * 12);
+        $hours = $diff->h + ($diff->days * 24);
+        $minutes = $diff->i + ($hours * 60);
+
+        return [
+            'days' => $days,
+            'weeks' => $weeks,
+            'months' => $months,
+            'hours' => $hours,
+            'minutes' => $minutes
+        ];
+    }
 }

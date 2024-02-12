@@ -32,10 +32,35 @@
                     </div>
 
                     <h2>Today: {{today}}</h2>
-                    {{#dateTrackings}}
-                        <h2>{{name}} ({{start}}): {{detailedDiff}} ({{diff}})</h2>
-                    {{/dateTrackings}}
                     <h2>Reading Average: {{readingAverage}} ({{readingTotal}}/{{dayDiff}})</h2>
+                    <table class="table table-striped table-bordered" id="booksDatatable" width="100%">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Started</th>
+                            <th>Diff</th>
+                            <th>Mins</th>
+                            <th>Hours</th>
+                            <th>Days</th>
+                            <th>Weeks</th>
+                            <th>Months</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{#dateTrackings}}
+                            <tr>
+                                <td>{{name}}</td>
+                                <td>{{start}}</td>
+                                <td>{{diff}} years - {{detailedDiff}}</td>
+                                <td>{{minutes}}</td>
+                                <td>{{hours}}</td>
+                                <td>{{days}}</td>
+                                <td>{{weeks}}</td>
+                                <td>{{months}}</td>
+                            </tr>
+                        {{/dateTrackings}}
+                        </tbody>
+                    </table>
 
                     <hr>
                     {{#randomHighlight}}
