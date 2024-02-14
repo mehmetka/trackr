@@ -39,19 +39,21 @@ $app->group('', function () {
     $this->get('/books/trackings/graphic-datas', BookController::class . ':getBookTrackingsGraphicData');
     $this->get('/books', BookController::class . ':allBooks');
     $this->get('/books/my-library', BookController::class . ':myBooks');
-    $this->put('/books/{bookUID}/status', BookController::class . ':changeStatus');
-    $this->put('/books/{bookUID}/add-to-library', BookController::class . ':addToLibrary');
     $this->get('/books/finished', BookController::class . ':finishedBooks');
+    $this->get('/books/{bookUID}/reading-history', BookController::class . ':getReadingHistory');
+    $this->get('/books/{bookUID}/highlights', BookController::class . ':getHighlights');
+    $this->get('/books/reading-history', BookController::class . ':readingHistory');
+    $this->put('/books/rate/{bookUID}', BookController::class . ':rateBook');
+    $this->put('/books/{bookUID}/add-to-library', BookController::class . ':addToLibrary');
+    $this->put('/books/{bookUID}/status', BookController::class . ':changeStatus');
     $this->post('/books/{bookUID}/progress', BookController::class . ':addProgress');
     $this->post('/authors', BookController::class . ':createAuthor');
     $this->post('/books/{bookUID}/paths', BookController::class . ':addBookToPath');
-    $this->delete('/books/paths/{pathUID}', BookController::class . ':removeBookFromPath');
+    $this->post('/books/{bookUID}/highlights', BookController::class . ':addHighlight');
     $this->post('/books/paths', BookController::class . ':createPath');
     $this->post('/books/paths/{pathUID}/extend', BookController::class . ':extendPathFinish');
     $this->post('/books', BookController::class . ':saveBook');
-    $this->put('/books/rate/{bookUID}', BookController::class . ':rateBook');
-    $this->get('/books/{bookUID}/reading-history', BookController::class . ':getReadingHistory');
-    $this->get('/books/reading-history', BookController::class . ':readingHistory');
+    $this->delete('/books/paths/{pathUID}', BookController::class . ':removeBookFromPath');
 
     $this->post('/datetrackings', DateTrackingController::class . ':create');
 
