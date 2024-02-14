@@ -221,6 +221,7 @@ class BookmarkController extends Controller
         }
 
         $bookmarkDetail['highlight'] = $params['highlight'];
+        $bookmarkDetail['blog_path'] = 'general/uncategorized';
 
         if (TwitterUtil::isTwitterUrl($bookmarkDetail['bookmark'])) {
             $username = TwitterUtil::getUsernameFromUrl($bookmarkDetail['bookmark']);
