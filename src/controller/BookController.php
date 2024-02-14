@@ -383,6 +383,7 @@ class BookController extends Controller
         }
 
         $_SESSION['badgeCounts']['allBookCount'] += 1;
+        unset($_SESSION['books']['list']);
 
         $this->bookModel->addActivityLog(null, $bookId, 'created new book');
 
