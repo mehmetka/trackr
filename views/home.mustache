@@ -20,13 +20,15 @@
                                     <input type="text" id="name" placeholder="Type a name" class="form-control">
                                 </div>
 
+
                                 <div class="form-group">
-                                    <input type="text" id="start" class="form-control">
+                                    <input type="text" id="date" class="form-control">
                                 </div>
 
                                 <div class="form-group">
                                     <button id="btnAddNewDateTracking" class="btn btn-primary mb-2">Add</button>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -44,19 +46,21 @@
                             <th>Days</th>
                             <th>Weeks</th>
                             <th>Months</th>
+                            <th>Start</th>
                         </tr>
                         </thead>
                         <tbody>
                         {{#dateTrackings}}
                             <tr>
                                 <td>{{name}}</td>
-                                <td>{{start}}</td>
+                                <td>{{date}}</td>
                                 <td>{{diff}} years - {{detailedDiff}}</td>
                                 <td>{{minutes}}</td>
                                 <td>{{hours}}</td>
                                 <td>{{days}}</td>
                                 <td>{{weeks}}</td>
                                 <td>{{months}}</td>
+                                <td>{{start}}</td>
                             </tr>
                         {{/dateTrackings}}
                         </tbody>
@@ -92,18 +96,18 @@
 <script>
     $(document).ready(function () {
 
-        $('#start').daterangepicker({
+        $('#date').daterangepicker({
             singleDatePicker: true,
             timePicker: false,
             showDropdowns: true,
-            locale: {format: 'MM/DD/YYYY'}
+            locale: {format: 'DD/MM/YYYY'}
         });
 
         $("#btnAddNewDateTracking").on('click', function (e) {
 
             var name = $('#name').val();
-            var start = $('#start').val();
-            var result = ajaxCall('POST', "/datetrackings", "name=" + name + "&start=" + start)
+            var date = $('#date').val();
+            var result = ajaxCall('POST', "/datetrackings", "name=" + name + "&date=" + date)
 
             if (result !== false) {
                 location.reload();
