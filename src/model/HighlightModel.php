@@ -247,6 +247,7 @@ class HighlightModel
         $stm->bindParam(':source', $params['source'], \PDO::PARAM_STR);
         $stm->bindParam(':page', $params['page'], \PDO::PARAM_INT);
         $stm->bindParam(':blog_path', $params['blogPath'], \PDO::PARAM_STR);
+        $stm->bindParam(':book_id', $params['book_id'], \PDO::PARAM_INT);
         $stm->bindParam(':is_encrypted', $params['is_encrypted'], \PDO::PARAM_INT);
         $stm->bindParam(':is_secret', $params['is_secret'], \PDO::PARAM_INT);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);

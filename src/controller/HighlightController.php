@@ -53,12 +53,14 @@ class HighlightController extends Controller
         }
 
         $tags = $this->tagModel->getSourceTagsByType(Sources::HIGHLIGHT->value, $queryString['tag']);
+        $books = $_SESSION['books']['list'] ?? $this->bookModel->getAuthorBookList();
 
         $data = [
             'pageTitle' => 'Highlights | trackr',
             'tag' => htmlentities($queryString['tag']),
             'headerTags' => $tags,
             'highlights' => $highlights,
+            'books' => $books,
             'activeHighlights' => 'active'
         ];
 
@@ -169,6 +171,8 @@ class HighlightController extends Controller
         } else {
             $params['is_secret'] = 1;
         }
+
+        $params['book_id'] = $params['book'] ? $this->bookModel->getBookIdByUid($params['book']) : null;
 
         $highlightId = $this->highlightModel->create($params);
 

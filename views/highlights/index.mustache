@@ -54,7 +54,7 @@
                                 <br>
 
                                 <div class="form-row">
-                                    <div class="form-group col-6">
+                                    <div class="form-group col-4">
                                         <input id="tags" placeholder="Tags" type="text"
                                                class="form-control enterButtonKeyPress">
                                     </div>
@@ -73,6 +73,14 @@
                                             <option disabled selected>Store encrypted?</option>
                                             <option>Yes</option>
                                             <option>No</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-2">
+                                        <select id="book" name="book[]" class="form-control select2-multi">
+                                            <option selected></option>
+                                            {{#books}}
+                                                <option value="{{uid}}">{{book}}</option>
+                                            {{/books}}
                                         </select>
                                     </div>
                                 </div>
@@ -162,7 +170,6 @@
                         </div>
                         <br class="highlightCardBR">
                     {{/highlights}}
-
                     </script>
                     <%={{ }}=%>
 
@@ -183,6 +190,12 @@
 
 <script>
     $(document).ready(function () {
+
+        $('.select2-multi').select2({
+            placeholder: "Reference with a book",
+            multiple: true,
+            theme: 'bootstrap4',
+        });
 
         $(".collapseSidebar").on("click", function (e) {
             $(".vertical").hasClass("narrow") ? $(".vertical").toggleClass("open") : ($(".vertical").toggleClass("collapsed"), $(".vertical").hasClass("hover") && $(".vertical").removeClass("hover")), e.preventDefault()
@@ -243,6 +256,7 @@
                 var title = $('#title').val();
                 var is_encrypted = $('#is_encrypted').val();
                 var blogPath = $('#blogPath').val();
+                var book = $('#book').val();
                 var is_secret = $('#is_secret').val();
 
                 var data = "highlight=" + encodeURIComponent(highlight) +
@@ -253,6 +267,7 @@
                         "&title=" + encodeURIComponent(title) +
                         "&blogPath=" + encodeURIComponent(blogPath) +
                         "&is_encrypted=" + encodeURIComponent(is_encrypted) +
+                        "&book=" + encodeURIComponent(book) +
                         "&is_secret=" + encodeURIComponent(is_secret);
                 var result = ajaxCall('POST', "/highlights", data)
 

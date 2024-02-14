@@ -133,6 +133,30 @@ class BookModel
         return $result;
     }
 
+    public function getAuthorBookList()
+    {
+        $books = [];
+
+        $sql = "SELECT b.id, b.uid, CONCAT(CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ')
+                                      FROM book_authors ba USE INDEX (idx_book_id)
+                                               INNER JOIN author a ON ba.author_id = a.id
+                                      WHERE ba.book_id = b.id)), ' - ', b.title) AS book
+                FROM books b";
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $books[] = $row;
+        }
+
+        $_SESSION['books']['list'] = $books;
+        return $books;
+    }
+
     public function getPublishers()
     {
         $sql = 'SELECT id, name
