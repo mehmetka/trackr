@@ -1462,6 +1462,60 @@ class BookModel
         return $trackings;
     }
 
+    public function getHighlights($bookId)
+    {
+        $list = [];
+
+        $sql = 'SELECT *
+                FROM highlights
+                WHERE book_id = :book_id AND user_id = :user_id';
+
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':book_id', $bookId, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
+
+            $list[] = $row;
+        }
+
+        return $list;
+    }
+
+    public function addHighlight($highlightDetail)
+    {
+        $now = time();
+        $highlight = trim($highlightDetail['highlight']);
+
+        $sql = 'INSERT INTO highlights (highlight, author, source, page, location, blog_path, book_id, created, updated, user_id)
+                VALUES(:highlight, :author, :source, :page, :location, :blog_path, :book_id, :created, :updated, :user_id)';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':highlight', $highlight, \PDO::PARAM_STR);
+        $stm->bindParam(':author', $highlightDetail['author'], \PDO::PARAM_STR);
+        $stm->bindParam(':source', $highlightDetail['source'], \PDO::PARAM_STR);
+        $stm->bindParam(':page', $highlightDetail['page'], \PDO::PARAM_INT);
+        $stm->bindParam(':location', $highlightDetail['location'], \PDO::PARAM_STR);
+        $stm->bindParam(':blog_path', $highlightDetail['blogPath'], \PDO::PARAM_STR);
+        $stm->bindParam(':book_id', $highlightDetail['book_id'], \PDO::PARAM_STR);
+        $stm->bindParam(':created', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':updated', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        $_SESSION['badgeCounts']['highlightsCount'] += 1;
+        return $this->dbConnection->lastInsertId();
+    }
+
     public function prepareBookTrackingsGraphicData($bookTrackings)
     {
         $trackingDataDateLimit = 30;

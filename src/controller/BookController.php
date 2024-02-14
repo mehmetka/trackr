@@ -107,6 +107,27 @@ class BookController extends Controller
         return $this->view->render($response, 'books/finished.mustache', $data);
     }
 
+    public function getHighlights(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $bookUid = $args['bookUID'];
+        $bookId = $this->bookModel->getBookIdByUid($bookUid);
+        $highlights = $this->bookModel->getHighlights($bookId);
+
+        $tags = $this->tagModel->getTagsBySourceId($bookId, Sources::BOOK->value);
+
+        $_SESSION['books']['highlights']['bookID'] = $bookId;
+
+        $data = [
+            'pageTitle' => 'Book\'s Highlights | trackr',
+            'highlights' => $highlights,
+            'activeAllBooks' => 'active',
+            'bookUID' => $bookUid,
+            'tags' => $tags['imploded_comma']
+        ];
+
+        return $this->view->render($response, 'books/highlights.mustache', $data);
+    }
+
     public function readingHistory(ServerRequestInterface $request, ResponseInterface $response)
     {
         $readingHistory = $this->bookModel->getReadingHistory();
@@ -442,6 +463,44 @@ class BookController extends Controller
         $bookId = $this->bookModel->getBookIdByUid($bookUID);
 
         $resource['data'] = $this->bookModel->getReadingHistory($bookId);
+        $resource['responseCode'] = StatusCode::HTTP_OK;
+
+        return $this->response($resource['responseCode'], $resource);
+    }
+
+    public function addHighlight(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $params = $request->getParsedBody();
+        $bookUid = $args['bookUID'];
+        $bookId = $this->bookModel->getBookIdByUid($bookUid);
+        $bookDetail = $this->bookModel->getBookById($bookId);
+
+        if (!$params['highlight']) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight cannot be null!");
+        }
+
+        if (!isset($_SESSION['books']['highlights']['bookID']) || $bookId != $_SESSION['books']['highlights']['bookID']) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST,
+                "Inconsistency! You're trying to add highlight for different book!");
+        }
+
+        $highlightDetail['book_id'] = $bookId;
+        $highlightDetail['highlight'] = $params['highlight'];
+        $highlightDetail['page'] = $params['page'];
+        $highlightDetail['location'] = $params['location'];
+        $highlightDetail['blogPath'] = $params['blogPath'];
+        $highlightDetail['author'] = $bookDetail['author'];
+        $highlightDetail['source'] = $bookDetail['title'];
+        $highlightDetail['type'] = 1;
+
+        $highlightId = $this->bookModel->addHighlight($highlightDetail);
+
+        $this->tagModel->updateSourceTags($params['tags'], $highlightId, Sources::HIGHLIGHT->value);
+
+        unset($_SESSION['highlights']['minMaxID']);
+        unset($_SESSION['books']['highlights']['bookID']);
+
+        $resource['message'] = "Successfully added highlight";
         $resource['responseCode'] = StatusCode::HTTP_OK;
 
         return $this->response($resource['responseCode'], $resource);

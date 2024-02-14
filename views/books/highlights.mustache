@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    {{> head }}
+    <link rel="stylesheet" href="/css/simplemde-theme-dark.min.css">
+
+</head>
+
+<body class="vertical dark">
+{{> include}}
+{{> navbar }}
+<div class="wrapper">
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Add New Highlight</h5>
+                                <textarea id="highlight" hidden></textarea>
+
+                                <div class="input-group input-group-md">
+                                    <input id="page" placeholder="Page" type="number"
+                                           class="form-control enterButtonKeyPress">
+                                    <input id="location" placeholder="Location" type="text"
+                                           class="form-control enterButtonKeyPress">
+                                    <input id="blogPath" type="text" value="general/uncategorized"
+                                           class="form-control enterButtonKeyPress">
+                                </div>
+
+                                <br>
+
+                                <div class="input-group input-group-md">
+                                    <input id="tags" placeholder="Tags" type="text" value="{{tags}}"
+                                           class="form-control enterButtonKeyPress">
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul>
+                        {{#highlights}}
+                            <li>{{{highlight}}} <a href="/highlights/{{id}}">Go to highlight</a></li>
+                        {{/highlights}}
+                    </ul>
+
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
+
+{{> menu }}
+<script src="/js/simplemde.min.js"></script>
+<script src="/js/codemirror-4.inline-attachment.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+
+        var simplemde = new SimpleMDE({
+            element: $("#highlight")[0],
+            toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
+            insertTexts: {"image": ["[", "](/img/)"]},
+        });
+
+        $('#highlight').show();
+
+        inlineAttachment.editors.codemirror4.attach(simplemde.codemirror, {
+            uploadUrl: '/images'
+        });
+
+        $('.enterButtonKeyPress').bind('keypress', function (e) {
+            if (e.keyCode == 13) {
+                var highlight = simplemde.value();
+                var tags = $('#tags').val();
+                var page = $('#page').val();
+                var loc = $('#location').val();
+                var blogPath = $('#blogPath').val();
+                var data = "highlight=" + encodeURIComponent(highlight) +
+                        "&tags=" + encodeURIComponent(tags) +
+                        "&page=" + encodeURIComponent(page) +
+                        "&location=" + encodeURIComponent(loc) +
+                        "&blogPath=" + encodeURIComponent(blogPath);
+                var result = ajaxCall('POST', "/books/{{bookUID}}/highlights", data)
+
+                if (result !== false) {
+                    location.reload();
+                }
+            }
+        });
+    });
+</script>
+</body>
+
+</html>
