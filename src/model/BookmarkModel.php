@@ -385,13 +385,14 @@ class BookmarkModel
         $highlight = trim($bookmarkHighlight['highlight']);
         $page = null;
 
-        $sql = 'INSERT INTO highlights (highlight, author, source, page, link, created, updated, user_id)
-                VALUES(:highlight, :author, :source, :page, :link, :created, :updated, :user_id)';
+        $sql = 'INSERT INTO highlights (highlight, author, source, blog_path, page, link, created, updated, user_id)
+                VALUES(:highlight, :author, :source, :blog_path, :page, :link, :created, :updated, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':highlight', $highlight, \PDO::PARAM_STR);
         $stm->bindParam(':author', $bookmarkHighlight['author'], \PDO::PARAM_STR);
         $stm->bindParam(':source', $bookmarkHighlight['source'], \PDO::PARAM_STR);
+        $stm->bindParam(':blog_path', $bookmarkHighlight['blog_path'], \PDO::PARAM_STR);
         $stm->bindParam(':page', $page, \PDO::PARAM_INT);
         $stm->bindParam(':link', $bookmarkHighlight['id'], \PDO::PARAM_INT);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
