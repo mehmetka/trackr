@@ -57,6 +57,7 @@ class FavoriteModel
         $list = [];
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $row['title'] = $row['title'] ?? 'highlights/' . $row['highlightId'];
             $list[] = $row;
         }
 
