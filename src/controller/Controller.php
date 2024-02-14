@@ -27,7 +27,7 @@ class Controller
     public function response($status = StatusCode::HTTP_OK, $data = [], $allow = [])
     {
         if (!isset($this->response)) {
-            $this->response = new  Response($status);
+            $this->response = new Response($status);
         }
 
         /** @var \Psr\Http\Message\ResponseInterface $response */
