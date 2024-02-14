@@ -24,7 +24,7 @@ class LogController extends Controller
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $data['title'] = "Logs | trackr";
+        $data['pageTitle'] = "Logs | trackr";
         $today = date('Y-m-d', time());
 
         $todayLog = $this->logModel->getLog($today);

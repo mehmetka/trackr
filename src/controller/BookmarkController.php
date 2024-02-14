@@ -39,7 +39,7 @@ class BookmarkController extends Controller
         $bookmarkCategories = $this->tagModel->getSourceTagsByType(Sources::BOOKMARK->value, $queryString['tag']);
 
         $data = [
-            'title' => 'Bookmarks | trackr',
+            'pageTitle' => 'Bookmarks | trackr',
             'bookmarkCategories' => $bookmarkCategories,
             'bookmarks' => $bookmarks,
             'activeBookmarks' => 'active',
@@ -64,7 +64,7 @@ class BookmarkController extends Controller
         $_SESSION['bookmarks']['highlights']['bookmarkID'] = $bookmarkId;
 
         $data = [
-            'title' => 'Bookmark\'s Highlights | trackr',
+            'pageTitle' => 'Bookmark\'s Highlights | trackr',
             'highlights' => $highlights,
             'activeBookmarks' => 'active',
             'bookmarkUID' => $bookmarkUid,
@@ -82,7 +82,7 @@ class BookmarkController extends Controller
         $details = $this->bookmarkModel->getChildBookmarkById($bookmarkId, $_SESSION['userInfos']['user_id']);
 
         $data = [
-            'title' => 'Bookmark\'s Details | trackr',
+            'pageTitle' => 'Bookmark\'s Details | trackr',
             'details' => $details,
             'activeBookmarks' => 'active',
         ];

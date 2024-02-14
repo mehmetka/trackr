@@ -36,7 +36,7 @@ class HomeController extends Controller
         $this->highlightModel->incrementReadCount($randomHighlight[0]['id']);
 
         $data = [
-            'title' => 'Home | trackr',
+            'pageTitle' => 'Home | trackr',
             'dateTrackings' => $dateTrackings,
             'readingAverage' => round($averageData['average'], 3),
             'readingTotal' => $averageData['total'],

@@ -39,7 +39,7 @@ class BookController extends Controller
         $books = $this->bookModel->getBooksPathInside($pathId, $active);
 
         $data = [
-            'title' => "Chosen Path's Books | trackr",
+            'pageTitle' => "Chosen Path's Books | trackr",
             'books' => $books,
             'activeBookPaths' => 'active'
         ];
@@ -52,7 +52,7 @@ class BookController extends Controller
         $paths = $this->bookModel->getBookPaths();
 
         $data = [
-            'title' => 'Paths | trackr',
+            'pageTitle' => 'Paths | trackr',
             'bookPaths' => $paths,
             'activeBookPaths' => 'active',
         ];
@@ -68,7 +68,7 @@ class BookController extends Controller
         $paths = $this->bookModel->getPathsList();
 
         $data = [
-            'title' => 'All Books | trackr',
+            'pageTitle' => 'All Books | trackr',
             'authors' => $authors,
             'books' => $books,
             'publishers' => $publishers,
@@ -85,7 +85,7 @@ class BookController extends Controller
         $paths = $this->bookModel->getPathsList();
 
         $data = [
-            'title' => 'My Books | trackr',
+            'pageTitle' => 'My Books | trackr',
             'books' => $books,
             'paths' => $paths,
             'activeMyBooks' => 'active'
@@ -99,7 +99,7 @@ class BookController extends Controller
         $books = $this->bookModel->finishedBooks();
 
         $data = [
-            'title' => 'Finished Books | trackr',
+            'pageTitle' => 'Finished Books | trackr',
             'books' => $books,
             'activeFinished' => 'active'
         ];
@@ -112,7 +112,7 @@ class BookController extends Controller
         $readingHistory = $this->bookModel->getReadingHistory();
 
         $data = [
-            'title' => 'Reading History | trackr',
+            'pageTitle' => 'Reading History | trackr',
             'readingHistory' => $readingHistory,
             'activeReadingHistory' => 'active'
         ];

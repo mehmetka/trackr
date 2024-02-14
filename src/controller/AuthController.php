@@ -21,14 +21,14 @@ class AuthController extends Controller
 
     public function loginPage(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $data['title'] = "Login | trackr";
+        $data['pageTitle'] = "Login | trackr";
 
         return $this->view->render($response, 'login.mustache', $data);
     }
 
     public function registerPage(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $data['title'] = "trackr";
+        $data['pageTitle'] = "trackr";
         return $this->view->render($response, 'register.mustache', $data);
     }
 

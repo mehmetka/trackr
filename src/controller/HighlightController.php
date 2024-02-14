@@ -52,7 +52,7 @@ class HighlightController extends Controller
         $tags = $this->tagModel->getSourceTagsByType(Sources::HIGHLIGHT->value, $queryString['tag']);
 
         $data = [
-            'title' => 'Highlights | trackr',
+            'pageTitle' => 'Highlights | trackr',
             'tag' => htmlentities($queryString['tag']),
             'headerTags' => $tags,
             'highlights' => $highlights,
@@ -73,7 +73,7 @@ class HighlightController extends Controller
         $this->highlightModel->updateUpdatedFieldByHighlightId($highlightID);
 
         $data = [
-            'title' => 'Highlight Details | trackr',
+            'pageTitle' => 'Highlight Details | trackr',
             'detail' => $detail,
             'subHighlights' => $subHighlights,
             'activeHighlights' => 'active',
