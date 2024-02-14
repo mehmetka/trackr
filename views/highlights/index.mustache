@@ -113,6 +113,8 @@
                             <div class="card-body">
                                 <a role="button" href="/highlights/{{id}}" class="badge badge-primary float-right"><span
                                         class="fe fe-edit fe-8"></span></a>
+                                <a role="button" class="badge float-right addToFavorite" data-id="{{id}}"><span
+                                        class="fe fe-heart fe-8"></span></a>
                                 <br>
                                 {{{highlight}}}
 
@@ -139,6 +141,8 @@
                             <div class="card-body">
                                 <a role="button" href="/highlights/{{id}}" class="badge badge-primary float-right"><span
                                         class="fe fe-edit fe-8"></span></a>
+                                <a role="button" class="badge float-right addToFavorite" data-id="{{id}}"><span
+                                        class="fe fe-heart fe-8"></span></a>
                                 <br>
                                 {{{highlight}}}
 
@@ -253,6 +257,13 @@
             }
         });
 
+        $(".addToFavorite").on('click', function (e) {
+            var type = 'highlight'
+            var id = $(this).data("id")
+            var data = "id=" + encodeURIComponent(id) +
+                    "&type=" + encodeURIComponent(type)
+            ajaxCall('POST', "/favorites", data)
+        });
     });
 </script>
 </body>

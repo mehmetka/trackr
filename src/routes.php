@@ -9,6 +9,7 @@ use App\controller\DateTrackingController;
 use App\controller\HighlightController;
 use App\controller\ImageController;
 use App\controller\LogController;
+use App\controller\FavoriteController;
 
 $app->group('', function () {
     $this->get('/login', AuthController::class . ':loginPage')->setName('login');
@@ -73,6 +74,9 @@ $app->group('', function () {
     $this->post('/highlights/{id:[0-9]+}/sub', HighlightController::class . ':createSub');
     $this->post('/highlights/search', HighlightController::class . ':search');
     $this->get('/highlights-all', HighlightController::class . ':all');
+
+    $this->get('/favorites', FavoriteController::class . ':get');
+    $this->post('/favorites', FavoriteController::class . ':add');
 
     $this->post('/images', ImageController::class . ':upload');
 

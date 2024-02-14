@@ -81,18 +81,45 @@
                 <i class="fe fe-log-out fe-12 mr-2"></i><span class="small text">Logout</span>
             </a>
         </div>
+
+        <ul class="navbar-nav flex-fill w-100 mb-2">
+
+            <div id="highlight-favorites"></div>
+
+            {{=<% %>=}}
+            <script id="highlight-favorites-template" type="text/x-handlebars-template">
+                {{#highlightFavorites}}
+                <li class="nav-item dropdown">
+                    <a href="/highlights?id={{highlightId}}" class="nav-link">
+                    <i class="fe fe-arrow-right fe-16"></i>
+                    <span class="ml-3 item-text">{{title}}</span>
+                    </a>
+                </li>
+                {{/highlightFavorites}}
+            </script>
+            <%={{ }}=%>
+
+        </ul>
+
     </nav>
+
 </aside>
 
 <script>
     $(document).ready(function () {
-        var result = ajaxCall('GET', "/menu-badge-counts", null, false, false);
-        $('#allBooksBadgeCount').text(result.allBookCount);
-        $('#myBooksBadgeCount').text(result.myBookCount);
-        $('#finishedBooksBadgeCount').text(result.finishedBookCount);
-        $('#bookmarksBadgeCount').text(result.bookmarkCount);
-        $('#todosBadgeCount').text(result.todosCount);
-        $('#videosBadgeCount').text(result.videosCount);
-        $('#highlightsBadgeCount').text(result.highlightsCount);
+        var resultBadgeCounts = ajaxCall('GET', "/menu-badge-counts", null, false, false);
+        $('#allBooksBadgeCount').text(resultBadgeCounts.allBookCount);
+        $('#myBooksBadgeCount').text(resultBadgeCounts.myBookCount);
+        $('#finishedBooksBadgeCount').text(resultBadgeCounts.finishedBookCount);
+        $('#bookmarksBadgeCount').text(resultBadgeCounts.bookmarkCount);
+        $('#todosBadgeCount').text(resultBadgeCounts.todosCount);
+        $('#videosBadgeCount').text(resultBadgeCounts.videosCount);
+        $('#highlightsBadgeCount').text(resultBadgeCounts.highlightsCount);
+
+        var resultFavorites = ajaxCall('GET', "/favorites?type=highlight", null, false, false);
+        var template = $('#highlight-favorites-template').html();
+        Mustache.parse(template);
+        var rendered = Mustache.render(template, resultFavorites.data);
+        $("#highlight-favorites").html(rendered);
     });
 </script>
