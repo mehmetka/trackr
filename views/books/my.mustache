@@ -21,8 +21,7 @@
                                 <table class="table datatables" id="booksDatatable" width="100%">
                                     <thead>
                                     <tr>
-                                        <th>Author</th>
-                                        <th>Title</th>
+                                        <th>Name</th>
                                         <th>Page</th>
                                         <th>Added</th>
                                         <th>Add to Path</th>
@@ -31,11 +30,7 @@
                                     <tbody>
                                     {{#books}}
                                         <tr>
-                                            <td>{{author}}</td>
-                                            <td>
-                                                {{title}}
-                                                <span class="dot dot-md bg-{{read_status}} float-right"></span>
-                                            </td>
+                                            <td>{{author}} - {{title}} <span class="dot dot-md bg-{{read_status}} float-right"></span></td>
                                             <td>{{page_count}}</td>
                                             <td>{{created_at}}</td>
                                             <td>
