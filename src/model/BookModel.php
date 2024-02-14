@@ -1110,8 +1110,8 @@ class BookModel
         $status = BookStatus::NEW->value;
         $uid = md5(uniqid(time(), true));
 
-        $sql = 'INSERT INTO books (uid, title, subtitle, publisher, pdf, epub, added_date, page_count, status, published_date, description, isbn, thumbnail, thumbnail_small, info_link, is_complete_book)
-                VALUES(:uid, :title, :subtitle, :publisher, :pdf, :epub, :added_date, :page_count, :status, :published_date, :description, :isbn, :thumbnail, :thumbnail_small, :info_link, :is_complete_book)';
+        $sql = 'INSERT INTO books (uid, title, subtitle, publisher, pdf, epub, added_date, page_count, status, published_date, description, isbn, thumbnail, thumbnail_small, info_link, is_complete_book, ebook_version, ebook_page_count)
+                VALUES(:uid, :title, :subtitle, :publisher, :pdf, :epub, :added_date, :page_count, :status, :published_date, :description, :isbn, :thumbnail, :thumbnail_small, :info_link, :is_complete_book, :ebook_version, :ebook_page_count)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':uid', $uid, \PDO::PARAM_STR);
@@ -1130,6 +1130,8 @@ class BookModel
         $stm->bindParam(':thumbnail_small', $params['thumbnail_small'], \PDO::PARAM_STR);
         $stm->bindParam(':info_link', $params['info_link'], \PDO::PARAM_STR);
         $stm->bindParam(':is_complete_book', $params['is_complete_book'], \PDO::PARAM_INT);
+        $stm->bindParam(':ebook_version', $params['ebook_version'], \PDO::PARAM_INT);
+        $stm->bindParam(':ebook_page_count', $params['ebook_page_count'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
