@@ -840,6 +840,7 @@ class BookModel
                        b.ebook_page_count,
                        b.pdf,
                        b.epub,
+                       b.is_complete_book,
                        b.status AS book_status,
                        pb.status AS path_status,
                        pb.path_id,
@@ -886,7 +887,7 @@ class BookModel
 
             $readAmount = $row['readAmount'] ?? 0; // $this->getReadAmount($row['id'], $row['path_id'])
 
-            if (intval($row['ebook_version']) === 1) {
+            if ($row['ebook_version']) {
                 $row['page_count'] = $row['ebook_page_count'];
             }
 
@@ -897,7 +898,11 @@ class BookModel
                 $this->insertNewReadRecord($row['path_id'], $row['id']);
                 $this->setBookPathStatus($row['path_id'], $row['id'], BookStatus::DONE->value);
                 $this->setBookStatus($row['id'], BookStatus::DONE->value);
-                $_SESSION['badgeCounts']['finishedBookCount']++;
+
+                if ($row['is_complete_book']) {
+                    $_SESSION['badgeCounts']['finishedBookCount']++;
+                }
+
                 continue;
             }
 
