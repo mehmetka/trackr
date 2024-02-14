@@ -44,7 +44,10 @@
                                            class="form-control enterButtonKeyPress">
                                     <input id="source" placeholder="Source" type="text"
                                            class="form-control enterButtonKeyPress">
-                                    <input id="blogPath" placeholder="Blog Path" type="text" value="general/uncategorized"
+                                    <input id="title" placeholder="Title" type="text"
+                                           class="form-control enterButtonKeyPress">
+                                    <input id="blogPath" placeholder="Blog Path" type="text"
+                                           value="general/uncategorized"
                                            class="form-control enterButtonKeyPress">
                                 </div>
 
@@ -237,6 +240,7 @@
                 var source = $('#source').val();
                 var page = $('#page').val();
                 var tags = $('#tags').val();
+                var title = $('#title').val();
                 var is_encrypted = $('#is_encrypted').val();
                 var blogPath = $('#blogPath').val();
                 var is_secret = $('#is_secret').val();
@@ -246,6 +250,7 @@
                         "&source=" + encodeURIComponent(source) +
                         "&page=" + encodeURIComponent(page) +
                         "&tags=" + encodeURIComponent(tags) +
+                        "&title=" + encodeURIComponent(title) +
                         "&blogPath=" + encodeURIComponent(blogPath) +
                         "&is_encrypted=" + encodeURIComponent(is_encrypted) +
                         "&is_secret=" + encodeURIComponent(is_secret);

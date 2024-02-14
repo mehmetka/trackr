@@ -155,7 +155,7 @@ class HighlightModel
     {
         $list = [];
 
-        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.page, h.location, b.bookmark AS link, h.link AS linkID, h.blog_path, h.type, h.is_secret, h.is_encrypted, h.created, h.updated
+        $sql = 'SELECT h.id, h.title, h.highlight, h.author, h.source, h.page, h.location, b.bookmark AS link, h.link AS linkID, h.blog_path, h.type, h.is_secret, h.is_encrypted, h.created, h.updated
                 FROM highlights h
                 LEFT JOIN bookmarks b ON h.link = b.id
                 WHERE h.id = :highlightID AND h.user_id = :user_id AND h.is_deleted = 0';
@@ -237,10 +237,11 @@ class HighlightModel
         $params['page'] = $params['page'] ? trim($params['page']) : null;
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
-        $sql = 'INSERT INTO highlights (highlight, author, source, page, blog_path, is_encrypted, is_secret, created, updated, user_id)
-                VALUES(:highlight, :author, :source, :page, :blog_path, :is_encrypted, :is_secret, :created, :updated, :user_id)';
+        $sql = 'INSERT INTO highlights (title, highlight, author, source, page, blog_path, book_id, is_encrypted, is_secret, created, updated, user_id)
+                VALUES(:title, :highlight, :author, :source, :page, :blog_path, :book_id, :is_encrypted, :is_secret, :created, :updated, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':title', $params['title'], \PDO::PARAM_STR);
         $stm->bindParam(':highlight', $params['highlight'], \PDO::PARAM_STR);
         $stm->bindParam(':author', $params['author'], \PDO::PARAM_STR);
         $stm->bindParam(':source', $params['source'], \PDO::PARAM_STR);
@@ -289,13 +290,14 @@ class HighlightModel
         $params['location'] = $params['location'] ? trim($params['location']) : null;
 
 
-        $sql = 'UPDATE highlights 
-                SET highlight = :highlight, author = :author, source = :source, page = :page, location = :location, blog_path = :blog_path, is_secret = :is_secret, is_encrypted = :is_encrypted, updated = :updated
+        $sql = 'UPDATE highlights
+                SET title = :title, highlight = :highlight, author = :author, source = :source, page = :page, location = :location, blog_path = :blog_path, is_secret = :is_secret, is_encrypted = :is_encrypted, updated = :updated
                 WHERE id = :id AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
 
         $stm->bindParam(':id', $highlightID, \PDO::PARAM_INT);
+        $stm->bindParam(':title', $params['title'], \PDO::PARAM_STR);
         $stm->bindParam(':highlight', $params['highlight'], \PDO::PARAM_STR);
         $stm->bindParam(':author', $params['author'], \PDO::PARAM_STR);
         $stm->bindParam(':source', $params['source'], \PDO::PARAM_STR);
