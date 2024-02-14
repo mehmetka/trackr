@@ -417,7 +417,7 @@ class BookController extends Controller
     public function rateBook(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $params = $request->getParsedBody();
-        $finishedBookUid = $args['bookUid'];
+        $finishedBookUid = $args['bookUID'];
         $finishedBookId = $this->bookModel->getBookIdByUid($finishedBookUid);
 
         if (!$finishedBookId) {
