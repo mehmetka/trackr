@@ -179,11 +179,10 @@ class BookController extends Controller
 
         $this->bookModel->createAuthorOperations($params['author']);
 
-        $resource = [
-            "message" => "Created author(s) successfully"
-        ];
+        $resource['responseCode'] = StatusCode::HTTP_CREATED;
+        $resource['message'] = "Created author(s) successfully";
 
-        return $this->response(StatusCode::HTTP_OK, $resource);
+        return $this->response($resource['responseCode'], $resource);
     }
 
     public function changeStatus(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -191,9 +190,10 @@ class BookController extends Controller
         $params = $request->getParsedBody();
 
         if (!isset($args['bookUID']) || !isset($params['pathUID']) || !isset($params['status'])) {
-            return $this->response(StatusCode::HTTP_BAD_REQUEST, [
-                'message' => 'Missing required params'
-            ]);
+            $resource['responseCode'] = StatusCode::HTTP_BAD_REQUEST;
+            $resource['message'] = "Missing required params";
+
+            return $this->response($resource['responseCode'], $resource);
         }
 
         $pathId = $this->bookModel->getPathIdByUid($params['pathUID']);
@@ -210,11 +210,10 @@ class BookController extends Controller
 
         $this->bookModel->changePathBookStatus($pathId, $bookId, $params['status']);
 
-        $resource = [
-            "message" => "Changed status successfully"
-        ];
+        $resource['responseCode'] = StatusCode::HTTP_OK;
+        $resource['message'] = "Changed status successfully";
 
-        return $this->response(StatusCode::HTTP_OK, $resource);
+        return $this->response($resource['responseCode'], $resource);
     }
 
     public function addToLibrary(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -225,11 +224,10 @@ class BookController extends Controller
 
         $this->bookModel->addActivityLog(null, $bookId, "added to library");
 
-        $resource = [
-            "message" => "Success!"
-        ];
+        $resource['responseCode'] = StatusCode::HTTP_OK;
+        $resource['message'] = "Success";
 
-        return $this->response(StatusCode::HTTP_OK, $resource);
+        return $this->response($resource['responseCode'], $resource);
     }
 
     public function addBookToPath(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -248,11 +246,10 @@ class BookController extends Controller
         $this->bookModel->addBookToPath($pathId, $bookId);
         $this->bookModel->addActivityLog($pathId, $bookId, "added to path");
 
-        $resource = [
-            "message" => "Success!"
-        ];
+        $resource['responseCode'] = StatusCode::HTTP_OK;
+        $resource['message'] = "Success";
 
-        return $this->response(StatusCode::HTTP_OK, $resource);
+        return $this->response($resource['responseCode'], $resource);
     }
 
     public function extendPathFinish(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -265,11 +262,10 @@ class BookController extends Controller
 
         $this->bookModel->addActivityLog($pathId, null, "extend path finish date");
 
-        $resource = [
-            "message" => "Success!"
-        ];
+        $resource['responseCode'] = StatusCode::HTTP_OK;
+        $resource['message'] = "Success";
 
-        return $this->response(StatusCode::HTTP_OK, $resource);
+        return $this->response($resource['responseCode'], $resource);
     }
 
     public function saveBook(ServerRequestInterface $request, ResponseInterface $response)
@@ -369,11 +365,10 @@ class BookController extends Controller
 
         $this->bookModel->addActivityLog(null, $bookId, 'created new book');
 
-        $resource = [
-            "message" => "Successfully created new book!"
-        ];
+        $resource['responseCode'] = StatusCode::HTTP_OK;
+        $resource['message'] = "Successfully created new book!";
 
-        return $this->response(StatusCode::HTTP_OK, $resource);
+        return $this->response($resource['responseCode'], $resource);
     }
 
     public function createPath(ServerRequestInterface $request, ResponseInterface $response)
@@ -389,11 +384,10 @@ class BookController extends Controller
 
         $this->bookModel->addActivityLog($pathID, null, 'created new path');
 
-        $resource = [
-            "message" => "Success!"
-        ];
+        $resource['responseCode'] = StatusCode::HTTP_OK;
+        $resource['message'] = "Success";
 
-        return $this->response(StatusCode::HTTP_OK, $resource);
+        return $this->response($resource['responseCode'], $resource);
     }
 
     public function removeBookFromPath(ServerRequestInterface $request, ResponseInterface $response, $args)

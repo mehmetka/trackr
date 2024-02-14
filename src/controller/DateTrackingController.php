@@ -29,11 +29,10 @@ class DateTrackingController extends Controller
 
         $this->dateTrackingModel->create($params['name'], $params['start']);
 
-        $resource = [
-            "message" => "Success!"
-        ];
+        $resource['message'] = "Success";
+        $resource['responseCode'] = StatusCode::HTTP_OK;
 
-        return $this->response(StatusCode::HTTP_OK, $resource);
+        return $this->response($resource['responseCode'], $resource);
     }
 
 }
