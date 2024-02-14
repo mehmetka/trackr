@@ -279,7 +279,7 @@ class BookController extends Controller
         $params['thumbnail_small'] = null;
         $params['subtitle'] = null;
 
-        if (isset($params['isbn']) && $params['isbn']) {
+        if (isset($params['isbn']) && $params['isbn'] && isset($params['useAPI']) && $params['useAPI']) {
 
             $params['isbn'] = trim(str_replace("-", "", $params['isbn']));
             $bookDetail = $this->bookModel->getBookByISBN($params['isbn']);
