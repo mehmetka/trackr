@@ -7,6 +7,7 @@ use App\enum\PathStatus;
 use App\enum\StatusColors;
 use App\util\TimeUtil;
 use App\exception\CustomException;
+use App\util\UID;
 use Psr\Container\ContainerInterface;
 use Slim\Http\StatusCode;
 
@@ -1108,7 +1109,7 @@ class BookModel
     {
         $now = time();
         $status = BookStatus::NEW->value;
-        $uid = md5(uniqid(time(), true));
+        $uid = UID::generate();
 
         $sql = 'INSERT INTO books (uid, title, subtitle, publisher, pdf, epub, added_date, page_count, status, published_date, description, isbn, thumbnail, thumbnail_small, info_link, is_complete_book, ebook_version, ebook_page_count)
                 VALUES(:uid, :title, :subtitle, :publisher, :pdf, :epub, :added_date, :page_count, :status, :published_date, :description, :isbn, :thumbnail, :thumbnail_small, :info_link, :is_complete_book, :ebook_version, :ebook_page_count)';

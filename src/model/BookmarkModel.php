@@ -4,6 +4,7 @@ namespace App\model;
 
 use App\enum\BookmarkStatus;
 use App\enum\Sources;
+use App\util\UID;
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
 use Slim\Http\StatusCode;
@@ -359,7 +360,7 @@ class BookmarkModel
     {
         $now = time();
         $bookmark = htmlspecialchars($bookmark);
-        $uid = md5(uniqid(time(), true));
+        $uid = UID::generate();
 
         $sql = 'INSERT INTO bookmarks (uid, bookmark, created)
                 VALUES(:uid, :bookmark, :created)';
