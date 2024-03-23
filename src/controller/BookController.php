@@ -303,6 +303,10 @@ class BookController extends Controller
         if (isset($params['isbn']) && $params['isbn'] && isset($params['useAPI']) && $params['useAPI']) {
 
             $params['isbn'] = trim(str_replace("-", "", $params['isbn']));
+            $params['is_complete_book'] = 1;
+            $params['ebook_version'] = 0;
+            $params['ebook_page_count'] = 0;
+
             $bookDetail = $this->bookModel->getBookByISBN($params['isbn']);
 
             if ($bookDetail) {
