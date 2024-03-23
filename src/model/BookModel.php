@@ -946,8 +946,6 @@ class BookModel
 
     public function insertProgressRecord($bookId, $pathId, $amount, $recordDate)
     {
-        $this->setBookPathStatus($pathId, $bookId, BookStatus::STARTED->value);
-
         $sql = 'INSERT INTO book_trackings (book_id, path_id, record_date, amount, user_id)
                 VALUES(:book_id,:path_id,:record_date,:amount, :user_id)';
 

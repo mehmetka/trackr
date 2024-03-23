@@ -172,8 +172,8 @@ class BookController extends Controller
                 } else {
                     if ($params['amount'] > 0) {
                         $recordTime = $params['readYesterday'] ? strtotime("today 1 sec ago") : time();
-                        $this->bookModel->insertProgressRecord($bookId, $pathDetails['id'], $params['amount'],
-                            $recordTime);
+                        $this->bookModel->insertProgressRecord($bookId, $pathId, $params['amount'], $recordTime);
+                        $this->bookModel->setBookPathStatus($pathId, $bookId, BookStatus::STARTED->value);
                         $resource['responseCode'] = StatusCode::HTTP_OK;
                         $resource['message'] = "Success!";
                         $this->bookModel->addActivityLog($pathDetails['id'], $bookId,
