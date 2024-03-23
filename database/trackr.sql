@@ -159,7 +159,7 @@ CREATE TABLE `date_trackings`
 (
     `id`      int(11)                                 NOT NULL AUTO_INCREMENT,
     `name`    varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-    `start`   varchar(15) COLLATE utf8mb4_unicode_ci  NOT NULL,
+    `date`    varchar(15) COLLATE utf8mb4_unicode_ci  NOT NULL,
     `created` int(11)                                 NOT NULL,
     `user_id` int(11) DEFAULT NULL,
     PRIMARY KEY (`id`)
