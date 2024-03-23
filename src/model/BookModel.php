@@ -271,6 +271,7 @@ class BookModel
             $path['today_processed'] = $this->getBookPathsDailyRemainings($path['path_id']);
             $path['active_book_count'] = $this->getPathBookCountByPathID($path['path_id'], 'active');
             $path['done_book_count'] = $this->getPathBookCountByPathID($path['path_id'], 'done');
+            $path['abandoned_book_count'] = $this->getPathBookCountByPathID($path['path_id'], 'abandoned');
 
             $dailyAmount = $path['remaining_page'] / $path['day_diff'];
             $path['daily_amount'] = ceil($dailyAmount);
@@ -877,8 +878,13 @@ class BookModel
                     $row['status_label'] = StatusColors::DONE->value;
                     $row['cardBodyBg'] = 'bg-success-light';
                     $row['readStatus'] = '<i class="fe fe-check fe-16"></i>';
-                    $row['amount'] = true;
-                    $row['remove'] = true;
+                    $row['amount'] = false;
+                    $row['remove'] = false;
+                    $row['abandone'] = false;
+                    $row['history'] = true;
+                    $row['prioritize'] = false;
+                    $row['showActions'] = false;
+                    $row['showReadYesterday'] = false;
                     $list[] = $row;
                 }
 
@@ -910,7 +916,13 @@ class BookModel
             $row['status_label'] = StatusColors::NEW->value;
             $row['readStatus'] = "$readAmount / {$row['page_count']}";
             $row['ebook_exist'] = $row['pdf'] || $row['epub'] ? true : false;
-            $row['remove'] = $readAmount ? true : false;
+            $row['remove'] = true;
+            $row['history'] = false;
+            $row['abandone'] = true;
+            $row['prioritize'] = true;
+            $row['amount'] = true;
+            $row['showActions'] = true;
+            $row['showReadYesterday'] = true;
 
             if ($row['path_status'] === BookStatus::PRIORITIZED->value) {
                 $row['status_label'] = StatusColors::PRIORITIZED->value;
@@ -918,6 +930,13 @@ class BookModel
 
             if ($readAmount) {
                 $row['status_label'] = StatusColors::STARTED->value;
+                $row['prioritize'] = false;
+                $row['remove'] = false;
+                $row['history'] = true;
+            }
+
+            if ($row['path_status'] === BookStatus::ABANDONED->value) {
+                $row['status_label'] = StatusColors::ABANDONED->value;
             }
 
             $list[] = $row;
@@ -1282,6 +1301,8 @@ class BookModel
             $status = '(pb.status < 2 OR pb.status = 4)';
         } elseif ($status == 'done') {
             $status = 'pb.status = 2';
+        } elseif ($status == 'abandoned') {
+            $status = 'pb.status = 3';
         }
 
         $sql = "SELECT count(*) AS path_book_count 

@@ -19,17 +19,26 @@
                                 <div class="card-header {{status_label}}">
                                     Read: {{{readStatus}}}
 
-                                    {{^remove}}
-                                        <button class="btn btn-sm dropdown-toggle more-horizontal float-right"
-                                                type="button" data-toggle="dropdown" aria-haspopup="true"
-                                                aria-expanded="false">
-                                            <span class="text-muted sr-only">Action</span>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-right">
-                                            <a class="dropdown-item btnMakePrioritized"
-                                               data-uid="{{bookUID}}" data-path="{{pathUID}}">Make Prioritized</a>
+                                    {{#showActions}}
+                                        <div class="dropdown float-right">
+                                            <button class="btn btn-sm dropdown-toggle p-0" type="button"
+                                                    data-toggle="dropdown" aria-haspopup="true"
+                                                    aria-expanded="false">Actions
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right"
+                                                 aria-labelledby="rangeDropdown">
+                                                {{#abandone}}
+                                                    <a class="dropdown-item small text-muted btnMakeAbandoned"
+                                                       data-uid="{{bookUID}}" data-path="{{pathUID}}">Abandone</a>
+                                                {{/abandone}}
+
+                                                {{#prioritize}}<a class="dropdown-item small text-muted btnMakePrioritized"
+                                                              data-uid="{{bookUID}}" data-path="{{pathUID}}">Make
+                                                    Prioritized</a>
+                                                {{/prioritize}}
+                                            </div>
                                         </div>
-                                    {{/remove}}
+                                    {{/showActions}}
 
                                     {{#ebook_exist}}
                                         <span class="badge badge-pill badge-success">Ebook</span>
@@ -41,7 +50,7 @@
                                         <footer>
                                             <br>
 
-                                            {{^amount}}
+                                            {{#amount}}
                                                 <div class="input-group mb-3 actionCard">
                                                     <input id="{{bookUID}}" type="number"
                                                            class="form-control input-group-append inputAmount"
@@ -54,18 +63,21 @@
                                                 </div>
                                             {{/amount}}
 
-                                            <div class="form-group custom-control custom-checkbox">
-                                                <input id="cb-{{bookUID}}" type="checkbox" class="custom-control-input">
-                                                <label class="custom-control-label" for="cb-{{bookUID}}">Read
-                                                    yesterday</label>
-                                            </div>
+                                            {{#showReadYesterday}}
+                                                <div class="form-group custom-control custom-checkbox">
+                                                    <input id="cb-{{bookUID}}" type="checkbox"
+                                                           class="custom-control-input">
+                                                    <label class="custom-control-label" for="cb-{{bookUID}}">Read
+                                                        yesterday</label>
+                                                </div>
+                                            {{/showReadYesterday}}
 
-                                            {{#remove}}
+                                            {{#history}}
                                                 <a class="btn btn-sm btn-info btnReadingHistory" data-uid="{{bookUID}}"
                                                    data-toggle="modal" data-target="#readingHistoryModal">History</a>
-                                            {{/remove}}
+                                            {{/history}}
 
-                                            {{^remove}}
+                                            {{#remove}}
                                                 <div>
                                                     <button class="btn btn-sm btn-danger btnRemoveFromPath"
                                                             type="button"
@@ -117,7 +129,17 @@
             if (result !== false) {
                 location.reload();
             }
+        });
 
+        $(".btnMakeAbandoned").on('click', function (e) {
+
+            var bookUID = $(this).data("uid");
+            var pathUID = $(this).data("path");
+            var result = ajaxCall('PUT', "/books/" + bookUID + "/status", "pathUID=" + pathUID + "&status=3")
+
+            if (result !== false) {
+                location.reload();
+            }
         });
 
         $(".btnRemoveFromPath").on('click', function (e) {
