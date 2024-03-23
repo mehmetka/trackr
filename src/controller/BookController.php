@@ -225,7 +225,7 @@ class BookController extends Controller
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Already prioritized!");
         }
 
-        if ($details['status'] !== BookStatus::NEW->value) {
+        if ((int)$params['status'] === BookStatus::PRIORITIZED->value && $details['status'] !== BookStatus::NEW->value) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Book status is not 'New'!");
         }
 
