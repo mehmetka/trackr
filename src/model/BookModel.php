@@ -780,7 +780,7 @@ class BookModel
 
     public function finishedBooks()
     {
-        $sql = "SELECT bf.id, b.uid, bf.book_id, b.title, b.page_count, b.ebook_version, b.ebook_page_count, b.status, bf.start_date, bf.finish_date, bf.rate, p.name AS pathName,
+        $sql = "SELECT bf.id, b.uid, bf.book_id, b.title, b.page_count, b.ebook_version, b.ebook_page_count, bf.start_date, bf.finish_date, bf.rate, p.name AS pathName,
                         CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ') FROM book_authors ba INNER JOIN author a ON ba.author_id = a.id WHERE ba.book_id = b.id)) AS author
                 FROM books_finished bf
                 LEFT JOIN books b ON bf.book_id = b.id
@@ -842,7 +842,6 @@ class BookModel
                        b.pdf,
                        b.epub,
                        b.is_complete_book,
-                       b.status AS book_status,
                        pb.status AS path_status,
                        pb.path_id,
                        p.uid AS pathUID,
@@ -1106,11 +1105,10 @@ class BookModel
     public function saveBook($params)
     {
         $now = time();
-        $status = BookStatus::NEW->value;
         $uid = UID::generate();
 
-        $sql = 'INSERT INTO books (uid, title, subtitle, publisher, pdf, epub, added_date, page_count, status, published_date, description, isbn, thumbnail, thumbnail_small, info_link, is_complete_book, ebook_version, ebook_page_count)
-                VALUES(:uid, :title, :subtitle, :publisher, :pdf, :epub, :added_date, :page_count, :status, :published_date, :description, :isbn, :thumbnail, :thumbnail_small, :info_link, :is_complete_book, :ebook_version, :ebook_page_count)';
+        $sql = 'INSERT INTO books (uid, title, subtitle, publisher, pdf, epub, added_date, page_count, published_date, description, isbn, thumbnail, thumbnail_small, info_link, is_complete_book, ebook_version, ebook_page_count)
+                VALUES(:uid, :title, :subtitle, :publisher, :pdf, :epub, :added_date, :page_count, :published_date, :description, :isbn, :thumbnail, :thumbnail_small, :info_link, :is_complete_book, :ebook_version, :ebook_page_count)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':uid', $uid, \PDO::PARAM_STR);
@@ -1121,7 +1119,6 @@ class BookModel
         $stm->bindParam(':epub', $params['epub'], \PDO::PARAM_INT);
         $stm->bindParam(':added_date', $now, \PDO::PARAM_INT);
         $stm->bindParam(':page_count', $params['pageCount'], \PDO::PARAM_INT);
-        $stm->bindParam(':status', $status, \PDO::PARAM_INT);
         $stm->bindParam(':published_date', $params['published_date'], \PDO::PARAM_INT);
         $stm->bindParam(':description', $params['description'], \PDO::PARAM_STR);
         $stm->bindParam(':isbn', $params['isbn'], \PDO::PARAM_STR);
