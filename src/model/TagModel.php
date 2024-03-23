@@ -148,6 +148,7 @@ class TagModel
     {
         $tags = [];
         $hashtags = [];
+        $links = [];
         $list = [];
 
         $sql = "SELECT t.id, t.tag, CONCAT('#', t.tag) AS hashtag, CONCAT('<span class=\"badge badge-info\">', t.tag, '</span>') AS html
@@ -167,6 +168,7 @@ class TagModel
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $tags[] = $row['tag'];
             $hashtags[] = $row['hashtag'];
+            $links[] = "<a href='/highlights?tag={$row['tag']}'>#{$row['tag']}</a>";
             $list['tags'][] = $row;
         }
 
@@ -175,6 +177,7 @@ class TagModel
             $list['imploded_comma'] = implode(', ', $tags);
             $list['imploded_hashtag_blank'] = implode(' ', $hashtags);
             $list['imploded_hashtag_comma'] = implode(', ', $hashtags);
+            $list['imploded_link_blank'] = implode(' ', $links);
         }
 
         return $list;
