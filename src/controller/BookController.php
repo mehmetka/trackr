@@ -230,6 +230,8 @@ class BookController extends Controller
         }
 
         $this->bookModel->changePathBookStatus($pathId, $bookId, $params['status']);
+        $this->bookModel->addActivityLog($pathId, $bookId,
+            "changed book status from {$details['status']} to {$params['status']}");
 
         $resource['responseCode'] = StatusCode::HTTP_OK;
         $resource['message'] = "Changed status successfully";
