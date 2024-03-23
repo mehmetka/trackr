@@ -330,7 +330,7 @@ class BookModel
 
             $readAmount = $row['readAmount']; //$this->getReadAmount($row['id'], $pathId);
 
-            if (intval($row['ebook_version']) === 1) {
+            if ((int)$row['ebook_version'] === 1) {
                 $row['page_count'] = $row['ebook_page_count'];
             }
 
