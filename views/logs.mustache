@@ -40,9 +40,15 @@
                             <div class="card-body">
                                 {{#logs}}
                                     <h5 class="card-title"># {{date}}</h5>
-                                    {{{log}}}
-                                    <strong>Reading:</strong> {{reading}}
+                                    {{#reading}}
+                                        [X]
+                                    {{/reading}}
+                                    {{^reading}}
+                                        []
+                                    {{/reading}}
+                                    reading: {{reading}}
                                     <br><br>
+                                    {{{log}}}
                                 {{/logs}}
                             </div>
                         </div>
