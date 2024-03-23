@@ -183,6 +183,7 @@ CREATE TABLE `favorites`
 CREATE TABLE `highlights`
 (
     `id`           int(11)                             NOT NULL AUTO_INCREMENT,
+    `title`        varchar(255) COLLATE utf8mb4_unicode_ci      DEFAULT NULL,
     `highlight`    longtext COLLATE utf8mb4_unicode_ci NOT NULL,
     `author`       varchar(1000) COLLATE utf8mb4_unicode_ci     DEFAULT NULL,
     `source`       varchar(1000) COLLATE utf8mb4_unicode_ci     DEFAULT NULL,
