@@ -785,7 +785,7 @@ class BookModel
                 FROM books_finished bf
                 LEFT JOIN books b ON bf.book_id = b.id
                 INNER JOIN paths p ON bf.path_id = p.id
-                WHERE bf.user_id = :user_id AND bf.is_complete_book = 1
+                WHERE bf.user_id = :user_id
                 ORDER BY finish_date DESC";
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
