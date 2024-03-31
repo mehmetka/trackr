@@ -903,7 +903,6 @@ class BookModel
             if ($pageCount != 0 && $diff <= 0) {
                 $this->insertNewReadRecord($row['path_id'], $row['id']);
                 $this->setBookPathStatus($row['path_id'], $row['id'], BookStatus::DONE->value);
-                $this->setBookStatus($row['id'], BookStatus::DONE->value);
 
                 if ($row['is_complete_book']) {
                     $_SESSION['badgeCounts']['finishedBookCount']++;
@@ -943,23 +942,6 @@ class BookModel
         }
 
         return $list;
-    }
-
-    public function setBookStatus($bookId, $status)
-    {
-        $sql = 'UPDATE books
-                SET status=:status
-                WHERE id=:id';
-
-        $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':id', $bookId, \PDO::PARAM_INT);
-        $stm->bindParam(':status', $status, \PDO::PARAM_INT);
-
-        if (!$stm->execute()) {
-            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
-        }
-
-        return true;
     }
 
     public function insertProgressRecord($bookId, $pathId, $amount, $recordDate)
