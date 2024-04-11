@@ -17,17 +17,18 @@ class LogModel
         $this->dbConnection = $container->get('db');
     }
 
-    public function getLogs()
+    public function getLogs($limit = 30)
     {
         $logs = [];
 
         $sql = 'SELECT *
                 FROM logs
-                WHERE user_id = :user_id ORDER BY id DESC LIMIT 7';
+                WHERE user_id = :user_id ORDER BY id DESC LIMIT :limit';
 
         $stm = $this->dbConnection->prepare($sql);
 
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+        $stm->bindParam(':limit', $limit, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, 'Something went wrong');

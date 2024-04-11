@@ -24,6 +24,7 @@ class LogController extends Controller
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
+        $limit = 30;
         $data['pageTitle'] = "Logs | trackr";
         $today = date('Y-m-d', time());
 
@@ -35,7 +36,7 @@ class LogController extends Controller
             $this->logModel->insert($today, null);
         }
 
-        $logs = $this->logModel->getLogs();
+        $logs = $this->logModel->getLogs($limit);
         foreach ($logs as $key => $log) {
             $logs[$key]['reading'] = $this->bookModel->getDailyReadingAmount($log['date']);
         }
