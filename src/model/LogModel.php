@@ -35,12 +35,6 @@ class LogModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-
-            $today = date('Y-m-d', time());
-            if ($today != $row['date'] && !$row['log']) {
-                continue;
-            }
-
             $row['log'] = MarkdownUtil::convertToHTML($row['log']);
             $logs[] = $row;
         }
