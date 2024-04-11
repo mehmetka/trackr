@@ -187,6 +187,7 @@ class BookController extends Controller
             }
         }
 
+        unset($_SESSION['books']['readingAverage']);
         return $this->response($resource['responseCode'], $resource);
     }
 

@@ -2,6 +2,16 @@
     <button type="button" class="navbar-toggler text-muted mt-2 p-0 mr-3 collapseSidebar">
         <i class="fe fe-menu navbar-toggler-icon"></i>
     </button>
+
+    <ul class="nav">
+        <li class="nav-item">
+            <div id="navbarReadingAverageInfo" class="nav-link">hi</div>
+        </li>
+
+        <li class="nav-item">
+            <div id="navbarTodayInfo" class="nav-link"></div>
+        </li>
+    </ul>
 </nav>
 
 <script>
@@ -9,5 +19,10 @@
         $(".collapseSidebar").on("click", function (e) {
             $(".vertical").hasClass("narrow") ? $(".vertical").toggleClass("open") : ($(".vertical").toggleClass("collapsed"), $(".vertical").hasClass("hover") && $(".vertical").removeClass("hover")), e.preventDefault()
         })
+
+        var resultNavbarInfos = ajaxCall('GET', "/navbar-infos", null, false, false);
+        $('#navbarTodayInfo').text(resultNavbarInfos.today);
+        $('#navbarReadingAverageInfo').text(resultNavbarInfos.readingAverage);
+
     });
 </script>

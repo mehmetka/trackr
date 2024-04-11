@@ -33,6 +33,7 @@ $app->group('', function () {
     $this->post('/logs', LogController::class . ':save');
 
     $this->get('/menu-badge-counts', HomeController::class . ':getMenuBadgeCounts');
+    $this->get('/navbar-infos', HomeController::class . ':getNavbarInfos');
 
     $this->get('/books/paths', BookController::class . ':paths')->setName('paths');
     $this->get('/books/paths/{pathUID}', BookController::class . ':booksPathInside');

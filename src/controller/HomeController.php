@@ -30,18 +30,12 @@ class HomeController extends Controller
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
         $dateTrackings = $this->dateTrackingModel->getDateTrackings();
-        $averageData = $this->bookModel->readingAverage();
-        $today = date('d/m/Y');
         $randomHighlight = $this->highlightModel->getRandomHighlight();
         $this->highlightModel->incrementReadCount($randomHighlight[0]['id']);
 
         $data = [
             'pageTitle' => 'Home | trackr',
             'dateTrackings' => $dateTrackings,
-            'readingAverage' => round($averageData['average'], 3),
-            'readingTotal' => $averageData['total'],
-            'dayDiff' => $averageData['diff'],
-            'today' => $today,
             'activeHome' => 'active',
             'randomHighlight' => $randomHighlight
         ];
@@ -66,6 +60,21 @@ class HomeController extends Controller
             'finishedBookCount' => $_SESSION['badgeCounts']['finishedBookCount'],
             'bookmarkCount' => $_SESSION['badgeCounts']['bookmarkCount'],
             'highlightsCount' => $_SESSION['badgeCounts']['highlightsCount'],
+        ];
+
+        return $this->response(StatusCode::HTTP_OK, $data);
+    }
+
+    public function getNavbarInfos(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $today = date('d/m/Y');
+        $averageData = $_SESSION['books']['readingAverage'] ?? $this->bookModel->readingAverage();
+        $readingAverageText = "Reading Average: " . round($averageData['average'], 3) .
+                                "({$averageData['total']}/{$averageData['diff']})";
+
+        $data = [
+            'today' => $today,
+            'readingAverage' => $readingAverageText
         ];
 
         return $this->response(StatusCode::HTTP_OK, $data);

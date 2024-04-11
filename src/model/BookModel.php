@@ -238,6 +238,7 @@ class BookModel
         $result['average'] = $total / $diff;
         $result['total'] = $total;
         $result['diff'] = $diff;
+        $_SESSION['books']['readingAverage'] = $result;
 
         return $result;
     }
@@ -291,7 +292,7 @@ class BookModel
 
             if (!$path['today_processed']) {
                 $pages = $path['daily_amount'] > 1 ? 'pages' : 'page';
-                $path['today_processed_text'] = "You haven't read today :( You have to read {$path['daily_amount']} $pages";
+                $path['today_processed_text'] = "You haven't read today. You have to read {$path['daily_amount']} $pages";
             } else {
                 $pages = $path['today_processed'] > 1 ? 'pages' : 'page';
                 $tmpDailyAmount = $path['daily_amount'] - $path['today_processed'];
@@ -1459,9 +1460,8 @@ class BookModel
         return $authorId;
     }
 
-    public function getBookTrackingsGraphicData()
+    public function getBookTrackingsGraphicData($trackingDataDateLimit)
     {
-        $trackingDataDateLimit = 30;
         $fetchAfter = time() - ($trackingDataDateLimit * 86400);
         $paths = $this->getPathsList();
         $result = [];
@@ -1475,7 +1475,7 @@ class BookModel
             $tmpData = [];
             $preparedData = [];
             $rawData = $this->getBookTrackingsByPathID($path['path_id'], $fetchAfter);
-            $tmpData = $this->prepareBookTrackingsGraphicData($rawData);
+            $tmpData = $this->prepareBookTrackingsGraphicData($rawData, $trackingDataDateLimit);
             $preparedData['name'] = $path['path_name'];
             $preparedData['data'] = $tmpData['amounts'];
             $result['trackings'][] = $preparedData;
@@ -1572,9 +1572,8 @@ class BookModel
         return $this->dbConnection->lastInsertId();
     }
 
-    public function prepareBookTrackingsGraphicData($bookTrackings)
+    public function prepareBookTrackingsGraphicData($bookTrackings, $trackingDataDateLimit = 30)
     {
-        $trackingDataDateLimit = 30;
         $dates = TimeUtil::generateDateListArray($trackingDataDateLimit);
         $amountData = [];
 
@@ -1591,4 +1590,21 @@ class BookModel
         return ['amounts' => $amountData];
     }
 
+    public function getLibraries()
+    {
+        $books = [];
+
+        $sql = "SELECT l.book, l.size, l.library, ll.link FROM libraries l INNER JOIN library_links ll ON l.library = ll.name";
+        $stm = $this->dbConnection->prepare($sql);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $books[] = $row;
+        }
+
+        return $books;
+    }
 }
