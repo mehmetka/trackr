@@ -524,4 +524,16 @@ class BookController extends Controller
         return $this->response($resource['responseCode'], $resource);
     }
 
+    public function getLibraries(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $books = $this->bookModel->getLibraries();
+
+        $data = [
+            'pageTitle' => 'Libraries | trackr',
+            'books' => $books
+        ];
+
+        return $this->view->render($response, 'books/libraries.mustache', $data);
+    }
+
 }

@@ -85,4 +85,6 @@ $app->group('', function () {
 
     $this->get('/logout', AuthController::class . ':logout');
 
+    $this->get('/libraries', BookController::class . ':getLibraries');
+
 })->add(new Middleware\Authentication($container));
