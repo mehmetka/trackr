@@ -229,10 +229,10 @@ class BookModel
     public function readingAverage()
     {
         $start = $this->getStartOfReadings();
-        $start = $start ? $start : time();
+        $start = $start ?? time();
         $from = time();
         $diff = TimeUtil::epochDateDiff($from, $start);
-        $diff = $diff ? $diff : 1;
+        $diff = $diff ?? 1;
         $total = $this->getReadingTotal();
 
         $result['average'] = $total / $diff;
