@@ -42,6 +42,10 @@
                                         </div>
                                     {{/showActions}}
 
+                                    {{^is_complete_book}}
+                                        <span class="badge badge-pill badge-success">Doc</span>
+                                    {{/is_complete_book}}
+
                                     {{#ebook_exist}}
                                         <span class="badge badge-pill badge-success">Ebook</span>
                                     {{/ebook_exist}}
