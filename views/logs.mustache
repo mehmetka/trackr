@@ -40,7 +40,13 @@
                         <div class="card">
                             <div class="card-body">
                                 {{#logs}}
-                                    <h5 class="card-title"># {{date}}</h5>
+                                    <h5 class="card-title">
+                                        {{#versionCount}}<a href="/logs/{{date}}/versions"># {{date}}</a>{{/versionCount}}
+                                        {{^versionCount}}# {{date}}{{/versionCount}}
+                                    </h5>
+
+                                    {{{log}}}
+                                    <br>
                                     {{#reading}}
                                         [X]
                                     {{/reading}}

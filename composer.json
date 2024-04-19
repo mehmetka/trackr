@@ -8,7 +8,8 @@
     "php-amqplib/php-amqplib": "^2.9.0",
     "neitanod/forceutf8": "~2.0",
     "defuse/php-encryption": "^2.3",
-    "spekulatius/phpscraper": "^0.6.2"
+    "spekulatius/phpscraper": "^0.6.2",
+    "jfcherng/php-diff": "^6.16"
   },
   "autoload": {
     "psr-4": {

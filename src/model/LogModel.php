@@ -36,6 +36,7 @@ class LogModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['log'] = MarkdownUtil::convertToHTML($row['log']);
+            $row['versionCount'] = $this->getVersionCountByLogId($row['id']);
             $logs[] = $row;
         }
 
@@ -64,6 +65,61 @@ class LogModel
         }
 
         return $log;
+    }
+
+    public function getVersionsByDate($date)
+    {
+        $versions = [];
+
+        $sql = 'SELECT *
+                FROM log_versions lv
+                INNER JOIN logs l
+                ON lv.log_id = l.id
+                WHERE l.user_id = :user_id AND l.date = :date 
+                ORDER BY lv.id DESC';
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+        $stm->bindParam(':date', $date, \PDO::PARAM_STR);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, 'Something went wrong');
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $row['created_at'] = date('Y-m-d H:i:s', $row['created_at']);
+            $versions[] = $row;
+        }
+
+        return $versions;
+    }
+
+    public function getVersionCountByLogId($logId)
+    {
+        $versionCount = 0;
+
+        $sql = 'SELECT count(*) AS versionCount
+                FROM log_versions lv
+                INNER JOIN logs l
+                ON lv.log_id = l.id
+                WHERE l.user_id = :user_id AND lv.log_id = :logId
+                ORDER BY lv.id DESC';
+
+        $stm = $this->dbConnection->prepare($sql);
+
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+        $stm->bindParam(':logId', $logId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, 'Something went wrong');
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $versionCount = $row['versionCount'];
+        }
+
+        return $versionCount;
     }
 
     public function insert($date, $log)

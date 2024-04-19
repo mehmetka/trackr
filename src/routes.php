@@ -30,6 +30,7 @@ $app->group('', function () {
     $this->get('/', HomeController::class . ':index')->setName('home');
 
     $this->get('/logs', LogController::class . ':index');
+    $this->get('/logs/{date}/versions', LogController::class . ':logsVersions');
     $this->post('/logs', LogController::class . ':save');
 
     $this->get('/menu-badge-counts', HomeController::class . ':getMenuBadgeCounts');
