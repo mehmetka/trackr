@@ -76,7 +76,7 @@ class TagModel
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':source_id', $sourceId, \PDO::PARAM_INT);
-        $stm->bindParam(':type',$sourceType, \PDO::PARAM_INT);
+        $stm->bindParam(':type', $sourceType, \PDO::PARAM_INT);
         $stm->bindParam(':tag_id', $tagId, \PDO::PARAM_INT);
         $stm->bindParam(':created', $now, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
@@ -154,7 +154,8 @@ class TagModel
         $sql = "SELECT t.id, t.tag, CONCAT('#', t.tag) AS hashtag, CONCAT('<span class=\"badge badge-info\">', t.tag, '</span>') AS html
                 FROM tag_relationships tr
                 INNER JOIN tags t ON tr.tag_id = t.id
-                WHERE tr.source_id = :source_id AND tr.type = :source_type AND tr.user_id = :user_id";
+                WHERE tr.source_id = :source_id AND tr.type = :source_type AND tr.user_id = :user_id
+                ORDER BY t.tag";
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':source_id', $sourceId, \PDO::PARAM_INT);
