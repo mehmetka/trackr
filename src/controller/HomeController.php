@@ -67,7 +67,7 @@ class HomeController extends Controller
 
     public function getNavbarInfos(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $today = date('d/m/Y');
+        $today = date('d/m/Y H:i:s');
         $averageData = $_SESSION['books']['readingAverage'] ?? $this->bookModel->readingAverage();
         $readingAverageText = "Reading Average: " . round($averageData['average'], 3) .
                                 "({$averageData['total']}/{$averageData['diff']})";
