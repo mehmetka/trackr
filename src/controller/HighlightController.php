@@ -5,8 +5,10 @@ namespace App\controller;
 use App\enum\Sources;
 use App\model\BookModel;
 use App\model\TagModel;
-use App\util\EncryptionUtil;
+use Jfcherng\Diff\DiffHelper;
 use Slim\Http\StatusCode;
+use App\util\EncryptionUtil;
+use App\util\VersionDiffUtil;
 use App\model\HighlightModel;
 use App\exception\CustomException;
 use Psr\Container\ContainerInterface;
@@ -87,6 +89,47 @@ class HighlightController extends Controller
         ];
 
         return $this->view->render($response, 'highlights/details.mustache', $data);
+    }
+
+    public function versions(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $highlightID = $args['id'];
+        $versionDiffs = [];
+
+        $versions = $this->highlightModel->getVersionsById($highlightID);
+        $currentHighlight = $this->highlightModel->getHighlightByID($highlightID);
+
+        $newString = $currentHighlight['highlight'];
+
+        $latestDiff = DiffHelper::calculate(
+            $newString,
+            $newString,
+            'Inline',
+            VersionDiffUtil::highlightsDiffOptions(),
+            VersionDiffUtil::highlightsRendererOptions(),
+        );
+
+        $versionDiffs[] = ['diff' => $latestDiff, 'created_at' => 'Latest'];
+
+        foreach ($versions as $version) {
+            $new = $newString;
+            $old = $version['old_highlight'];
+            $sideBySideResult = DiffHelper::calculate(
+                $old,
+                $new,
+                'Inline',
+                VersionDiffUtil::highlightsDiffOptions(),
+                VersionDiffUtil::highlightsRendererOptions(),
+            );
+
+            $versionDiffs[] = ['diff' => $sideBySideResult, 'created_at' => $version['created_at']];
+            $newString = $version['old_highlight'];
+        }
+
+        $data['versionDiffs'] = $versionDiffs;
+        $data['pageTitle'] = 'Highlight Versions | trackr';
+
+        return $this->view->render($response, 'highlights/versions.mustache', $data);
     }
 
     public function all(ServerRequestInterface $request, ResponseInterface $response)

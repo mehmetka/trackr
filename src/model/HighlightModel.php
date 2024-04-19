@@ -140,6 +140,7 @@ class HighlightModel
             }
         }
 
+        $highlight['version_count'] = $this->getVersionsCountById($highlight['id']);
         $highlight['created_at_formatted'] = date('Y-m-d H:i:s', $highlight['created']);
         $highlight['updated_at_formatted'] = date('Y-m-d H:i:s', $highlight['updated']);
         $tags = $this->tagModel->getTagsBySourceId($highlight['id'], Sources::HIGHLIGHT->value);
@@ -653,5 +654,57 @@ class HighlightModel
         }
 
         return $highlights;
+    }
+
+    public function getVersionsById($highlightId)
+    {
+        $versions = [];
+
+        $sql = 'SELECT h.id, h.highlight, hv.old_highlight, hv.created_at, h.author, h.source, h.created, h.updated
+                FROM highlights h
+                INNER JOIN highlight_versions hv
+                ON h.id = hv.highlight_id
+                WHERE h.user_id = :user_id AND hv.highlight_id = :highlight_id AND h.is_deleted = 0 AND h.is_encrypted=0
+                ORDER BY hv.id DESC';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+        $stm->bindParam(':highlight_id', $highlightId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $row['created_at'] = date('Y-m-d H:i:s', $row['created_at']);
+            $versions[] = $row;
+        }
+
+        return $versions;
+    }
+
+    public function getVersionsCountById($highlightId)
+    {
+        $versionCount = 0;
+
+        $sql = 'SELECT count(*) AS versionCount
+                FROM highlights h
+                INNER JOIN highlight_versions hv
+                ON h.id = hv.highlight_id
+                WHERE h.user_id = :user_id AND hv.highlight_id = :highlight_id AND h.is_deleted = 0 AND h.is_encrypted=0';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+        $stm->bindParam(':highlight_id', $highlightId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $versionCount = $row['versionCount'];
+        }
+
+        return $versionCount;
     }
 }
