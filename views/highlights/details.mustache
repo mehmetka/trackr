@@ -187,13 +187,14 @@
 <script>
     $(document).ready(function () {
 
+        var unsavedChanges = false;
+
         if ($('#highlight').length) { // TODO WTF?
             var simplemdeHighlight = new SimpleMDE({
                 element: $("#highlight")[0],
                 toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
                 insertTexts: {"image": ["[", "](/img/)"]},
             });
-            $('#highlight').show();
 
             inlineAttachment.editors.codemirror4.attach(simplemdeHighlight.codemirror, {
                 uploadUrl: '/images'
@@ -205,10 +206,19 @@
             toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
             insertTexts: {"image": ["[", "](/img/)"]},
         });
-        $('#comment').show();
 
         inlineAttachment.editors.codemirror4.attach(simplemdeComment.codemirror, {
             uploadUrl: '/images'
+        });
+
+        simplemdeHighlight.codemirror.on("change", function(){
+            unsavedChanges = true;
+        });
+
+        window.addEventListener("beforeunload", function(event) {
+            if (unsavedChanges) {
+                event.preventDefault();
+            }
         });
 
         $('#addComment').on('click', function (e) {
@@ -271,6 +281,7 @@
             var result = ajaxCall('PUT', "/highlights/" + highlightID, data)
 
             if (result !== false) {
+                unsavedChanges = false;
                 location.reload();
             }
 
@@ -282,6 +293,7 @@
             var result = ajaxCall('DELETE', "/highlights/" + highlightID, null);
 
             if (result !== false) {
+                unsavedChanges = false;
                 window.location.replace('/highlights/{{nextID}}')
             }
 

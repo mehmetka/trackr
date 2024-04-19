@@ -191,6 +191,8 @@
 <script>
     $(document).ready(function () {
 
+        var unsavedChanges = false;
+
         $('.select2-multi').select2({
             placeholder: "Reference with a book",
             multiple: true,
@@ -207,8 +209,6 @@
             insertTexts: {"image": ["[", "](/img/)"]},
             autofocus: true
         });
-
-        $('#highlight').show();
 
         inlineAttachment.editors.codemirror4.attach(simplemde.codemirror, {
             uploadUrl: '/images'
@@ -268,6 +268,7 @@
                 var result = ajaxCall('POST', "/highlights", data)
 
                 if (result !== false) {
+                    unsavedChanges = false;
                     location.reload();
                 }
             }
@@ -280,6 +281,17 @@
                     "&type=" + encodeURIComponent(type)
             ajaxCall('POST', "/favorites", data)
         });
+
+        simplemde.codemirror.on("change", function(){
+            unsavedChanges = true;
+        });
+
+        window.addEventListener("beforeunload", function(event) {
+            if (unsavedChanges) {
+                event.preventDefault();
+            }
+        });
+
     });
 </script>
 </body>

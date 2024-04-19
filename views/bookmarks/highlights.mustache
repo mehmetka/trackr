@@ -51,13 +51,13 @@
 <script>
     $(document).ready(function () {
 
+        var unsavedChanges = false;
+
         var simplemde = new SimpleMDE({
             element: $("#highlight")[0],
             toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
             insertTexts: {"image": ["[", "](/img/)"]},
         });
-
-        $('#highlight').show();
 
         inlineAttachment.editors.codemirror4.attach(simplemde.codemirror, {
             uploadUrl: '/images'
@@ -71,10 +71,22 @@
                 var result = ajaxCall('POST', "/bookmarks/{{bookmarkUID}}/highlights", data)
 
                 if (result !== false) {
+                    unsavedChanges = false;
                     location.reload();
                 }
             }
         });
+
+        simplemde.codemirror.on("change", function(){
+            unsavedChanges = true;
+        });
+
+        window.addEventListener("beforeunload", function(event) {
+            if (unsavedChanges) {
+                event.preventDefault();
+            }
+        });
+
     });
 </script>
 </body>
