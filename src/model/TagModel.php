@@ -208,14 +208,10 @@ class TagModel
 
     public function updateIsDeletedStatusBySourceId($type, $sourceId, $status)
     {
-        if($status){
-            $now = time();
-        } else {
-            $now = null;
-        }
+        $now = $status ? time() : null;
 
-        $sql = 'UPDATE tag_relationships 
-                SET is_deleted = :status, deleted_at = :deleted_at 
+        $sql = 'UPDATE tag_relationships
+                SET is_deleted = :status, deleted_at = :deleted_at
                 WHERE source_id = :source_id AND type = :type AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
