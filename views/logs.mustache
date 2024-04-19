@@ -48,9 +48,29 @@
                                     {{^reading}}
                                         []
                                     {{/reading}}
-                                    reading: {{reading}}
+                                    <strong>reading:</strong> {{reading}}
                                     <br><br>
-                                    {{{log}}}
+                                    {{#bookmarksExist}}
+                                        <strong>bookmarks</strong><br>
+                                        <ul>
+                                            {{#bookmarks}}
+                                                <li>
+                                                    <a href="{{bookmark}}" target="_blank">{{title}}</a><br>
+                                                </li>
+                                            {{/bookmarks}}
+                                        </ul>
+                                    {{/bookmarksExist}}
+
+                                    {{#highlightsExist}}
+                                        <strong>highlights</strong><br>
+                                        <ul>
+                                            {{#highlights}}
+                                                <li>
+                                                    <a href="/highlights?id={{id}}">#{{id}}</a><br>
+                                                </li>
+                                            {{/highlights}}
+                                        </ul>
+                                    {{/highlightsExist}}
                                 {{/logs}}
                             </div>
                         </div>

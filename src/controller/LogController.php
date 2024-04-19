@@ -3,7 +3,9 @@
 namespace App\controller;
 
 use App\exception\CustomException;
+use App\model\BookmarkModel;
 use App\model\BookModel;
+use App\model\HighlightModel;
 use App\model\LogModel;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -14,12 +16,16 @@ class LogController extends Controller
 {
     private $logModel;
     private $bookModel;
+    private $bookmarkModel;
+    private $highlightModel;
 
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
         $this->logModel = new LogModel($container);
         $this->bookModel = new BookModel($container);
+        $this->bookmarkModel = new BookmarkModel($container);
+        $this->highlightModel = new HighlightModel($container);
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
@@ -38,7 +44,13 @@ class LogController extends Controller
 
         $logs = $this->logModel->getLogs($limit);
         foreach ($logs as $key => $log) {
+            $from = strtotime($log['date']);
+            $to = strtotime($log['date']) + 86400;
             $logs[$key]['reading'] = $this->bookModel->getDailyReadingAmount($log['date']);
+            $logs[$key]['bookmarks'] = $this->bookmarkModel->getFinishedBookmarks($from, $to);
+            $logs[$key]['bookmarksExist'] = count($logs[$key]['bookmarks']);
+            $logs[$key]['highlights'] = $this->highlightModel->getHighlightsByDateRange($from, $to);
+            $logs[$key]['highlightsExist'] = count($logs[$key]['highlights']);
         }
         $data['logs'] = $logs;
         $data['todaysLog'] = $todayLog['log'];

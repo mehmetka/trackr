@@ -679,4 +679,31 @@ class BookmarkModel
 
         return true;
     }
+
+    public function getFinishedBookmarks($from = 0, $to = 0)
+    {
+        $from = $from ?? strtotime(date('Y-m-d 00:00:00'));
+        $to = $to ?? strtotime(date('Y-m-d 00:00:00')) + 86400;
+        $bookmarks = [];
+
+        $sql = 'SELECT b.id, b.uid, b.bookmark, b.title, bo.created
+                FROM bookmarks b
+                INNER JOIN bookmarks_ownership bo on b.id = bo.bookmark_id
+                WHERE bo.is_deleted = 0 AND bo.status = 2 AND bo.user_id = :user_id AND bo.done > :from AND bo.done < :to';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+        $stm->bindParam(':from', $from, \PDO::PARAM_INT);
+        $stm->bindParam(':to', $to, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $bookmarks[] = $row;
+        }
+
+        return $bookmarks;
+    }
 }

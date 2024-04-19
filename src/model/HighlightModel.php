@@ -629,4 +629,29 @@ class HighlightModel
         return true;
     }
 
+    public function getHighlightsByDateRange($from = 0, $to = 0)
+    {
+        $from = $from ?? strtotime(date('Y-m-d 00:00:00'));
+        $to = $to ?? strtotime(date('Y-m-d 00:00:00')) + 86400;
+        $highlights = [];
+
+        $sql = 'SELECT h.id
+                FROM highlights h
+                WHERE h.is_deleted = 0 AND h.user_id = :user_id AND h.created > :from AND h.created < :to';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+        $stm->bindParam(':from', $from, \PDO::PARAM_INT);
+        $stm->bindParam(':to', $to, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $highlights[] = $row;
+        }
+
+        return $highlights;
+    }
 }
