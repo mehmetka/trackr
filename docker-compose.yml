@@ -1,6 +1,7 @@
 version: "3"
 
 services:
+
   trackr-db:
     container_name: trackr-db
     image: mysql:5.7
@@ -14,10 +15,11 @@ services:
       TZ: 'Europe/Istanbul'
     networks:
       - trackr
+
   trackr-web:
     container_name: trackr-web
     build: .
-    image: phpdev
+    image: trackr-web
     restart: always
     ports:
       - "8081:80"
@@ -25,6 +27,7 @@ services:
       - trackr-db
     networks:
       - trackr
+
   trackr-rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: trackr-rabbitmq
@@ -34,6 +37,7 @@ services:
       - "15673:15672"
     networks:
       - trackr
+
   trackr-consumer:
     container_name: trackr-consumer
     build: ./src/rabbitmq
@@ -47,6 +51,7 @@ services:
       - trackr-rabbitmq
     networks:
       - trackr
+
   trackr-redis:
     image: redis:7-alpine
     container_name: trackr-redis

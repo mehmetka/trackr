@@ -3,7 +3,7 @@ version: '3'
 services:
   trackr-web:
     volumes:
-      - .:/var/www/html/trackr
+      - .:/var/www/html
       - ./z-extended-php.ini:/usr/local/etc/php/conf.d/z-extended-php.ini
   trackr-db:
     volumes:

@@ -1,12 +1,19 @@
-FROM php:8.1.9-apache
+FROM php:8.2-fpm
 
-RUN apt-get update && apt-get install -y libzip-dev zip
+RUN apt-get update && apt-get install -y --no-install-recommends libzip-dev zip libicu-dev apache2 && \
+    apt-get clean all && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY trackr.conf /etc/apache2/sites-available/000-default.conf
+RUN rm /etc/apache2/sites-enabled/000-default.conf
+COPY fpm.conf /etc/apache2/sites-enabled/trackr.conf
 
-RUN docker-php-ext-install pdo pdo_mysql zip bcmath sockets
+RUN docker-php-ext-configure intl && \
+    docker-php-ext-install pdo pdo_mysql zip bcmath sockets intl && \
+    pecl install redis && \
+    docker-php-ext-enable redis.so
 
-RUN pecl install redis && docker-php-ext-enable redis.so
+RUN rm -rf /tmp/pear
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
@@ -14,5 +21,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 WORKDIR /var/www/html
 
-RUN a2enmod rewrite
-RUN service apache2 restart
+RUN a2enmod proxy_fcgi rewrite headers ssl
+
+CMD ["sh", "-c", "service apache2 start && php-fpm"]
