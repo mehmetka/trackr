@@ -4,9 +4,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends libzip-dev zip 
     apt-get clean all && \
     rm -rf /var/lib/apt/lists/*
 
-COPY trackr.conf /etc/apache2/sites-available/000-default.conf
 RUN rm /etc/apache2/sites-enabled/000-default.conf
 COPY fpm.conf /etc/apache2/sites-enabled/trackr.conf
+COPY www.conf /usr/local/etc/php-fpm.d/zzz-trackr-fpm.conf
 
 RUN docker-php-ext-configure intl && \
     docker-php-ext-install pdo pdo_mysql zip bcmath sockets intl && \
