@@ -33,6 +33,19 @@ CREATE TABLE `book_authors`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
+CREATE TABLE `book_trackings`
+(
+    `id`          int(11)                                NOT NULL AUTO_INCREMENT,
+    `book_id`     int(11)                                NOT NULL,
+    `path_id`     varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `record_date` int(11)                                NOT NULL,
+    `amount`      int(11)                                NOT NULL,
+    `user_id`     int(11)                                NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
 CREATE TABLE `bookmarks`
 (
     `id`          int(11)                                  NOT NULL AUTO_INCREMENT,
@@ -130,19 +143,6 @@ CREATE TABLE `books_ownership`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE `book_trackings`
-(
-    `id`          int(11)                                NOT NULL AUTO_INCREMENT,
-    `book_id`     int(11)                                NOT NULL,
-    `path_id`     varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
-    `record_date` int(11)                                NOT NULL,
-    `amount`      int(11)                                NOT NULL,
-    `user_id`     int(11)                                NOT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci;
-
 CREATE TABLE `categories`
 (
     `id`            int(11)                                 NOT NULL AUTO_INCREMENT,
@@ -151,6 +151,18 @@ CREATE TABLE `categories`
     `created`       int(11)                                 NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `NAME_UNIQUE` (`name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE `daily_reading_amounts`
+(
+    `id`      int(11) NOT NULL AUTO_INCREMENT,
+    `amount`  float   NOT NULL,
+    `date`    int(11) NOT NULL,
+    `path_id` int(11) NOT NULL,
+    `user_id` int(11) NOT NULL,
+    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
@@ -176,6 +188,18 @@ CREATE TABLE `favorites`
     `created_at` int(11) NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `unique_idx_type_sourceid` (`type`, `source_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE `highlight_versions`
+(
+    `id`            int(11)                             NOT NULL AUTO_INCREMENT,
+    `highlight_id`  int(11)                             NOT NULL,
+    `old_highlight` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+    `created_at`    int(11)                             NOT NULL,
+    `user_id`       int(11)                             NOT NULL,
+    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
@@ -207,18 +231,6 @@ CREATE TABLE `highlights`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE `highlight_versions`
-(
-    `id`            int(11)                             NOT NULL AUTO_INCREMENT,
-    `highlight_id`  int(11)                             NOT NULL,
-    `old_highlight` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-    `created_at`    int(11)                             NOT NULL,
-    `user_id`       int(11)                             NOT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci;
-
 CREATE TABLE `images`
 (
     `id`         int(11)                                NOT NULL AUTO_INCREMENT,
@@ -231,12 +243,23 @@ CREATE TABLE `images`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE `logs`
+CREATE TABLE `libraries`
 (
-    `id`      int(11)                                NOT NULL AUTO_INCREMENT,
-    `date`    varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
-    `log`     mediumtext COLLATE utf8mb4_unicode_ci,
-    `user_id` int(11)                                NOT NULL,
+    `id`      int(11) NOT NULL AUTO_INCREMENT,
+    `book`    varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `size`    varchar(45) COLLATE utf8mb4_unicode_ci   DEFAULT NULL,
+    `library` varchar(255) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
+    `created` varchar(45) COLLATE utf8mb4_unicode_ci   DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE `library_links`
+(
+    `id`   int(11) NOT NULL AUTO_INCREMENT,
+    `name` varchar(45) COLLATE utf8mb4_unicode_ci   DEFAULT NULL,
+    `link` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -248,6 +271,17 @@ CREATE TABLE `log_versions`
     `log_id`     int(11)                               NOT NULL,
     `old`        mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
     `created_at` int(11)                               NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE `logs`
+(
+    `id`      int(11)                                NOT NULL AUTO_INCREMENT,
+    `date`    varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `log`     mediumtext COLLATE utf8mb4_unicode_ci,
+    `user_id` int(11)                                NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
