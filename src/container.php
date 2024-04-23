@@ -17,12 +17,13 @@ $container['db'] = function ($container) {
 
 $container['view'] = function ($container) {
 
-    return $view = new \Slim\Views\Mustache([
+    return new \Slim\Views\Mustache([
         'template' => [
             'paths' => [
-                realpath(__DIR__ . '/../views/modal'),
-                realpath(__DIR__ . '/../views/include'),
-                realpath(__DIR__ . '/../views')
+                __DIR__ . '/../views/highlights/reusable',
+                __DIR__ . '/../views/modal',
+                __DIR__ . '/../views/include',
+                __DIR__ . '/../views'
             ],
             'extension' => 'mustache',
             'charset' => 'utf-8'
@@ -34,7 +35,8 @@ $container['view'] = function ($container) {
 $container['logger'] = function ($container) {
     $logger = new Monolog\Logger('trackr');
     $logger->pushProcessor(new Monolog\Processor\UidProcessor());
-    $logger->pushHandler(new Monolog\Handler\StreamHandler(__DIR__ . '/../logs/application.log', \Monolog\Logger::DEBUG));
+    $logger->pushHandler(new Monolog\Handler\StreamHandler(__DIR__ . '/../logs/application.log',
+        \Monolog\Logger::DEBUG));
     return $logger;
 };
 
@@ -44,9 +46,31 @@ $container['notFoundHandler'] = function ($container) {
             'status' => StatusCode::HTTP_NOT_FOUND,
             'message' => 'Not Found'
         ];
-        return $container->get('response')->withStatus($data['status'])->withHeader('Content-Type', 'application/json')->write(json_encode($data));
+        return $container->get('response')->withStatus($data['status'])->withHeader('Content-Type',
+            'application/json')->write(json_encode($data));
     };
 };
+
+//$container['notAllowedHandler'] = function ($container) {
+//    return function ($request, $response) use ($container) {
+//        $data = [
+//            'status' => StatusCode::HTTP_METHOD_NOT_ALLOWED,
+//            'message' => 'Not Allowed'
+//        ];
+//        return $container->get('response')->withStatus($data['status'])->withHeader('Content-Type', 'application/json')->write(json_encode($data));
+//    };
+//};
+
+//$container['phpErrorHandler'] = function ($container) {
+//    return function ($request, $response, $exception) use ($container) {
+//        $data = [
+//            'status' => StatusCode::HTTP_INTERNAL_SERVER_ERROR,
+//            'message' => 'PHP Error Occured'
+//        ];
+//        error_log($exception);
+//        return $container->get('response')->withStatus($data['status'])->withHeader('Content-Type', 'application/json')->write(json_encode($data));
+//    };
+//};
 
 $container['errorHandler'] = function ($container) {
 
@@ -99,6 +123,7 @@ $container['errorHandler'] = function ($container) {
             ];
         }
 
-        return $container->get('response')->withStatus($data['status'])->withHeader('Content-Type', 'application/json')->write(json_encode($data));
+        return $container->get('response')->withStatus($data['status'])->withHeader('Content-Type',
+            'application/json')->write(json_encode($data));
     };
 };

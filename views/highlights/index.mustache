@@ -84,6 +84,7 @@
                                         </select>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -103,8 +104,7 @@
                                         <div class="card-body">
                                             {{#headerTags}}
                                             <a role="button" href="/highlights{{#href}}?tag={{href}}{{/href}}"
-                                                class="badge badge-{{badge}}
-                                                ">
+                                                class="badge badge-{{badge}}">
                                                 <strong>#{{tag}} ({{tag_count}})</strong>
                                                 </a>
                                             {{/headerTags}}
@@ -117,65 +117,9 @@
 
                     <br>
 
-                    <div id="search-results"></div>
+                    {{> highlight-cards }}
 
-                    {{#highlights}}
-                        <div class="card highlightCard">
-                            <div class="card-body">
-                                {{#version_count}}
-                                    <a role="button" href="/highlights/{{id}}/versions" class="badge badge-warning float-right"><span
-                                            class="fe fe-activity fe-8"></span></a>
-                                {{/version_count}}
-                                <a role="button" href="/highlights/{{id}}" class="badge badge-primary float-right"><span
-                                        class="fe fe-edit fe-8"></span></a>
-                                <a role="button" class="badge float-right addToFavorite" data-id="{{id}}"><span
-                                        class="fe fe-heart fe-8"></span></a>
-                                <br>
-                                {{{highlight}}}
-
-                                <footer class="blockquote-footer">
-                                    {{ultimate_source}} ~ {{created_at_formatted}}/{{updated_at_formatted}}
-                                    {{#is_secret}}
-                                        <i class="fe fe-lock fe-12"></i>
-                                    {{/is_secret}}
-                                    {{#tags}}
-                                        <br><br>
-                                        <strong>{{{imploded_link_blank}}}</strong>
-                                    {{/tags}}
-                                </footer>
-
-                            </div>
-                        </div>
-                        <br class="highlightCardBR">
-                    {{/highlights}}
-
-                    {{=<% %>=}}
-                    <script id="search-results-template" type="text/x-handlebars-template">
-                        {{#highlights}}
-                        <div class="card highlightCard">
-                            <div class="card-body">
-                                <a role="button" href="/highlights/{{id}}" class="badge badge-primary float-right"><span
-                                        class="fe fe-edit fe-8"></span></a>
-                                <a role="button" class="badge float-right addToFavorite" data-id="{{id}}"><span
-                                        class="fe fe-heart fe-8"></span></a>
-                                <br>
-                                {{{highlight}}}
-
-                                <footer class="blockquote-footer">
-                                    {{author}} <cite>{{source}}</cite> ~ {{created_at_formatted}}
-
-                                    {{#tags}}
-                                        <br><br>
-                                        <strong>{{imploded_hashtag_blank}}</strong>
-                                    {{/tags}}
-                                </footer>
-
-                            </div>
-                        </div>
-                        <br class="highlightCardBR">
-                    {{/highlights}}
-                    </script>
-                    <%={{ }}=%>
+                    {{> search-results }}
 
                 </div> <!-- .col-12 -->
             </div> <!-- .row -->
@@ -269,7 +213,7 @@
                         "&is_encrypted=" + encodeURIComponent(is_encrypted) +
                         "&book=" + encodeURIComponent(book) +
                         "&is_secret=" + encodeURIComponent(is_secret);
-                var result = ajaxCall('POST', "/highlights", data)
+               var result = ajaxCall('POST', "/highlights", data)
 
                 if (result !== false) {
                     unsavedChanges = false;
@@ -286,11 +230,11 @@
             ajaxCall('POST', "/favorites", data)
         });
 
-        simplemde.codemirror.on("change", function(){
+        simplemde.codemirror.on("change", function () {
             unsavedChanges = true;
         });
 
-        window.addEventListener("beforeunload", function(event) {
+        window.addEventListener("beforeunload", function (event) {
             if (unsavedChanges) {
                 event.preventDefault();
             }

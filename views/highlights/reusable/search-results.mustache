@@ -1,0 +1,37 @@
+<div id="search-results"></div>
+
+{{=<% %>=}}
+<script id="search-results-template" type="text/html">
+    <!-- TODO identical with highlight-cards partial. -->
+        {{#highlights}}
+        <div class="card highlightCard">
+            <div class="card-body">
+                {{#version_count}}
+                    <a role="button" href="/highlights/{{id}}/versions"
+                       class="badge badge-warning float-right"><span
+                            class="fe fe-activity fe-8"></span></a>
+                {{/version_count}}
+                <a role="button" href="/highlights/{{id}}" class="badge badge-primary float-right"><span
+                        class="fe fe-edit fe-8"></span></a>
+                <a role="button" class="badge float-right addToFavorite" data-id="{{id}}"><span
+                        class="fe fe-heart fe-8"></span></a>
+                <br>
+                {{{highlight}}}
+
+                <footer class="blockquote-footer">
+                    {{ultimate_source}} ~ {{created_at_formatted}}/{{updated_at_formatted}}
+                    {{#is_secret}}
+                        <i class="fe fe-lock fe-12"></i>
+                    {{/is_secret}}
+                    {{#tags}}
+                        <br><br>
+                        <strong>{{{imploded_link_blank}}}</strong>
+                    {{/tags}}
+                </footer>
+
+            </div>
+        </div>
+        <br class="highlightCardBR">
+        {{/highlights}}
+</script>
+<%={{ }}=%>
