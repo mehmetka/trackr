@@ -187,6 +187,7 @@ class BookController extends Controller
             }
         }
 
+        unset($_SESSION['books']['daily_reading_amount_inserted']);
         unset($_SESSION['books']['readingAverage']);
         return $this->response($resource['responseCode'], $resource);
     }
@@ -272,6 +273,8 @@ class BookController extends Controller
 
         $resource['responseCode'] = StatusCode::HTTP_OK;
         $resource['message'] = "Success";
+
+        unset($_SESSION['books']['daily_reading_amount_inserted']);
 
         return $this->response($resource['responseCode'], $resource);
     }
@@ -433,6 +436,7 @@ class BookController extends Controller
 
             $this->bookModel->addActivityLog($pathId, $bookId, 'removed from path');
 
+            unset($_SESSION['books']['daily_reading_amount_inserted']);
             $resource['message'] = "Successfully removed.";
             $resource['responseCode'] = StatusCode::HTTP_OK;
         } else {

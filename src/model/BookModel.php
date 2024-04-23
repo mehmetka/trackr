@@ -278,6 +278,10 @@ class BookModel
             $path['daily_amount'] = ceil($dailyAmount);
             $path['daily_amount_raw'] = $dailyAmount;
 
+            if (!isset($_SESSION['books']['daily_reading_amount_inserted'])) {
+                $this->insertDailyReadingAmount($dailyAmount, $path['path_id']);
+            }
+
             if ($path['day_diff'] <= 3) {
                 $path['remaining_day_warning'] = true;
             }
@@ -1570,6 +1574,27 @@ class BookModel
 
         $_SESSION['badgeCounts']['highlightsCount'] += 1;
         return $this->dbConnection->lastInsertId();
+    }
+
+    public function insertDailyReadingAmount($amount, $pathId)
+    {
+        $now = time();
+
+        $sql = 'INSERT INTO daily_reading_amounts (amount, date, path_id, user_id)
+                VALUES(:amount, :date, :path_id, :user_id)';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':amount', $amount, \PDO::PARAM_STR);
+        $stm->bindParam(':date', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':path_id', $pathId, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        $_SESSION['books']['daily_reading_amount_inserted'] = true;
+        return true;
     }
 
     public function prepareBookTrackingsGraphicData($bookTrackings, $trackingDataDateLimit = 30)
