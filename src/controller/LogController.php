@@ -39,7 +39,7 @@ class LogController extends Controller
         $todayLog = $this->logModel->getLog($today);
 
         if ($todayLog) {
-            $_SESSION['todays_log'] = $todayLog['log'];
+            $_SESSION['logs']['todays_log'] = $todayLog['log'];
         } else {
             $this->logModel->insert($today, null);
         }
@@ -117,7 +117,7 @@ class LogController extends Controller
 
         if ($todaysLog) {
 
-            $previousLog = $_SESSION['todays_log'] ?? null;
+            $previousLog = $_SESSION['logs']['todays_log'] ?? null;
 
             if ($params['log'] !== $previousLog) {
                 $this->logModel->update($today, $params['log']);
@@ -135,7 +135,7 @@ class LogController extends Controller
             $this->logModel->insert($today, $params['log']);
         }
 
-        $_SESSION['todays_log'] = $todaysLog['log'];
+        $_SESSION['logs']['todays_log'] = $todaysLog['log'];
 
         $resource['responseCode'] = StatusCode::HTTP_OK;
 

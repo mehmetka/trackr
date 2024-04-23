@@ -190,7 +190,6 @@ class HighlightModel
             $list = $row;
         }
 
-        $_SESSION['update']['highlight'] = $list;
         return $list;
     }
 
