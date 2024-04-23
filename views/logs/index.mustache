@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    {{> head }}
+    <link rel="stylesheet" href="/css/simplemde-theme-dark.min.css">
+    <style>
+        img {
+            height: 300px;
+            width: 300px;
+        }
+    </style>
+</head>
+
+<body class="vertical dark">
+<nav class="topnav navbar navbar-light">
+    {{> navbar }}
+</nav>
+<div class="wrapper">
+    <main role="main" class="main-content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-12">
+
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Today - {{today}}</h5>
+                                <textarea id="logTextArea" hidden>{{todaysLog}}</textarea>
+
+                                <div class="form-group">
+                                    <button id="saveLog" type="button" class="btn btn-primary">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="card mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                {{#logs}}
+                                    <h5 class="card-title">
+                                        {{#versionCount}}<a href="/logs/{{date}}/versions"># {{date}}</a>{{/versionCount}}
+                                        {{^versionCount}}# {{date}}{{/versionCount}}
+                                    </h5>
+
+                                    {{{log}}}
+                                    <br>
+                                    {{#reading}}
+                                        [X]
+                                    {{/reading}}
+                                    {{^reading}}
+                                        []
+                                    {{/reading}}
+                                    <strong>reading:</strong> {{reading}}
+                                    <br><br>
+                                    {{#bookmarksExist}}
+                                        <strong>bookmarks</strong><br>
+                                        <ul>
+                                            {{#bookmarks}}
+                                                <li>
+                                                    <a href="{{bookmark}}" target="_blank">{{title}}</a><br>
+                                                </li>
+                                            {{/bookmarks}}
+                                        </ul>
+                                    {{/bookmarksExist}}
+
+                                    {{#highlightsExist}}
+                                        <strong>highlights</strong><br>
+                                        <ul>
+                                            {{#highlights}}
+                                                <li>
+                                                    <a href="/highlights?id={{id}}">#{{id}}</a><br>
+                                                </li>
+                                            {{/highlights}}
+                                        </ul>
+                                    {{/highlightsExist}}
+                                {{/logs}}
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div> <!-- .col-12 -->
+            </div> <!-- .row -->
+        </div> <!-- .container-fluid -->
+    </main> <!-- main -->
+</div> <!-- .wrapper -->
+
+{{> include}}
+{{> menu }}
+<script src="/js/simplemde.min.js"></script>
+<script src="/js/codemirror-4.inline-attachment.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+
+        var unsavedChanges = false;
+
+        var simplemde = new SimpleMDE({
+            element: $("#logTextArea")[0],
+            toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
+            insertTexts: {"image": ["[", "](/img/)"]},
+        });
+
+        var previousLog = simplemde.value();
+
+        inlineAttachment.editors.codemirror4.attach(simplemde.codemirror, {
+            uploadUrl: '/images'
+        });
+
+        $("#saveLog").on('click', function (e) {
+            var currentLog = simplemde.value();
+
+            if (!currentLog) {
+                $.bootstrapPurr('Log cannot be null', {
+                    type: 'danger'
+                });
+                return;
+            }
+            autoSave();
+        });
+
+        var autoSave = function () {
+            var currentLog = simplemde.value();
+
+            if (currentLog && currentLog !== previousLog) {
+                ajaxCall('POST', "/logs", "log=" + encodeURIComponent(currentLog))
+                previousLog = currentLog;
+                unsavedChanges = false;
+            }
+        }
+
+        var timer = setInterval(autoSave, 5000);
+
+        simplemde.codemirror.on("change", function (e) {
+            unsavedChanges = true;
+            clearInterval(timer);
+            timer = setInterval(autoSave, 5000);
+        });
+
+        window.addEventListener("beforeunload", function (event) {
+            if (unsavedChanges) {
+                event.preventDefault();
+            }
+        });
+
+    });
+</script>
+</body>
+
+</html>

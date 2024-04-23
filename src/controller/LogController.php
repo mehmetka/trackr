@@ -59,7 +59,7 @@ class LogController extends Controller
         $data['today'] = $today;
         $data['activeLogs'] = 'active';
 
-        return $this->view->render($response, 'logs.mustache', $data);
+        return $this->view->render($response, 'logs/index.mustache', $data);
     }
 
     public function logsVersions(ServerRequestInterface $request, ResponseInterface $response, $args)
@@ -101,7 +101,7 @@ class LogController extends Controller
         $data['versionDiffs'] = $versionDiffs;
         $data['date'] = $date;
 
-        return $this->view->render($response, 'logs-versions.mustache', $data);
+        return $this->view->render($response, 'logs/versions.mustache', $data);
     }
 
     public function save(ServerRequestInterface $request, ResponseInterface $response)
