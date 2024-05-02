@@ -4,6 +4,7 @@
 <head>
     {{> head }}
     <link rel="stylesheet" href="/css/simplemde-theme-dark.min.css">
+    <link rel="stylesheet" href="/css/version-diff.css">
     <style>
         img {
             height: 300px;
@@ -41,7 +42,8 @@
                             <div class="card-body">
                                 {{#logs}}
                                     <h5 class="card-title">
-                                        {{#versionCount}}<a href="/logs/{{date}}/versions"># {{date}}</a>{{/versionCount}}
+                                        {{#versionCount}}<a href="#" class="btnLogVersions" data-date="{{date}}" data-toggle="modal"
+                                                            data-target="#logVersionsModal"># {{date}}</a>{{/versionCount}}
                                         {{^versionCount}}# {{date}}{{/versionCount}}
                                     </h5>
 
@@ -90,6 +92,7 @@
 
 {{> include}}
 {{> menu }}
+{{> log-versions }}
 <script src="/js/simplemde.min.js"></script>
 <script src="/js/codemirror-4.inline-attachment.min.js"></script>
 

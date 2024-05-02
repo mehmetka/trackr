@@ -126,10 +126,10 @@ class HighlightController extends Controller
             $newString = $version['old_highlight'];
         }
 
-        $data['versionDiffs'] = $versionDiffs;
-        $data['pageTitle'] = 'Highlight Versions | trackr';
+        $resource['data']['versionDiffs'] = $versionDiffs;
+        $resource['responseCode'] = StatusCode::HTTP_OK;
 
-        return $this->view->render($response, 'highlights/versions.mustache', $data);
+        return $this->response($resource['responseCode'], $resource);
     }
 
     public function all(ServerRequestInterface $request, ResponseInterface $response)

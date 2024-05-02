@@ -67,9 +67,6 @@ class LogController extends Controller
         $date = htmlspecialchars($args['date']);
         $versionDiffs = [];
 
-        $data['pageTitle'] = "Versions $date | trackr";
-        $data['activeLogs'] = 'active';
-
         $versions = $this->logModel->getVersionsByDate($date);
         $latest = $this->logModel->getLog($date);
         $newString = $latest['log'];
@@ -98,10 +95,11 @@ class LogController extends Controller
             $newString = $version['old'];
         }
 
-        $data['versionDiffs'] = $versionDiffs;
-        $data['date'] = $date;
+        $resource['data']['versionDiffs'] = $versionDiffs;
+        $resource['data']['date'] = $date;
+        $resource['responseCode'] = StatusCode::HTTP_OK;
 
-        return $this->view->render($response, 'logs/versions.mustache', $data);
+        return $this->response($resource['responseCode'], $resource);
     }
 
     public function save(ServerRequestInterface $request, ResponseInterface $response)

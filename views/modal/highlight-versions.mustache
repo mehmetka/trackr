@@ -1,0 +1,52 @@
+<div class="modal fade" id="highlightVersionsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        {{=<% %>=}}
+        <script id="template-highlight-versions" type="text/html">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {{#versionDiffs}}
+                        <h2>{{created_at}}</h2>
+                        <div class="card mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    {{{diff}}}
+                                </div>
+                            </div>
+                        </div>
+                    {{/versionDiffs}}
+                </div>
+            </div>
+        </script>
+        <%={{ }}=%>
+        <div id="div-highlight-versions"></div>
+    </div>
+</div>
+
+<script src="/js/mustache.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+
+        $(".btnHighlightVersions").on('click', function (e) {
+
+            var highlightId = $(this).data('id');
+
+            var result = ajaxCall('GET', '/highlights/' + highlightId + '/versions', null, false, false)
+
+            if (result !== false) {
+                var template = $('#template-highlight-versions').html();
+                Mustache.parse(template);
+                var rendered = Mustache.render(template, result.data);
+                $("#div-highlight-versions").html(rendered);
+            }
+
+        });
+
+    });
+</script>

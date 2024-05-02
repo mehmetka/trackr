@@ -4,6 +4,8 @@
 <head>
     {{> head }}
     <link rel="stylesheet" href="/css/simplemde-theme-dark.min.css">
+    <link rel="stylesheet" href="/css/version-diff.css">
+    <link rel="stylesheet" href="/css/highlightjs/default.min.css">
     <style>
         img {
             position: relative;
@@ -15,7 +17,6 @@
             max-height: 100%;
         }
     </style>
-    <link rel="stylesheet" href="/css/highlightjs/default.min.css">
 </head>
 
 <body class="vertical dark">
@@ -129,6 +130,7 @@
 
 {{> include}}
 {{> menu }}
+{{> highlight-versions }}
 
 <script src="/js/simplemde.min.js"></script>
 <script src="/js/highlight.min.js"></script>
