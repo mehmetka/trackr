@@ -80,15 +80,15 @@
             <div id="highlight-favorites"></div>
 
             {{=<% %>=}}
-            <script id="highlight-favorites-template" type="text/x-handlebars-template">
-                {{#highlightFavorites}}
-                <li class="nav-item dropdown">
-                    <a href="/highlights?id={{highlightId}}" class="nav-link">
-                    <i class="fe fe-arrow-right fe-16"></i>
-                    <span class="ml-3 item-text">{{title}}</span>
-                    </a>
-                </li>
-                {{/highlightFavorites}}
+            <script id="highlight-favorites-template" type="text/html">
+                    {{#highlightFavorites}}
+                    <li class="nav-item dropdown">
+                        <a href="/highlights?id={{highlightId}}" class="nav-link">
+                        <i class="fe fe-arrow-right fe-16"></i>
+                        <span class="ml-3 item-text">{{title}}</span>
+                        </a>
+                    </li>
+                    {{/highlightFavorites}}
             </script>
             <%={{ }}=%>
 

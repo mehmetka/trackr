@@ -10,27 +10,27 @@
             </div>
             <div class="modal-body">
                 {{=<% %>=}}
-                <script id="reading-history-template" type="text/x-handlebars-template">
-                                <table class="table table-striped table-bordered" width="100%">
-                                    <thead>
-                                    <tr>
-                                        <th>Book</th>
-                                        <th>Path</th>
-                                        <th>Amount</th>
-                                        <th>Date</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {{#data}}
-                                        <tr>
-                                            <td>{{author}} - {{title}}
-                                            <td>{{pathName}}</td>
-                                            <td>{{amount}}</td>
-                                            <td>{{record_date}}</td>
-                                        </tr>
-                                    {{/data}}
-                                    </tbody>
-                                </table>
+                <script id="reading-history-template" type="text/html">
+                    <table class="table table-striped table-bordered" width="100%">
+                        <thead>
+                        <tr>
+                            <th>Book</th>
+                            <th>Path</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{#data}}
+                            <tr>
+                                <td>{{author}} - {{title}}
+                                <td>{{pathName}}</td>
+                                <td>{{amount}}</td>
+                                <td>{{record_date}}</td>
+                            </tr>
+                        {{/data}}
+                        </tbody>
+                    </table>
                 </script>
                 <%={{ }}=%>
                 <div id="reading-history"></div>
