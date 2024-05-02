@@ -5,8 +5,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends libzip-dev zip 
     rm -rf /var/lib/apt/lists/*
 
 RUN rm /etc/apache2/sites-enabled/000-default.conf
-COPY fpm.conf /etc/apache2/sites-enabled/trackr.conf
-COPY www.conf /usr/local/etc/php-fpm.d/zzz-trackr-fpm.conf
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+COPY httpd.conf /etc/apache2/sites-enabled/zzz-trackr-httpd.conf
+COPY fpm.conf /usr/local/etc/php-fpm.d/zzz-trackr-fpm.conf
+COPY php.ini "$PHP_INI_DIR/conf.d/zzz-trackr-php.ini"
 
 RUN docker-php-ext-configure intl && \
     docker-php-ext-install pdo pdo_mysql zip bcmath sockets intl && \
@@ -14,8 +16,6 @@ RUN docker-php-ext-configure intl && \
     docker-php-ext-enable redis.so
 
 RUN rm -rf /tmp/pear
-
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 

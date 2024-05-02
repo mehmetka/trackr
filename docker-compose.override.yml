@@ -4,7 +4,6 @@ services:
   trackr-web:
     volumes:
       - .:/var/www/html
-      - ./z-extended-php.ini:/usr/local/etc/php/conf.d/z-extended-php.ini
   trackr-db:
     volumes:
       - ./database/trackr-data:/var/lib/mysql
