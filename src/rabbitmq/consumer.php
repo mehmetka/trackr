@@ -92,11 +92,11 @@ function process_message($message)
 
                 $metadata = array_map('trim', $metadata);
 
-                $newBookmarkDetails['description'] = EncodingUtil::isLatin1($metadata['description']) ? Encoding::toLatin1($metadata['description']) : $metadata['description'];
-                $newBookmarkDetails['thumbnail'] = EncodingUtil::isLatin1($metadata['image']) ? Encoding::toLatin1($metadata['image']) : $metadata['image'];
-                $newBookmarkDetails['title'] = EncodingUtil::isLatin1($metadata['title']) ? Encoding::toLatin1($metadata['title']) : $metadata['title'];
-                $newBookmarkDetails['site_name'] = EncodingUtil::isLatin1($metadata['site_name']) ? Encoding::toLatin1($metadata['site_name']) : $metadata['site_name'];
-                $newBookmarkDetails['site_type'] = EncodingUtil::isLatin1($metadata['type']) ? Encoding::toLatin1($metadata['type']) : $metadata['type'];
+                $newBookmarkDetails['description'] = EncodingUtil::isLatin1($metadata['description']) ? $metadata['description'] : Encoding::toLatin1($metadata['description']);
+                $newBookmarkDetails['thumbnail'] = EncodingUtil::isLatin1($metadata['image']) ? $metadata['image'] : Encoding::toLatin1($metadata['image']);
+                $newBookmarkDetails['title'] = EncodingUtil::isLatin1($metadata['title']) ? $metadata['title'] : Encoding::toLatin1($metadata['title']);
+                $newBookmarkDetails['site_name'] = EncodingUtil::isLatin1($metadata['site_name']) ? $metadata['site_name'] : Encoding::toLatin1($metadata['site_name']);
+                $newBookmarkDetails['site_type'] = EncodingUtil::isLatin1($metadata['type']) ? $metadata['type'] : Encoding::toLatin1($metadata['type']);
 
                 try {
                     $bookmarkModel->updateParentBookmark($bookmarkDetails['id'], $newBookmarkDetails);
@@ -154,11 +154,11 @@ function process_message($message)
 
                     $metadata = array_map('trim', $metadata);
 
-                    $newBookmarkDetails['description'] = EncodingUtil::isLatin1($metadata['description']) ? Encoding::toLatin1($metadata['description']) : $metadata['description'];
-                    $newBookmarkDetails['thumbnail'] = EncodingUtil::isLatin1($metadata['image']) ? Encoding::toLatin1($metadata['image']) : $metadata['image'];
-                    $newBookmarkDetails['title'] = EncodingUtil::isLatin1($metadata['title']) ? Encoding::toLatin1($metadata['title']) : $metadata['title'];
-                    $newBookmarkDetails['site_name'] = EncodingUtil::isLatin1($metadata['site_name']) ? Encoding::toLatin1($metadata['site_name']) : $metadata['site_name'];
-                    $newBookmarkDetails['site_type'] = EncodingUtil::isLatin1($metadata['type']) ? Encoding::toLatin1($metadata['type']) : $metadata['type'];
+                    $newBookmarkDetails['description'] = EncodingUtil::isLatin1($metadata['description']) ? $metadata['description'] : Encoding::toLatin1($metadata['description']);
+                    $newBookmarkDetails['thumbnail'] = EncodingUtil::isLatin1($metadata['image']) ? $metadata['image'] : Encoding::toLatin1($metadata['image']);
+                    $newBookmarkDetails['title'] = EncodingUtil::isLatin1($metadata['title']) ? $metadata['title'] : Encoding::toLatin1($metadata['title']);
+                    $newBookmarkDetails['site_name'] = EncodingUtil::isLatin1($metadata['site_name']) ? $metadata['site_name'] : Encoding::toLatin1($metadata['site_name']);
+                    $newBookmarkDetails['site_type'] = EncodingUtil::isLatin1($metadata['type']) ? $metadata['type'] : Encoding::toLatin1($metadata['type']);
                     $newBookmarkDetails['note'] = $bookmarkDetails['note'];
                     $newBookmarkDetails['status'] = $bookmarkDetails['status'];
 
