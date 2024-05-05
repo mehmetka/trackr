@@ -135,7 +135,7 @@ class HighlightModel
 
         if ($decimalHashtags) {
             foreach ($decimalHashtags as $id) {
-                $highlight['highlight'] = str_replace('#' . $id, "<a href='/highlights/$id'>#$id</a>",
+                $highlight['highlight'] = str_replace('#' . $id, "<a href='/highlights?id=$id'>#$id</a>",
                     $highlight['highlight']);
             }
         }
