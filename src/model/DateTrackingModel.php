@@ -65,8 +65,8 @@ class DateTrackingModel
             $row['days'] = $result['days'];
             $row['weeks'] = $result['weeks'];
             $row['months'] = $result['months'];
-            $row['date'] = date($dateFormat, strtotime($row['date']));
             $row['start'] = date($dateFormat, $row['created']);
+            $row['info'] = $row['created'] < strtotime($row['date']) ? 'Left' : 'Passed';
 
             $list[] = $row;
         }

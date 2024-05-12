@@ -46,6 +46,7 @@
                             <th>Days</th>
                             <th>Weeks</th>
                             <th>Months</th>
+                            <th>Years</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -53,12 +54,13 @@
                             <tr>
                                 <td>{{name}}</td>
                                 <td>{{date}}</td>
-                                <td>{{diff}} years - {{detailedDiff}}</td>
+                                <td>{{detailedDiff}} <strong>{{info}}</strong></td>
                                 <td>{{minutes}}</td>
                                 <td>{{hours}}</td>
                                 <td>{{days}}</td>
                                 <td>{{weeks}}</td>
                                 <td>{{months}}</td>
+                                <td>{{diff}}</td>
                             </tr>
                         {{/dateTrackings}}
                         </tbody>
