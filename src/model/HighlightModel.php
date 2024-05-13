@@ -140,14 +140,14 @@ class HighlightModel
             }
         }
 
-        $alphaNumericHashtags = StringUtil::getAlphaNumericHashtags($highlight['highlight']);
-
-        if ($alphaNumericHashtags) {
-            foreach ($alphaNumericHashtags as $tag) {
-                $highlight['highlight'] = str_replace('#' . $tag, "<a href='/highlights?tag=$tag'>#$tag</a>",
-                    $highlight['highlight']);
-            }
-        }
+//        $alphaNumericHashtags = StringUtil::getAlphaNumericHashtags($highlight['highlight']);
+//
+//        if ($alphaNumericHashtags) {
+//            foreach ($alphaNumericHashtags as $tag) {
+//                $highlight['highlight'] = str_replace('#' . $tag, "<a href='/highlights?tag=$tag'>#$tag</a>",
+//                    $highlight['highlight']);
+//            }
+//        }
 
         $highlight['version_count'] = $this->getVersionsCountById($highlight['id']);
         $highlight['created_at_formatted'] = date('Y-m-d H:i:s', $highlight['created']);
