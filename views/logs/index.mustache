@@ -113,6 +113,21 @@
             uploadUrl: '/images'
         });
 
+        $(document).keydown(function(event) {
+            if ((event.metaKey || event.ctrlKey) && event.which === 83) {
+                event.preventDefault(); // Prevent default action (usually means saving the page)
+                var currentLog = simplemde.value();
+
+                if (!currentLog) {
+                    $.bootstrapPurr('Log cannot be null', {
+                        type: 'danger'
+                    });
+                    return;
+                }
+                autoSave();
+            }
+        });
+
         $("#saveLog").on('click', function (e) {
             var currentLog = simplemde.value();
 
