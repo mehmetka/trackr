@@ -26,7 +26,7 @@
                     <div class="card mb-4">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">Today - {{today}}</h5>
+                                <h5 class="card-title">Today - {{today}} <span id="spanNotSavedCaution" class="text text-danger text-hide">Not Saved</span></h5>
                                 <textarea id="logTextArea" hidden>{{todaysLog}}</textarea>
 
                                 <div class="form-group">
@@ -147,6 +147,7 @@
                 ajaxCall('POST', "/logs", "log=" + encodeURIComponent(currentLog))
                 previousLog = currentLog;
                 unsavedChanges = false;
+                $("#spanNotSavedCaution").addClass("text-hide");
             }
         }
 
@@ -155,6 +156,7 @@
         simplemde.codemirror.on("change", function (e) {
             unsavedChanges = true;
             clearInterval(timer);
+            $("#spanNotSavedCaution").removeClass("text-hide");
             timer = setInterval(autoSave, 5000);
         });
 
