@@ -260,6 +260,9 @@ class BookModel
                 $path['ratioBadgeColor'] = 'danger';
                 $path['day_diff_text_class'] = 'warning';
                 $path['day_diff_text'] = "Done";
+                $path['active_book_count'] = $this->getPathBookCountByPathID($path['path_id'], 'active');
+                $path['done_book_count'] = $this->getPathBookCountByPathID($path['path_id'], 'done');
+                $path['abandoned_book_count'] = $this->getPathBookCountByPathID($path['path_id'], 'abandoned');
                 $list[] = $path;
                 continue;
             }
