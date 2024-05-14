@@ -54,14 +54,23 @@
                                 <div class="card-body">
                                     <div><span class="text-success">Start:</span> {{start}}</div>
                                     <div><span class="text-danger">Finish:</span> {{finish}}</div>
-                                    <div><strong>Remaining Page</strong>: {{remaining_page}}</div>
-                                    <br>
-                                    <div><strong>{{{today_processed_text}}}</strong></div>
+
                                     {{^expired}}
-                                        <div>Active Book Count: <strong>{{active_book_count}}</strong></div>
-                                        <div>Done Book Count: <strong>{{done_book_count}}</strong></div>
-                                        <div>Abandoned Book Count: <strong>{{abandoned_book_count}}</strong></div>
+                                        <div><strong>Remaining Page</strong>: {{remaining_page}}</div>
+                                    {{/expired}}
+
+                                    <br>
+
+                                    <div><span class="text-warning">Active Book Count:</span>
+                                        <strong>{{active_book_count}}</strong></div>
+                                    <div><span class="text-success">Done Book Count:</span>
+                                        <strong>{{done_book_count}}</strong></div>
+                                    <div><span class="text-danger">Abandoned Book Count:</span>
+                                        <strong>{{abandoned_book_count}}</strong></div>
+
+                                    {{^expired}}
                                         <div>Raw Daily: <strong>{{daily_amount_raw}}</strong></div>
+                                        <div><strong>{{{today_processed_text}}}</strong></div>
                                     {{/expired}}
                                 </div>
                                 <div class="card-footer">
@@ -98,7 +107,7 @@
 
         var result = ajaxCall('GET', '/books/trackings/graphic-datas', null, false, false)
 
-        if(result !== false) {
+        if (result !== false) {
             lineChartOptions.series = result.data.trackings;
             lineChartOptions.xaxis.categories = result.data.dates;
             new ApexCharts(document.querySelector("#lineChart"), lineChartOptions).render();
