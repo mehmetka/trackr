@@ -807,7 +807,10 @@ class BookModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
 
-            if (intval($row['ebook_version']) === 1) {
+            $row['start_date'] = $row['start_date'] ?? 'N/A';
+            $row['finish_date'] = $row['finish_date'] ?? 'N/A';
+
+            if ($row['ebook_version'] === 1) {
                 $row['page_count'] = $row['ebook_page_count'];
             }
 
