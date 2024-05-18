@@ -134,15 +134,7 @@
             var result = ajaxCall('PUT', "/books/" + $(this).data("id") + "/add-to-library", null)
 
             if (result !== false) {
-                location.reload();
-            }
-        });
-
-        $(".btnResetBook").on('click', function (e) {
-            var result = ajaxCall('DELETE', "/books/" + $(this).data("id"), null)
-
-            if (result !== false) {
-                location.reload();
+                $(this).remove();
             }
         });
 
