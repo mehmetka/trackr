@@ -717,7 +717,7 @@ class BookModel
                 FROM paths
                 WHERE user_id = :user_id AND id > 0';
 
-        if ($status) {
+        if ($status !== null) {
             $sql .= ' AND status = :status';
         }
 
@@ -726,7 +726,7 @@ class BookModel
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
-        if ($status) {
+        if ($status !== null) {
             $stm->bindParam(':status', $status, \PDO::PARAM_INT);
         }
 
