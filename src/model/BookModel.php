@@ -928,13 +928,14 @@ class BookModel
             $row['ebook_exist'] = $row['pdf'] || $row['epub'] ? true : false;
             $row['remove'] = true;
             $row['history'] = false;
-            $row['abandone'] = true;
+            $row['abandone'] = false;
             $row['prioritize'] = true;
             $row['amount'] = true;
             $row['showActions'] = true;
             $row['showReadYesterday'] = true;
 
             if ($row['path_status'] === BookStatus::PRIORITIZED->value) {
+                $row['prioritize'] = false;
                 $row['status_label'] = StatusColors::PRIORITIZED->value;
             }
 
@@ -943,6 +944,7 @@ class BookModel
                 $row['prioritize'] = false;
                 $row['remove'] = false;
                 $row['history'] = true;
+                $row['abandone'] = true;
             }
 
             if ($row['path_status'] === BookStatus::ABANDONED->value) {
