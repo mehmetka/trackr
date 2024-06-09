@@ -248,7 +248,7 @@ class BookController extends Controller
         $this->bookModel->addToLibrary($bookId);
         $_SESSION['badgeCounts']['myBookCount'] += 1;
 
-        $this->bookModel->addActivityLog(null, $bookId, "added to library");
+        $this->bookModel->addActivityLog(null, $bookId, "added to library with button");
 
         $resource['responseCode'] = StatusCode::HTTP_OK;
         $resource['message'] = "Success";
@@ -391,6 +391,7 @@ class BookController extends Controller
         if ($params['own']) {
             $this->bookModel->addToLibrary($bookId, $params['notes']);
             $_SESSION['badgeCounts']['myBookCount'] += 1;
+            $this->bookModel->addActivityLog(null, $bookId, "added to library");
         }
 
         $_SESSION['badgeCounts']['allBookCount'] += 1;
