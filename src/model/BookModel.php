@@ -279,7 +279,7 @@ class BookModel
 
             $dailyAmount = $path['remaining_page'] / $path['day_diff'];
             $path['daily_amount'] = ceil($dailyAmount);
-            $path['daily_amount_raw'] = $dailyAmount;
+            $path['daily_amount_raw'] = round($dailyAmount, 2);
 
             if (!isset($_SESSION['books']['daily_reading_amount_inserted'])) {
                 $this->insertDailyReadingAmount($dailyAmount, $path['path_id']);
