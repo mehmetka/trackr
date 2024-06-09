@@ -3,6 +3,7 @@
 namespace App\controller;
 
 use App\enum\BookStatus;
+use App\enum\PathStatus;
 use App\enum\Sources;
 use App\exception\CustomException;
 use App\model\BookModel;
@@ -82,7 +83,7 @@ class BookController extends Controller
     public function myBooks(ServerRequestInterface $request, ResponseInterface $response)
     {
         $books = $this->bookModel->getMyBooks();
-        $paths = $this->bookModel->getPathsList();
+        $paths = $this->bookModel->getPathsList(PathStatus::ACTIVE->value);
 
         $data = [
             'pageTitle' => 'My Books | trackr',

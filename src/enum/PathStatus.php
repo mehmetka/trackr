@@ -4,6 +4,6 @@ namespace App\enum;
 
 enum PathStatus: int
 {
-    case NEW = 0;
+    case ACTIVE = 0;
     case DONE = 1;
 }
