@@ -21,10 +21,10 @@
                         <div class="card">
                             <div class="card-header">
                                 <a type="button" class="btn btn-sm btn-primary"
-                                   href="/highlights/{{previousID}}"><span
+                                   href="/highlights/{{previousID}}/details"><span
                                         class="fe fe-arrow-left fe-16 mr-2"></span> Previous Highlight</a>
                                 <a type="button" class="btn btn-sm btn-primary float-right"
-                                   href="/highlights/{{nextID}}">Next Highlight <span
+                                   href="/highlights/{{nextID}}/details">Next Highlight <span
                                         class="fe fe-arrow-right fe-16 mr-2"></span></a>
                             </div>
                             <div class="card-body">
@@ -270,7 +270,7 @@
 
             if (result !== false) {
                 unsavedChanges = false;
-                window.location.replace('/highlights/{{nextID}}')
+                window.location.replace('/highlights/{{nextID}}/details')
             }
 
         });
