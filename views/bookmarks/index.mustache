@@ -96,7 +96,9 @@
                                                 {{/complete}}
                                             </td>
                                             <td class="go-to-bookmark-highlight" data-uid="{{bookmarkUID}}">
-                                                <a href="{{bookmark}}" target="_blank" class="{{bookmark_text_label}}">{{{title}}}
+                                                <a href="{{bookmark}}" target="_blank" class="{{bookmark_text_label}}"
+                                                   data-toggle="tooltip" data-placement="top" title="{{{toolTip}}}">
+                                                    {{{title}}}
 
                                                     <a class="btn btn-sm btnDeleteBookmark2 float-right"
                                                        data-uid="{{bookmarkUID}}">

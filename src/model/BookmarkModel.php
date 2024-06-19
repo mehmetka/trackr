@@ -36,7 +36,10 @@ class BookmarkModel
                        b.bookmark,
                        IF(ISNULL(bo.title), b.title, bo.title) AS title,
                        b.keyword,
-                       bo.note,
+                       bo.note AS childNote,
+                       b.note AS parentNote,
+                       bo.description AS childDescription,
+                       b.description AS parentDescription,
                        bo.status,
                        bo.created,
                        bo.started,
@@ -74,6 +77,8 @@ class BookmarkModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
 
+            $row['toolTip'] = '';
+
             if (!$row['title']) {
                 $row['title'] = $row['bookmark'];
             }
@@ -107,7 +112,19 @@ class BookmarkModel
             }
 
             $row['title'] = htmlspecialchars($row['title']);
-            $row['note'] = htmlspecialchars($row['note']);
+
+            if ($row['childNote']) {
+                $row['toolTip'] .= 'Your Note: ' . htmlspecialchars($row['childNote']) . PHP_EOL;
+            }
+
+            if ($row['parentDescription']) {
+                $row['toolTip'] .= htmlspecialchars($row['parentDescription']) . PHP_EOL;
+            }
+
+            if ($row['childDescription']) {
+                $row['toolTip'] .= 'Your Desc: ' . htmlspecialchars($row['childDescription']) . PHP_EOL;
+            }
+
             $row['bookmark'] = htmlspecialchars($row['bookmark']);
 
             $bookmarks[] = $row;
