@@ -66,7 +66,7 @@ class BookController extends Controller
         $authors = $this->bookModel->getAuthors();
         $publishers = $this->bookModel->getPublishers();
         $books = $this->bookModel->getAllBooks();
-        $paths = $this->bookModel->getPathsList();
+        $paths = $this->bookModel->getPathsList(PathStatus::ACTIVE->value);
 
         $data = [
             'pageTitle' => 'All Books | trackr',
