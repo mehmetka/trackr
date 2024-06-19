@@ -142,6 +142,45 @@
     $(document).ready(function () {
 
         var unsavedChanges = false;
+        $('.highlightToolTip').tooltip({
+            trigger: 'manual' // Disable automatic trigger
+        });
+
+        $('.highlightToolTip').on('mouseenter', function(){
+            var button = $(this);
+            var highlightId = $(this).data('id');
+
+            // Check if data is already fetched
+            if (!button.data('loaded')) {
+                // Show loading message
+                button.attr('title', 'Loading...').tooltip('show');
+
+                var result = ajaxCall('GET', "/highlights/" + highlightId, null, false, false)
+
+                if (result !== false) {
+                    // Save the fetched data in a data attribute
+                    button.data('title', result.highlight);
+                    button.data('loaded', true);
+
+                    // Set the new tooltip content and show it
+                    button.attr('title', result.highlight).tooltip('show');
+                } else {
+                    // Set error message if AJAX request fails
+                    button.attr('title', 'Failed to load content').tooltip('show');
+                }
+
+
+            } else {
+                // Use cached data
+                button.attr('title', button.data('title')).tooltip('show');
+            }
+
+        });
+
+        // Hide tooltip on mouseleave
+        $('.highlightToolTip').on('mouseleave', function(){
+            $(this).tooltip('hide');
+        });
 
         $('.select2-multi').select2({
             placeholder: "Reference with books",

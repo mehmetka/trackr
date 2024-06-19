@@ -71,6 +71,7 @@ $app->group('', function () {
 
     $this->get('/highlights', HighlightController::class . ':index');
     $this->post('/highlights', HighlightController::class . ':create');
+    $this->get('/highlights/{id:[0-9]+}', HighlightController::class . ':get');
     $this->get('/highlights/{id:[0-9]+}/details', HighlightController::class . ':details');
     $this->get('/highlights/{id:[0-9]+}/versions', HighlightController::class . ':versions');
     $this->put('/highlights/{id:[0-9]+}', HighlightController::class . ':update');

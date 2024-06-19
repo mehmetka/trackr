@@ -304,4 +304,12 @@ class HighlightController extends Controller
         return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
+    public function get(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $highlightID = $args['id'];
+        $resource = $this->highlightModel->getHighlightByID($highlightID);
+
+        return $this->response(StatusCode::HTTP_OK, $resource);
+    }
+
 }
