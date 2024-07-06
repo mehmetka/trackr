@@ -10,10 +10,7 @@ services:
     ports:
       - "3307:3306"
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql_mode="TRADITIONAL"
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      TZ: 'Europe/Istanbul'
+    env_file: .env
     networks:
       - trackr
 
