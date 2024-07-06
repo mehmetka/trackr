@@ -180,8 +180,8 @@ class HighlightModel
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
             $row['tags'] = $this->tagModel->getTagsBySourceId($row['id'], Sources::HIGHLIGHT->value);
-            $row['is_secret'] = $row['is_secret'] ? true : false;
-            $row['is_encrypted'] = $row['is_encrypted'] ? true : false;
+            $row['is_secret'] = (bool)$row['is_secret'];
+            $row['is_encrypted'] = (bool)$row['is_encrypted'];
 
             $row['highlight'] = $row['is_encrypted'] ? EncryptionUtil::decrypt($row['highlight']) : $row['highlight'];
 
@@ -194,7 +194,6 @@ class HighlightModel
                 unset($_SESSION['highlights']['not_editable'][$row['id']]);
                 $row['highlight'] = html_entity_decode($row['highlight']);
             }
-
 
             $list = $row;
         }
