@@ -6,6 +6,9 @@ services:
     container_name: trackr-db
     image: mysql:5.7
     restart: always
+    volumes:
+      - ./database/trackr-data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
     ports:
       - "3307:3306"
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --sql_mode="TRADITIONAL"
@@ -21,6 +24,8 @@ services:
     build: .
     image: trackr-web
     restart: always
+    volumes:
+      - ./:/var/www/html
     ports:
       - "8081:80"
     depends_on:
@@ -44,7 +49,7 @@ services:
     image: trackr-amqp-consumer
     entrypoint: [ 'php', '/trackr/src/rabbitmq/consumer.php' ]
     volumes:
-      - .:/trackr
+      - ./:/trackr
     restart: on-failure
     depends_on:
       - trackr-db
