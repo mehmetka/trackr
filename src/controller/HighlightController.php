@@ -309,6 +309,10 @@ class HighlightController extends Controller
         $highlightID = $args['id'];
         $resource = $this->highlightModel->getHighlightByID($highlightID);
 
+        if (!$resource) {
+            $resource['highlight'] = 'Highlight not found!';
+        }
+
         return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
