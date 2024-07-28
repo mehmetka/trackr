@@ -155,6 +155,38 @@ CREATE TABLE `categories`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
+CREATE TABLE `chains`
+(
+    `id`         int(11)     NOT NULL AUTO_INCREMENT,
+    `uid`        varchar(50) NOT NULL,
+    `name`       varchar(255) DEFAULT NULL,
+    `type`       tinyint(1)   DEFAULT 1,
+    `created_at` int(11)     NOT NULL,
+    `finished_at` int(11)     DEFAULT NULL,
+    `user_id`    int(11)      DEFAULT NULL,
+    `status`       tinyint(1)   DEFAULT 0,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uid_UNIQUE` (`uid`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE `chain_links`
+(
+    `id`         int(11)     NOT NULL AUTO_INCREMENT,
+    `chain_id`   int(11)     NOT NULL,
+    `value`      varchar(25) DEFAULT 0,
+    `link_date`  varchar(11) NOT NULL,
+    `note`      varchar(255) DEFAULT NULL,
+    `created_at` int(11)     NOT NULL,
+    `updated_at` int(11)     NOT NULL,
+    `user_id`    int(11)     NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `unique_idx_chainid_linkdate` (`chain_id`, `link_date`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci;
+
 CREATE TABLE `daily_reading_amounts`
 (
     `id`      int(11) NOT NULL AUTO_INCREMENT,

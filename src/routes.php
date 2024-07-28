@@ -8,6 +8,7 @@ use App\controller\BookmarkController;
 use App\controller\DateTrackingController;
 use App\controller\HighlightController;
 use App\controller\ImageController;
+use App\controller\ChainController;
 use App\controller\LogController;
 use App\controller\FavoriteController;
 
@@ -83,6 +84,11 @@ $app->group('', function () {
 
     $this->get('/favorites', FavoriteController::class . ':get');
     $this->post('/favorites', FavoriteController::class . ':add');
+
+    $this->get('/chains', ChainController::class . ':index');
+    $this->post('/chains', ChainController::class . ':start');
+    $this->post('/chains/{uid}/links', ChainController::class . ':addLink');
+    $this->get('/chains/{uid}/graphic', ChainController::class . ':getGraphicData');
 
     $this->post('/images', ImageController::class . ':upload');
 
