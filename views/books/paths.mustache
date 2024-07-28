@@ -106,7 +106,7 @@
 <script>
     $(document).ready(function () {
 
-        var result = ajaxCall('GET', '/books/trackings/graphic-datas', null, false, false)
+        var result = ajaxCall('GET', '/books/trackings/graphic', null, false, false)
 
         if (result !== false) {
             lineChartOptions.series = result.data.trackings;
