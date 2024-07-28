@@ -51,15 +51,15 @@ $container['notFoundHandler'] = function ($container) {
     };
 };
 
-//$container['notAllowedHandler'] = function ($container) {
-//    return function ($request, $response) use ($container) {
-//        $data = [
-//            'status' => StatusCode::HTTP_METHOD_NOT_ALLOWED,
-//            'message' => 'Not Allowed'
-//        ];
-//        return $container->get('response')->withStatus($data['status'])->withHeader('Content-Type', 'application/json')->write(json_encode($data));
-//    };
-//};
+$container['notAllowedHandler'] = function ($container) {
+    return function ($request, $response) use ($container) {
+        $data = [
+            'status' => StatusCode::HTTP_METHOD_NOT_ALLOWED,
+            'message' => 'Method Not Allowed'
+        ];
+        return $container->get('response')->withStatus($data['status'])->withHeader('Content-Type', 'application/json')->write(json_encode($data));
+    };
+};
 
 //$container['phpErrorHandler'] = function ($container) {
 //    return function ($request, $response, $exception) use ($container) {
