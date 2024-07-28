@@ -6,6 +6,8 @@ class UID
 {
     static function generate()
     {
+        srand(time());
+
         $rand1 = substr(md5(uniqid('', true)), rand(0, 26), 3);
         $rand2 = substr(md5(uniqid('', true)), rand(0, 26), 4);
         $rand3 = substr(md5(uniqid('', true)), rand(0, 26), 3);
