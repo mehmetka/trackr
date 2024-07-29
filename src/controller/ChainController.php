@@ -99,7 +99,7 @@ class ChainController extends Controller
         return $this->response($resource['responseCode'], $resource);
     }
 
-    public function getGraphicData(ServerRequestInterface $request, ResponseInterface $response, $args)
+    public function getChainGraphicData(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $chainUid = $args['uid'];
         $chain = $this->chainModel->getChainByUid($chainUid);
@@ -108,7 +108,7 @@ class ChainController extends Controller
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Chain not found.");
         }
 
-        $graphicDatas = $this->chainModel->getGraphicData($chain);
+        $graphicDatas = $this->chainModel->getChainGraphicData($chain);
 
         $resource['data'] = $graphicDatas;
         $resource['responseCode'] = StatusCode::HTTP_OK;

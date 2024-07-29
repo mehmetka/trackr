@@ -311,7 +311,7 @@ class ChainModel
         return true;
     }
 
-    public function getGraphicData($chain)
+    public function getChainGraphicData($chain)
     {
         $result = [];
         $dates = [];
