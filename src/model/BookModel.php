@@ -142,9 +142,13 @@ class BookModel
     {
         $result = [];
 
-        $sql = "SELECT *
-                FROM books
-                WHERE $column = :param";
+        $sql = "SELECT *,
+                       CONCAT((SELECT GROUP_CONCAT(a.author SEPARATOR ', ')
+                               FROM book_authors ba USE INDEX (idx_book_id)
+                                        INNER JOIN author a ON ba.author_id = a.id
+                               WHERE ba.book_id = b.id)) AS author
+                FROM books b
+                WHERE b.$column = :param";
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':param', $param, \PDO::PARAM_STR);
@@ -154,7 +158,7 @@ class BookModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $result[] = $row;
+            $result = $row;
         }
 
         return $result;
