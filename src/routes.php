@@ -39,7 +39,7 @@ $app->group('', function () {
 
     $this->get('/books/paths', BookController::class . ':paths')->setName('paths');
     $this->get('/books/paths/{pathUID}', BookController::class . ':booksPathInside');
-    $this->get('/books/trackings/graphic', BookController::class . ':getBookTrackingsGraphicData');
+    $this->get('/books/graphic', BookController::class . ':getPathsGraphicData');
     $this->get('/books', BookController::class . ':allBooks');
     $this->get('/books/my-library', BookController::class . ':myBooks');
     $this->get('/books/finished', BookController::class . ':finishedBooks');
