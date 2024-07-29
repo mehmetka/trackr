@@ -32,21 +32,34 @@ class HighlightController extends Controller
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
         $queryString = $request->getQueryParams();
+        $tagQueryString = htmlspecialchars($queryString['tag'], ENT_QUOTES | ENT_HTML401, "UTF-8");
+
+        $data = [
+            'pageTitle' => 'Highlights | trackr',
+            'tag' => $tagQueryString,
+            'activeHighlights' => 'active'
+        ];
 
         if (isset($queryString['tag'])) {
             $highlights = $this->highlightModel->getHighlightsByTag($queryString['tag'], $_ENV['HIGHLIGHT_LIMIT']);
+            $data['pageTitle'] = "Highlights #$tagQueryString | trackr";
         } elseif (isset($queryString['author'])) {
             $highlights = $this->highlightModel->getHighlightsByGivenField('author', $queryString['author'],
                 $_ENV['HIGHLIGHT_LIMIT']);
+            $data['pageTitle'] = "$tagQueryString's Highlights | trackr";
         } elseif (isset($queryString['source'])) {
             $highlights = $this->highlightModel->getHighlightsByGivenField('source', $queryString['source'],
                 $_ENV['HIGHLIGHT_LIMIT']);
+            $data['pageTitle'] = "$tagQueryString's Highlights | trackr";
         } elseif (isset($queryString['id'])) {
             $highlights = $this->highlightModel->getHighlightsByGivenField('id', $queryString['id'],
                 $_ENV['HIGHLIGHT_LIMIT']);
         } elseif (isset($queryString['bookUID'])) {
-            $bookId = $this->bookModel->getBookIdByUid($queryString['bookUID']);
+            $book = $this->bookModel->getBookByGivenColumn('uid', $queryString['bookUID']);
+            $bookId = $book['id'];
+            $bookName = $book['author'] . ' - ' . $book['title'];
             $highlights = $this->highlightModel->getHighlightsByGivenField('book_id', $bookId);
+            $data['pageTitle'] =  "$bookName's Highlights | trackr";
         } elseif (isset($queryString['is_secret'])) {
             $isSecret = $queryString['is_secret'] === 'true' ? 1 : 0;
             $highlights = $this->highlightModel->getHighlightsByGivenField('is_secret', $isSecret);
@@ -57,14 +70,9 @@ class HighlightController extends Controller
         $tags = $this->tagModel->getSourceTagsByType(Sources::HIGHLIGHT->value, $queryString['tag']);
         $books = $_SESSION['books']['list'] ?? $this->bookModel->getAuthorBookList();
 
-        $data = [
-            'pageTitle' => 'Highlights | trackr',
-            'tag' => htmlentities($queryString['tag']),
-            'headerTags' => $tags,
-            'highlights' => $highlights,
-            'books' => $books,
-            'activeHighlights' => 'active'
-        ];
+        $data['headerTags'] = $tags;
+        $data['highlights'] = $highlights;
+        $data['books'] = $books;
 
         return $this->view->render($response, 'highlights/index.mustache', $data);
     }
