@@ -111,7 +111,10 @@ class BookController extends Controller
     public function getHighlights(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $bookUid = $args['bookUID'];
-        $bookId = $this->bookModel->getBookIdByUid($bookUid);
+        $book = $this->bookModel->getBookByGivenColumn('uid', $bookUid);
+        $bookId = $book['id'];
+        $bookName = $book['author'] . ' - ' . $book['title'];
+
         $highlights = $this->bookModel->getHighlights($bookId);
 
         $tags = $this->tagModel->getTagsBySourceId($bookId, Sources::BOOK->value);
@@ -119,7 +122,7 @@ class BookController extends Controller
         $_SESSION['books']['highlights']['bookID'] = $bookId;
 
         $data = [
-            'pageTitle' => 'Book\'s Highlights | trackr',
+            'pageTitle' => "$bookName's Highlights | trackr",
             'highlights' => $highlights,
             'activeAllBooks' => 'active',
             'bookUID' => $bookUid,
