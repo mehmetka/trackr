@@ -523,9 +523,9 @@ class BookController extends Controller
         return $this->response($resource['responseCode'], $resource);
     }
 
-    public function getBookTrackingsGraphicData(ServerRequestInterface $request, ResponseInterface $response)
+    public function getPathsGraphicData(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $graphicDatas = $this->bookModel->getBookTrackingsGraphicData(30);
+        $graphicDatas = $this->bookModel->getPathsGraphicData(30);
 
         $resource['data'] = $graphicDatas;
         $resource['responseCode'] = StatusCode::HTTP_OK;

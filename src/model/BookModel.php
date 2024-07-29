@@ -1476,7 +1476,7 @@ class BookModel
         return $authorId;
     }
 
-    public function getBookTrackingsGraphicData($trackingDataDateLimit)
+    public function getPathsGraphicData($trackingDataDateLimit)
     {
         $fetchAfter = time() - ($trackingDataDateLimit * 86400);
         $paths = $this->getPathsList();
