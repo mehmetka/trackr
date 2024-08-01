@@ -32,19 +32,19 @@ class BookmarkController extends Controller
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
         $queryString = $request->getQueryParams();
-        $defaultTag = 'technical';
+        $data['activeBookmarks'] = 'active';
+        $data['defaultTag'] = 'technical';
 
-        $bookmarks = $this->bookmarkModel->getBookmarks($queryString['tag']);
+        if (isset($queryString['tag']) && $queryString['tag']) {
+            $data['pageTitle'] = "Bookmarks #{$queryString['tag']} | trackr";
+            $data['bookmarks'] = $this->bookmarkModel->getBookmarks($queryString['tag']);
+        } else {
+            $data['pageTitle'] = 'Bookmarks | trackr';
+            $data['bookmarks'] = $this->bookmarkModel->getBookmarks();
+        }
 
-        $bookmarkCategories = $this->tagModel->getSourceTagsByType(Sources::BOOKMARK->value, $queryString['tag']);
-
-        $data = [
-            'pageTitle' => 'Bookmarks | trackr',
-            'bookmarkCategories' => $bookmarkCategories,
-            'bookmarks' => $bookmarks,
-            'activeBookmarks' => 'active',
-            'defaultTag' => $defaultTag
-        ];
+        $data['bookmarkCategories'] = $this->tagModel->getSourceTagsByType(Sources::BOOKMARK->value,
+            $queryString['tag']);
 
         return $this->view->render($response, 'bookmarks/index.mustache', $data);
     }
