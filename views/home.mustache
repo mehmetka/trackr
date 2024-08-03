@@ -39,8 +39,6 @@
                         <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Started</th>
-                            <th>Diff</th>
                             <th>Mins</th>
                             <th>Hours</th>
                             <th>Days</th>
@@ -52,9 +50,7 @@
                         <tbody>
                         {{#dateTrackings}}
                             <tr>
-                                <td>{{name}}</td>
-                                <td>{{date}}</td>
-                                <td>{{detailedDiff}} <strong>{{info}}</strong></td>
+                                <td><strong>{{name}}</strong> {{dateInfo}} <strong>{{date}}</strong> and {{detailedDiff}} <strong>{{diffInfo}}</strong></td>
                                 <td>{{minutes}}</td>
                                 <td>{{hours}}</td>
                                 <td>{{days}}</td>

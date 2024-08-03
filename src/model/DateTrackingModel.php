@@ -66,7 +66,14 @@ class DateTrackingModel
             $row['weeks'] = $result['weeks'];
             $row['months'] = $result['months'];
             $row['start'] = date($dateFormat, $row['created']);
-            $row['info'] = $row['created'] < strtotime($row['date']) ? 'Left' : 'Passed';
+
+            if ($row['created'] < strtotime($row['date'])) {
+                $row['diffInfo'] = 'Left';
+                $row['dateInfo'] = 'Will be finished at';
+            } else {
+                $row['diffInfo'] = 'Passed';
+                $row['dateInfo'] = 'Started at';
+            }
 
             $list[] = $row;
         }
