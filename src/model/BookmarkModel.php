@@ -62,7 +62,7 @@ class BookmarkModel
         }
 
         $sql .= ' AND bo.user_id = :user_id';
-        $sql .= ' ORDER BY FIELD(bo.status, 1, 4, 0, 2), bo.updated_at DESC, b.id DESC';
+        $sql .= ' ORDER BY FIELD(bo.status, 1, 4, 0, 2), bo.updated_at DESC, b.id DESC LIMIT 100';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
