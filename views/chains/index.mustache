@@ -29,6 +29,11 @@
                                         <option value="2">Float</option>
                                         <option value="3">Integer</option>
                                     </select>
+                                    <select class="custom-select" id="chainConstantType">
+                                        <option selected disabled>Choose Chain Constant Type</option>
+                                        <option value="0">Constant</option>
+                                        <option value="1">Casual</option>
+                                    </select>
                                     <div class="input-group-append">
                                         <button id="btnAddChain" class="btn btn-primary" type="button">
                                             <i class="fe fe-plus-circle fe-16"></i>
@@ -54,9 +59,11 @@
                         {{#chains}}
                             <tr>
                                 <td data-toggle="tooltip" data-placement="top"
-                                    title="Chain Type: {{chainTypeName}}">
+                                    title="Chain Type: {{chainTypeName}}&#10;Chain Constant Type: {{chainConstantTypeName}}">
                                     <a href="#" class="btnShowLineChart" data-uid="{{chainUid}}" data-toggle="modal"
                                        data-target="#lineChartModal">{{chainName}}</a>
+
+                                    <span class="float-right"></span>
                                 </td>
                                 <td>{{chainCreatedAt}}</td>
                                 <td style="width:10%">
@@ -125,7 +132,8 @@
 
             var chainName = $('#chainName').val();
             var chainType = $('#chainType').val();
-            var result = ajaxCall('POST', "/chains", "chainName=" + chainName + "&chainType=" + chainType)
+            var chainConstantType = $('#chainConstantType').val();
+            var result = ajaxCall('POST', "/chains", "chainName=" + chainName + "&chainType=" + chainType + "&chainConstantType=" + chainConstantType)
 
             if (result !== false) {
                 location.reload();
