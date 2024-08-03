@@ -269,7 +269,7 @@ class ChainModel
         return $this->dbConnection->lastInsertId();
     }
 
-    public function addLink($chainId, $linkDate, $value = 0)
+    public function addLink($chainId, $linkDate, $value = 0, $note = null)
     {
         $now = time();
 
