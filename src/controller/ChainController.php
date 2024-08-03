@@ -33,6 +33,11 @@ class ChainController extends Controller
             $todaysLink = $this->chainModel->getLinkByChainIdAndDate($chain['chainId'], $today);
 
             if (!$todaysLink) {
+
+                if ($chain['chainConstantType']) {
+                    $this->chainModel->addLink($chain['chainId'], $today);
+                }
+
                 continue;
             }
 
@@ -61,7 +66,7 @@ class ChainController extends Controller
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Type is not valid.");
         }
 
-        $this->chainModel->start($params['chainName'], $params['chainType']);
+        $this->chainModel->start($params['chainName'], $params['chainType'], $params['chainConstantType']);
 
         $resource['responseCode'] = StatusCode::HTTP_CREATED;
         $resource['message'] = "Started a new chain successfully";

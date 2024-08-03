@@ -26,6 +26,7 @@ class ChainModel
                        uid        AS chainUid,
                        name       AS chainName,
                        type       AS chainType,
+                       constant   AS chainConstantType,
                        created_at AS chainCreatedAt,
                        user_id    AS userId
                 FROM chains
@@ -114,6 +115,7 @@ class ChainModel
         $typeName = strtolower(ChainTypes::from($chain['chainType'])->name);
         $chain[$typeName] = true;
         $chain['chainTypeName'] = $typeName;
+        $chain['chainConstantTypeName'] = $chain['chainConstantType'] ? 'constant' : 'casual';
         $chain['chainCreatedAt'] = date('Y-m-d H:i:s', $chain['chainCreatedAt']);
 
         return $chain;
@@ -244,18 +246,19 @@ class ChainModel
         return $link;
     }
 
-    public function start($chainName, $chainType)
+    public function start($chainName, $chainType, $chainConstantType = 0)
     {
         $now = time();
         $uid = UID::generate();
 
-        $sql = 'INSERT INTO chains (uid, name, type, created_at, user_id)
-                VALUES(:uid, :name, :type, :created_at, :user_id)';
+        $sql = 'INSERT INTO chains (uid, name, type, constant, created_at, user_id)
+                VALUES(:uid, :name, :type, :constant, :created_at, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':uid', $uid, \PDO::PARAM_STR);
         $stm->bindParam(':name', $chainName, \PDO::PARAM_STR);
         $stm->bindParam(':type', $chainType, \PDO::PARAM_INT);
+        $stm->bindParam(':constant', $chainConstantType, \PDO::PARAM_INT);
         $stm->bindParam(':created_at', $now, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
