@@ -235,7 +235,7 @@ class BookController extends Controller
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Book status is not 'New'!");
         }
 
-        if (!in_array((int)$params['status'], PathStatus::toArray())) {
+        if (!in_array((int)$params['status'], BookStatus::toArray())) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Unknown book status");
         }
 
