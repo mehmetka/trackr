@@ -256,7 +256,11 @@ class BookModel
         foreach ($paths as $path) {
 
             if ($today > $path['finish_epoch']) {
-                $this->changePathStatus($path['path_id'], PathStatus::DONE->value);
+
+                if ((int)$path['status'] !== PathStatus::DONE->value) {
+                    $this->changePathStatus($path['path_id'], PathStatus::DONE->value);
+                }
+
                 $path['status'] = 1;
                 $path['expired'] = true;
                 $path['today_processed_text'] = 'EXPIRED!';
