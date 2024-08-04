@@ -22,7 +22,6 @@
                                     <input type="text" id="name" placeholder="Type a name" class="form-control">
                                 </div>
 
-
                                 <div class="form-group">
                                     <input type="text" id="date" class="form-control">
                                 </div>
@@ -50,7 +49,8 @@
                         <tbody>
                         {{#dateTrackings}}
                             <tr>
-                                <td><strong>{{name}}</strong> {{dateInfo}} <strong>{{date}}</strong> and {{detailedDiff}} <strong>{{diffInfo}}</strong></td>
+                                <td><strong>{{name}}</strong> {{dateInfo}} <strong>{{date}}</strong>
+                                    and {{detailedDiff}} <strong>{{diffInfo}}</strong></td>
                                 <td>{{minutes}}</td>
                                 <td>{{hours}}</td>
                                 <td>{{days}}</td>
@@ -67,7 +67,8 @@
                         <h2>Random Highlight:</h2>
                         <div class="card highlightCard">
                             <div class="card-body">
-                                <a role="button" href="/highlights/{{id}}/details" class="badge badge-primary float-right"><span
+                                <a role="button" href="/highlights/{{id}}/details"
+                                   class="badge badge-primary float-right"><span
                                         class="fe fe-edit fe-8"></span></a>
                                 <br>
                                 {{{highlight}}}
