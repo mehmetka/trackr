@@ -36,7 +36,7 @@ class LogController extends Controller
 
         if (isset($queryParams['limit'])) {
 
-            $limit = htmlspecialchars($queryParams['limit']);
+            $limit = (int)htmlspecialchars($queryParams['limit']);
 
             if ($limit > 100) {
                 $limit = 100;
