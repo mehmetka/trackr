@@ -235,6 +235,10 @@ class BookController extends Controller
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Book status is not 'New'!");
         }
 
+        if (!in_array((int)$params['status'], PathStatus::toArray())) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Unknown book status");
+        }
+
         $this->bookModel->changePathBookStatus($pathId, $bookId, $params['status']);
         $this->bookModel->addActivityLog($pathId, $bookId,
             "changed book status from {$details['status']} to {$params['status']}");
