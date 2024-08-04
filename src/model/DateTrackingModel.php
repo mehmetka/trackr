@@ -3,6 +3,7 @@
 namespace App\model;
 
 use App\util\TimeUtil;
+use App\util\UID;
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
 use Slim\Http\StatusCode;
@@ -20,12 +21,14 @@ class DateTrackingModel
     public function create($name, $date)
     {
         $created = time();
+        $uid = UID::generate();
 
-        $sql = 'INSERT INTO date_trackings (name, date, created, user_id)
-                VALUES(:name, :date, :created, :user_id)';
+        $sql = 'INSERT INTO date_trackings (uid, name, date, created, user_id)
+                VALUES(:uid, :name, :date, :created, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':name', $name, \PDO::PARAM_STR);
+        $stm->bindParam(':uid', $uid, \PDO::PARAM_STR);
         $stm->bindParam(':date', $date, \PDO::PARAM_STR);
         $stm->bindParam(':created', $created, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
@@ -43,7 +46,7 @@ class DateTrackingModel
         $today = date($dateFormat);
         $list = [];
 
-        $sql = 'SELECT id, name, date, created
+        $sql = 'SELECT id, uid, name, date, created
                 FROM date_trackings
                 WHERE user_id = :user_id';
 
