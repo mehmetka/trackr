@@ -67,11 +67,12 @@ class DateTrackingModel
             $row['months'] = $result['months'];
             $row['start'] = date($dateFormat, $row['created']);
 
-            if (!$showAll && !$row['days']) {
-                continue;
-            }
-
             if ($row['created'] < strtotime($row['date'])) {
+
+                if ($showAll === false && strtotime($row['date']) <= time()) {
+                    continue;
+                }
+
                 $row['diffInfo'] = 'Left';
                 $row['dateInfo'] = 'Will be finished at';
             } else {
