@@ -176,7 +176,7 @@
                 }
                 var chainUID = $(this).data('uid');
                 var note = $(this).closest("tr").find(".linkNote").val();
-                //ajaxCall('POST', "/chains/" + chainUID + "/links", "value=" + value + "&note=" + note)
+                ajaxCall('POST', "/chains/" + chainUID + "/links", "value=" + value + "&note=" + note)
             }
         });
 
