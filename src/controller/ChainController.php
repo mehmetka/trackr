@@ -121,4 +121,26 @@ class ChainController extends Controller
         return $this->response($resource['responseCode'], $resource);
     }
 
+    public function updateShowInLogs(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $chainUid = $args['uid'];
+        $params = $request->getParsedBody();
+        $chain = $this->chainModel->getChainByUid($chainUid);
+
+        if (!$chain) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Chain not found.");
+        }
+
+        if (!isset($params['showInLogs']) || !ValidatorUtil::validateIntegerByConstraints($params['showInLogs'], 0, 1)) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Show in logs is not valid.");
+        }
+
+        $this->chainModel->updateChainShowInLogs($chain['chainId'], $params['showInLogs']);
+
+        $resource['message'] = "ShowInLogs setting updated successfully.";
+        $resource['responseCode'] = StatusCode::HTTP_OK;
+
+        return $this->response($resource['responseCode'], $resource);
+    }
+
 }

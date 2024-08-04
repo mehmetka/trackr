@@ -22,13 +22,14 @@ class ChainModel
     {
         $chains = [];
 
-        $sql = 'SELECT id         AS chainId,
-                       uid        AS chainUid,
-                       name       AS chainName,
-                       type       AS chainType,
-                       constant   AS chainConstantType,
-                       created_at AS chainCreatedAt,
-                       user_id    AS userId
+        $sql = 'SELECT id           AS chainId,
+                       uid          AS chainUid,
+                       name         AS chainName,
+                       type         AS chainType,
+                       constant     AS chainConstantType,
+                       show_in_logs AS chainShowInLogs,
+                       created_at   AS chainCreatedAt,
+                       user_id      AS userId
                 FROM chains
                 WHERE user_id = :user_id';
 
@@ -47,18 +48,49 @@ class ChainModel
         return $chains;
     }
 
+    public function getChainsByShowInLogs($showInLogs)
+    {
+        $chains = [];
+
+        $sql = 'SELECT id           AS chainId,
+                       uid          AS chainUid,
+                       name         AS chainName,
+                       type         AS chainType,
+                       constant     AS chainConstantType,
+                       show_in_logs AS chainShowInLogs,
+                       created_at   AS chainCreatedAt,
+                       user_id      AS userId
+                FROM chains
+                WHERE user_id = :user_id AND show_in_logs = :show_in_logs';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+        $stm->bindParam(':show_in_logs', $showInLogs, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $chains[] = $this->processChainRecord($row);
+        }
+
+        return $chains;
+    }
     public function getChainByUid($chainUid)
     {
         $chain = [];
 
-        $sql = 'SELECT id         AS chainId,
-                       uid        AS chainUid,
-                       name       AS chainName,
-                       type       AS chainType,
-                       created_at AS chainCreatedAt,
-                       user_id    AS userId
+        $sql = 'SELECT id           AS chainId,
+                       uid          AS chainUid,
+                       name         AS chainName,
+                       type         AS chainType,
+                       show_in_logs AS chainShowInLogs,
+                       created_at   AS chainCreatedAt,
+                       user_id      AS userId
                 FROM chains
-                WHERE uid = :chain_uid AND user_id = :user_id';
+                WHERE uid = :chain_uid
+                  AND user_id = :user_id';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':chain_uid', $chainUid, \PDO::PARAM_STR);
@@ -112,6 +144,8 @@ class ChainModel
 
     public function processChainRecord($chain)
     {
+        $chain['chainShowInLogsInputUid'] = UID::generate();
+        $chain['chainShowInLogsInputChecked'] = $chain['chainShowInLogs'] ? 'checked' : '';
         $typeName = strtolower(ChainTypes::from($chain['chainType'])->name);
         $chain[$typeName] = true;
         $chain['chainTypeName'] = $typeName;
@@ -240,6 +274,12 @@ class ChainModel
 
     public function processLinkRecord($link)
     {
+        if ($link['linkValue']) {
+            $link['linkValueShowInLogsValue'] = '[x]';
+        } else {
+            $link['linkValueShowInLogsValue'] = '[]';
+        }
+
         $link['linkCreatedAt'] = date('Y-m-d H:i:s', $link['linkCreatedAt']);
         $link['linkUpdatedAt'] = date('Y-m-d H:i:s', $link['linkUpdatedAt']);
 
@@ -305,6 +345,23 @@ class ChainModel
         $stm->bindParam(':updated_at', $now, \PDO::PARAM_INT);
         $stm->bindParam(':value', $value, \PDO::PARAM_STR);
         $stm->bindParam(':note', $note, \PDO::PARAM_STR);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function updateChainShowInLogs($chainId, $showInLogs)
+    {
+        $sql = 'UPDATE chains SET show_in_logs = :show_in_logs
+                WHERE id = :chain_id AND user_id = :user_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':chain_id', $chainId, \PDO::PARAM_INT);
+        $stm->bindParam(':show_in_logs', $showInLogs, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {

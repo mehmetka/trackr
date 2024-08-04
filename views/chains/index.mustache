@@ -52,6 +52,7 @@
                             <th>Name</th>
                             <th>Started At</th>
                             <th>Today</th>
+                            <th>Show in Logs</th>
                             <th>Note</th>
                         </tr>
                         </thead>
@@ -62,21 +63,20 @@
                                     title="Chain Type: {{chainTypeName}}&#10;Chain Constant Type: {{chainConstantTypeName}}">
                                     <a href="#" class="btnShowLineChart" data-uid="{{chainUid}}" data-toggle="modal"
                                        data-target="#lineChartModal">{{chainName}}</a>
-
-                                    <span class="float-right"></span>
                                 </td>
                                 <td>{{chainCreatedAt}}</td>
                                 <td style="width:10%">
                                     {{#boolean}}
-                                        <div class="col-md-3 mb-3 float-right">
-                                            <input class="form-check-input linkBooleanValue" type="checkbox"
-                                                   data-type="{{chainTypeName}}"
-                                                   data-uid="{{chainUid}}" {{todaysLinkValue}}>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox"
+                                                   class="custom-control-input linkBooleanValue"
+                                                   id="{{chainUid}}" data-uid="{{chainUid}}" data-type="{{chainTypeName}}" {{todaysLinkValue}}>
+                                            <label class="custom-control-label" for="{{chainUid}}"></label>
                                         </div>
                                     {{/boolean}}
 
                                     {{#float}}
-                                        <div class="form-group custom-control custom-checkbox float-right">
+                                        <div class="form-group custom-control custom-checkbox">
                                             <input class="form-control linkValue enterButtonKeyPress" maxlength="9"
                                                    data-type="{{chainTypeName}}" data-uid="{{chainUid}}"
                                                    value="{{todaysLinkValue}}">
@@ -84,12 +84,20 @@
                                     {{/float}}
 
                                     {{#integer}}
-                                        <div class="form-group custom-control custom-checkbox float-right">
+                                        <div class="form-group custom-control custom-checkbox">
                                             <input class="form-control linkValue enterButtonKeyPress" maxlength="9"
                                                    data-type="{{chainTypeName}}" data-uid="{{chainUid}}"
                                                    value="{{todaysLinkValue}}">
                                         </div>
                                     {{/integer}}
+                                </td>
+                                <td>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox"
+                                               class="custom-control-input chainShowInLogsStatus"
+                                               id="{{chainShowInLogsInputUid}}" data-uid="{{chainUid}}" {{chainShowInLogsInputChecked}}>
+                                        <label class="custom-control-label" for="{{chainShowInLogsInputUid}}"></label>
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="form-group custom-control custom-checkbox">
@@ -142,13 +150,22 @@
         });
 
         $(".linkBooleanValue").on('click', function (e) {
+            console.log('linkBooleanValue')
             var chainUID = $(this).data('uid');
             var value = $(this).is(':checked') ? "1" : "0";
             var note = $(this).closest("tr").find(".linkNote").val();
             ajaxCall('POST', "/chains/" + chainUID + "/links", "value=" + value + "&note=" + note)
         });
 
+        $(".chainShowInLogsStatus").on('click', function (e) {
+            console.log('chainShowInLogsStatus')
+            var chainUID = $(this).data('uid');
+            var showInLogs = $(this).is(':checked') ? "1" : "0";
+            ajaxCall('PUT', "/chains/" + chainUID + "/showInLogs", "showInLogs=" + showInLogs)
+        });
+
         $('.enterButtonKeyPress').bind('keypress', function (e) {
+            console.log('enterButtonKeyPress')
             if (e.keyCode == 13) {
                 var chainType = $(this).data('type');
 
@@ -159,7 +176,7 @@
                 }
                 var chainUID = $(this).data('uid');
                 var note = $(this).closest("tr").find(".linkNote").val();
-                ajaxCall('POST', "/chains/" + chainUID + "/links", "value=" + value + "&note=" + note)
+                //ajaxCall('POST', "/chains/" + chainUID + "/links", "value=" + value + "&note=" + note)
             }
         });
 

@@ -5,6 +5,7 @@ namespace App\controller;
 use App\exception\CustomException;
 use App\model\BookmarkModel;
 use App\model\BookModel;
+use App\model\ChainModel;
 use App\model\HighlightModel;
 use App\model\LogModel;
 use App\util\VersionDiffUtil;
@@ -20,6 +21,7 @@ class LogController extends Controller
     private $bookModel;
     private $bookmarkModel;
     private $highlightModel;
+    private $chainModel;
 
     public function __construct(ContainerInterface $container)
     {
@@ -28,6 +30,7 @@ class LogController extends Controller
         $this->bookModel = new BookModel($container);
         $this->bookmarkModel = new BookmarkModel($container);
         $this->highlightModel = new HighlightModel($container);
+        $this->chainModel = new ChainModel($container);
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
@@ -57,6 +60,8 @@ class LogController extends Controller
             $this->logModel->insert($today, null);
         }
 
+        $chains = $this->chainModel->getChainsByShowInLogs(1);
+
         $logs = $this->logModel->getLogs($limit);
         foreach ($logs as $key => $log) {
             $from = strtotime($log['date']);
@@ -66,7 +71,19 @@ class LogController extends Controller
             $logs[$key]['bookmarksExist'] = count($logs[$key]['bookmarks']);
             $logs[$key]['highlights'] = $this->highlightModel->getHighlightsByDateRange($from, $to);
             $logs[$key]['highlightsExist'] = count($logs[$key]['highlights']);
+            $logs[$key]['chainsExist'] = count($chains);
+
+            foreach ($chains as $chain) {
+                $link = $this->chainModel->getLinkByChainIdAndDate($chain['chainId'], $log['date']);
+
+                if ($link) {
+                    $logs[$key]['chains'][] = "{$link['linkValueShowInLogsValue']} {$chain['chainName']}";
+                } else {
+                    $logs[$key]['chains'][] = "[] {$chain['chainName']}";
+                }
+            }
         }
+
         $data['logs'] = $logs;
         $data['todaysLog'] = $todayLog['log'];
         $data['today'] = $today;

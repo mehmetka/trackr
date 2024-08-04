@@ -49,8 +49,18 @@
 
                                     {{{log}}}
                                     <br>
+
+                                    {{#chainsExist}}
+                                        <strong>chains</strong><br>
+                                        <ul>
+                                            {{#chains}}
+                                                <li>{{.}}</li>
+                                            {{/chains}}
+                                        </ul>
+                                    {{/chainsExist}}
+
                                     {{#reading}}
-                                        [X]
+                                        [x]
                                     {{/reading}}
                                     {{^reading}}
                                         []
