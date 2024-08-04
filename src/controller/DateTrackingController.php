@@ -27,6 +27,10 @@ class DateTrackingController extends Controller
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Name cannot be null!");
         }
 
+        if (!$params['date']) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Date cannot be null!");
+        }
+
         $this->dateTrackingModel->create($params['name'], $params['date']);
 
         $resource['message'] = "Success";
