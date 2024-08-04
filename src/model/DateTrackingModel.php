@@ -37,7 +37,7 @@ class DateTrackingModel
         return true;
     }
 
-    public function getDateTrackings()
+    public function getDateTrackings($showAll = false)
     {
         $dateFormat = 'd-m-Y';
         $today = date($dateFormat);
@@ -66,6 +66,10 @@ class DateTrackingModel
             $row['weeks'] = $result['weeks'];
             $row['months'] = $result['months'];
             $row['start'] = date($dateFormat, $row['created']);
+
+            if (!$showAll && !$row['days']) {
+                continue;
+            }
 
             if ($row['created'] < strtotime($row['date'])) {
                 $row['diffInfo'] = 'Left';
