@@ -28,4 +28,9 @@ class ValidatorUtil
             self::validateLinkIntegerType($chainType, $value) ||
             self::validateLinkFloatType($chainType, $value);
     }
+
+    public static function validateIntegerByConstraints($value, $min, $max): bool
+    {
+        return filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => $min, 'max_range' => $max]]) !== false;
+    }
 }
