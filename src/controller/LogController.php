@@ -32,7 +32,20 @@ class LogController extends Controller
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $limit = 30;
+        $queryParams = $request->getQueryParams();
+
+        if (isset($queryParams['limit'])) {
+
+            $limit = htmlspecialchars($queryParams['limit']);
+
+            if ($limit > 100) {
+                $limit = 100;
+            }
+
+        } else {
+            $limit = 7;
+        }
+
         $data['pageTitle'] = "Logs | trackr";
         $today = date('Y-m-d', time());
 
