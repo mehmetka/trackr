@@ -155,34 +155,36 @@ CREATE TABLE `categories`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE `chains`
+CREATE TABLE `chain_links`
 (
-    `id`         int(11)     NOT NULL AUTO_INCREMENT,
-    `uid`        varchar(50) NOT NULL,
-    `name`       varchar(255) DEFAULT NULL,
-    `type`       tinyint(1)   DEFAULT 1,
-    `created_at` int(11)     NOT NULL,
-    `finished_at` int(11)     DEFAULT NULL,
-    `user_id`    int(11)      DEFAULT NULL,
-    `status`       tinyint(1)   DEFAULT 0,
+    `id`         int(11)                                NOT NULL AUTO_INCREMENT,
+    `chain_id`   int(11)                                NOT NULL,
+    `value`      varchar(25) COLLATE utf8mb4_unicode_ci  DEFAULT '0',
+    `link_date`  varchar(11) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `note`       varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `created_at` int(11)                                NOT NULL,
+    `updated_at` int(11)                                NOT NULL,
+    `user_id`    int(11)                                NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uid_UNIQUE` (`uid`)
+    UNIQUE KEY `unique_idx_chainid_linkdate` (`chain_id`, `link_date`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE `chain_links`
+CREATE TABLE `chains`
 (
-    `id`         int(11)     NOT NULL AUTO_INCREMENT,
-    `chain_id`   int(11)     NOT NULL,
-    `value`      varchar(25) DEFAULT 0,
-    `link_date`  varchar(11) NOT NULL,
-    `note`      varchar(255) DEFAULT NULL,
-    `created_at` int(11)     NOT NULL,
-    `updated_at` int(11)     NOT NULL,
-    `user_id`    int(11)     NOT NULL,
+    `id`           int(11)                                NOT NULL AUTO_INCREMENT,
+    `uid`          varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+    `name`         varchar(255) COLLATE utf8mb4_unicode_ci         DEFAULT NULL,
+    `type`         tinyint(1)                                      DEFAULT '1',
+    `constant`     tinyint(4)                                      DEFAULT '0',
+    `created_at`   int(11)                                NOT NULL,
+    `finished_at`  int(11)                                         DEFAULT NULL,
+    `user_id`      int(11)                                         DEFAULT NULL,
+    `status`       tinyint(1)                                      DEFAULT '0',
+    `show_in_logs` tinyint(4)                             NOT NULL DEFAULT '0',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `unique_idx_chainid_linkdate` (`chain_id`, `link_date`)
+    UNIQUE KEY `uid_UNIQUE` (`uid`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
@@ -277,12 +279,14 @@ CREATE TABLE `images`
 
 CREATE TABLE `libraries`
 (
-    `id`      int(11) NOT NULL AUTO_INCREMENT,
-    `book`    varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-    `size`    varchar(45) COLLATE utf8mb4_unicode_ci   DEFAULT NULL,
-    `library` varchar(255) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
-    `created` varchar(45) COLLATE utf8mb4_unicode_ci   DEFAULT NULL,
-    PRIMARY KEY (`id`)
+    `id`       int(11) NOT NULL AUTO_INCREMENT,
+    `book`     varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `utf_book` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `size`     varchar(45) COLLATE utf8mb4_unicode_ci   DEFAULT NULL,
+    `library`  varchar(255) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
+    `created`  varchar(45) COLLATE utf8mb4_unicode_ci   DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    FULLTEXT KEY `utf_book` (`utf_book`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
