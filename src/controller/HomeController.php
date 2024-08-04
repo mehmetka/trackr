@@ -29,7 +29,9 @@ class HomeController extends Controller
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $dateTrackings = $this->dateTrackingModel->getDateTrackings();
+        $queryParams = $request->getQueryParams();
+        $showAllDates = isset($queryParams['showAllDates']) ? true : false;
+        $dateTrackings = $this->dateTrackingModel->getDateTrackings($showAllDates);
         $randomHighlight = $this->highlightModel->getRandomHighlight();
         $this->highlightModel->incrementReadCount($randomHighlight[0]['id']);
 
@@ -70,7 +72,7 @@ class HomeController extends Controller
         $today = date('d/m/Y H:i:s');
         $averageData = $_SESSION['books']['readingAverage'] ?? $this->bookModel->readingAverage();
         $readingAverageText = "Reading Average: " . round($averageData['average'], 3) .
-                                "({$averageData['total']}/{$averageData['diff']})";
+            "({$averageData['total']}/{$averageData['diff']})";
 
         $data = [
             'today' => $today,
