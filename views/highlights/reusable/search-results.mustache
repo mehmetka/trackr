@@ -11,6 +11,12 @@
                        data-toggle="modal" data-target="#highlightVersionsModal"><span
                             class="fe fe-activity fe-8"></span></a>
                 {{/version_count}}
+
+                {{#parent_highlight}}
+                    <a role="button" href="/highlights/{{highlight_id}}/details"
+                       class="badge badge-info float-right highlightToolTip" data-id="{{highlight_id}}">Parent</a>
+                {{/parent_highlight}}
+
                 <a role="button" href="/highlights/{{id}}/details" class="badge badge-primary float-right"><span
                         class="fe fe-edit fe-8"></span></a>
                 <a role="button" class="badge float-right addToFavorite" data-id="{{id}}"><span

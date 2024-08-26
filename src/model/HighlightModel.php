@@ -149,6 +149,8 @@ class HighlightModel
 //            }
 //        }
 
+
+        $highlight['parent_highlight'] = $this->getParentHighlightBySubHighlightID($highlight['id']);
         $highlight['version_count'] = $this->getVersionsCountById($highlight['id']);
         $highlight['created_at_formatted'] = date('Y-m-d H:i:s', $highlight['created']);
         $highlight['updated_at_formatted'] = date('Y-m-d H:i:s', $highlight['updated']);
@@ -234,6 +236,28 @@ class HighlightModel
         }
 
         return $list;
+    }
+
+    public function getParentHighlightBySubHighlightID($subHighlightID)
+    {
+        $data = [];
+
+        $sql = 'SELECT *
+                FROM sub_highlights sh
+                WHERE sh.sub_highlight_id = :highlightID';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':highlightID', $subHighlightID, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $data = $row;
+        }
+
+        return $data;
     }
 
     public function create($params)
