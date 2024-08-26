@@ -87,6 +87,7 @@ $app->group('', function () {
 
     $this->get('/chains', ChainController::class . ':index');
     $this->post('/chains', ChainController::class . ':start');
+    $this->put('/chains/{uid}/constant', ChainController::class . ':updateConstant');
     $this->post('/chains/{uid}/links', ChainController::class . ':addLink');
     $this->put('/chains/{uid}/showInLogs', ChainController::class . ':updateShowInLogs');
     $this->get('/chains/{uid}/graphic', ChainController::class . ':getChainGraphicData');
