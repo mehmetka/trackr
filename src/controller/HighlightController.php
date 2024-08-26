@@ -46,11 +46,11 @@ class HighlightController extends Controller
         } elseif (isset($queryString['author'])) {
             $highlights = $this->highlightModel->getHighlightsByGivenField('author', $queryString['author'],
                 $_ENV['HIGHLIGHT_LIMIT']);
-            $data['pageTitle'] = "$tagQueryString's Highlights | trackr";
+            $data['pageTitle'] = "{$queryString['author']}'s Highlights | trackr";
         } elseif (isset($queryString['source'])) {
             $highlights = $this->highlightModel->getHighlightsByGivenField('source', $queryString['source'],
                 $_ENV['HIGHLIGHT_LIMIT']);
-            $data['pageTitle'] = "$tagQueryString's Highlights | trackr";
+            $data['pageTitle'] = "{$queryString['source']}'s Highlights | trackr";
         } elseif (isset($queryString['id'])) {
             $highlights = $this->highlightModel->getHighlightsByGivenField('id', $queryString['id'],
                 $_ENV['HIGHLIGHT_LIMIT']);
