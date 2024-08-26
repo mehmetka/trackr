@@ -251,6 +251,8 @@ class ChainModel
             $sql .= " AND link_date $operator :link_date";
         }
 
+        $sql .= ' ORDER BY id DESC';
+
         if ($limit) {
             $sql .= " LIMIT $limit";
         }
