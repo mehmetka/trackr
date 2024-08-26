@@ -143,4 +143,26 @@ class ChainController extends Controller
         return $this->response($resource['responseCode'], $resource);
     }
 
+    public function updateConstant(ServerRequestInterface $request, ResponseInterface $response, $args)
+    {
+        $chainUid = $args['uid'];
+        $params = $request->getParsedBody();
+        $chain = $this->chainModel->getChainByUid($chainUid);
+
+        if (!$chain) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Chain not found.");
+        }
+
+        if (!isset($params['constant']) || !ValidatorUtil::validateIntegerByConstraints($params['constant'], 0, 1)) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Constant is not valid.");
+        }
+
+        $this->chainModel->updateConstant($chain['chainId'], $params['constant']);
+
+        $resource['message'] = "Constant setting updated successfully.";
+        $resource['responseCode'] = StatusCode::HTTP_OK;
+
+        return $this->response($resource['responseCode'], $resource);
+    }
+
 }

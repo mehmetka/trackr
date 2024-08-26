@@ -145,7 +145,9 @@ class ChainModel
     public function processChainRecord($chain)
     {
         $chain['chainShowInLogsInputUid'] = UID::generate();
+        $chain['chainConstantInputUid'] = UID::generate();
         $chain['chainShowInLogsInputChecked'] = $chain['chainShowInLogs'] ? 'checked' : '';
+        $chain['chainConstantInputChecked'] = $chain['chainConstantType'] ? 'checked' : '';
         $typeName = strtolower(ChainTypes::from($chain['chainType'])->name);
         $chain[$typeName] = true;
         $chain['chainTypeName'] = $typeName;
@@ -362,6 +364,23 @@ class ChainModel
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':chain_id', $chainId, \PDO::PARAM_INT);
         $stm->bindParam(':show_in_logs', $showInLogs, \PDO::PARAM_INT);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
+
+    public function updateConstant($chainId, $constant)
+    {
+        $sql = 'UPDATE chains SET constant = :constant
+                WHERE id = :chain_id AND user_id = :user_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':chain_id', $chainId, \PDO::PARAM_INT);
+        $stm->bindParam(':constant', $constant, \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {

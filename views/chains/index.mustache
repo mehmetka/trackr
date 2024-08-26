@@ -53,6 +53,7 @@
                             <th>Started At</th>
                             <th>Today</th>
                             <th>Show in Logs</th>
+                            <th>Constant</th>
                             <th>Note</th>
                         </tr>
                         </thead>
@@ -99,10 +100,19 @@
                                         <label class="custom-control-label" for="{{chainShowInLogsInputUid}}"></label>
                                     </div>
                                 </td>
+                                <td data-toggle="tooltip" data-placement="top"
+                                    title="If you activate this setting, system creates new record as default value each day for you">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox"
+                                               class="custom-control-input chainConstantStatus"
+                                               id="{{chainConstantInputUid}}" data-uid="{{chainUid}}" {{chainConstantInputChecked}}>
+                                        <label class="custom-control-label" for="{{chainConstantInputUid}}"></label>
+                                    </div>
+                                </td>
                                 <td>
                                     <div class="form-group custom-control custom-checkbox">
                                         <input class="form-control linkNote enterButtonKeyPress" data-uid="{{chainUid}}"
-                                               data-type="{{chainTypeName}}" value="{{note}}">
+                                               data-type="{{chainTypeName}}" value="{{#link}}{{linkNote}}{{/link}}">
                                     </div>
                                 </td>
                             </tr>
@@ -150,7 +160,6 @@
         });
 
         $(".linkBooleanValue").on('click', function (e) {
-            console.log('linkBooleanValue')
             var chainUID = $(this).data('uid');
             var value = $(this).is(':checked') ? "1" : "0";
             var note = $(this).closest("tr").find(".linkNote").val();
@@ -158,14 +167,19 @@
         });
 
         $(".chainShowInLogsStatus").on('click', function (e) {
-            console.log('chainShowInLogsStatus')
             var chainUID = $(this).data('uid');
             var showInLogs = $(this).is(':checked') ? "1" : "0";
             ajaxCall('PUT', "/chains/" + chainUID + "/showInLogs", "showInLogs=" + showInLogs)
         });
 
+        $(".chainConstantStatus").on('click', function (e) {
+            var chainUID = $(this).data('uid');
+            var constant = $(this).is(':checked') ? "1" : "0";
+            console.log(constant);
+            ajaxCall('PUT', "/chains/" + chainUID + "/constant", "constant=" + constant)
+        });
+
         $('.enterButtonKeyPress').bind('keypress', function (e) {
-            console.log('enterButtonKeyPress')
             if (e.keyCode == 13) {
                 var chainType = $(this).data('type');
 
