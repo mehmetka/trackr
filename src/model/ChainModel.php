@@ -399,7 +399,7 @@ class ChainModel
         $tmpData = [];
         $preparedData = [];
 
-        $links = $this->getLinksByChainIdAndDate($chain['chainId']);
+        $links = $this->getLinksByChainIdAndDate($chain['chainId'], false, false, 60);
 
         foreach ($links as $link) {
             $tmpData[] = $link['linkValue'];
