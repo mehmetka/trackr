@@ -207,6 +207,7 @@ class ChainModel
                        chain_id   AS chainId,
                        value      AS linkValue,
                        link_date  AS linkDate,
+                       note      AS linkNote,
                        created_at AS linkCreatedAt,
                        updated_at AS linkUpdatedAt,
                        user_id    AS userId
