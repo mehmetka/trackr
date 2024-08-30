@@ -162,7 +162,12 @@
 
             <div class="row">
                 <div class="col-md-12">
+                    <h3>Comments</h3>
+                    <hr>
                     {{#subHighlights}}
+                        <a role="button" href="/highlights/{{id}}/details" class="badge badge-primary float-right"><span
+                                class="fe fe-edit fe-8"></span></a>
+                        <a role="button" href="/highlights?id={{id}}" class="badge badge-primary float-right">Show</a>
                         <blockquote class="blockquote">
                             <p class="mb-0">{{{highlight}}}</p>
                             <footer class="blockquote-footer">{{author}} <cite title="Source Title">{{source}}</cite>
@@ -171,6 +176,7 @@
                                 {{/tags}}
                             </footer>
                         </blockquote>
+                        <hr>
                     {{/subHighlights}}
                 </div>
             </div>
