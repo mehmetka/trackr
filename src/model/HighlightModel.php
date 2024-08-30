@@ -29,7 +29,7 @@ class HighlightModel
         $limit = $limit ?? 500;
         $list = [];
 
-        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted, h.is_secret
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted, h.is_secret, h.blog_path
                 FROM highlights h
                 WHERE h.is_deleted = 0 AND h.user_id = :user_id AND h.type=0
                 ORDER BY h.updated DESC LIMIT :limit';
@@ -54,7 +54,7 @@ class HighlightModel
         $limit = $limit ? $limit : 500;
         $list = [];
 
-        $sql = "SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted, h.is_secret
+        $sql = "SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted, h.is_secret, h.blog_path
                 FROM highlights h
                 WHERE h.is_deleted = 0 AND h.user_id = :user_id AND $field = :param AND h.is_deleted = 0
                 ORDER BY h.updated DESC LIMIT :limit";
@@ -80,7 +80,7 @@ class HighlightModel
         $limit = $limit ? $limit : 500;
         $list = [];
 
-        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted, h.is_secret
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted, h.is_secret, h.blog_path
                 FROM highlights h LEFT JOIN tag_relationships tr ON h.id = tr.source_id
                 LEFT JOIN tags t ON tr.tag_id = t.id
                 WHERE h.is_deleted = 0 AND h.user_id = :user_id AND t.tag = :tag AND tr.type = 1
@@ -207,7 +207,7 @@ class HighlightModel
     {
         $list = [];
 
-        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.page, h.location, h.link, h.type, h.created, h.updated, h.is_encrypted
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.page, h.location, h.link, h.type, h.created, h.updated, h.is_encrypted, h.blog_path
                 FROM highlights h
                 INNER JOIN sub_highlights sh ON h.id = sh.sub_highlight_id
                 WHERE sh.highlight_id = :highlightID AND h.user_id = :user_id';
@@ -492,7 +492,7 @@ class HighlightModel
         $searchParam = "%$searchParam%";
         $list = [];
 
-        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created
+        $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted, h.is_secret, h.blog_path
                 FROM highlights h
                 WHERE h.is_deleted = 0 AND h.is_encrypted = 0 AND h.highlight LIKE :searchParam AND h.user_id = :user_id';
 
@@ -516,7 +516,7 @@ class HighlightModel
         $list = [];
         $searchParam = '"' . $searchParam . '"';
 
-        $sql = "SELECT h.id, h.highlight, h.author, h.source, h.created
+        $sql = "SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted, h.is_secret, h.blog_path
                 FROM highlights h
                 WHERE h.is_deleted = 0
                   AND h.is_encrypted = 0
