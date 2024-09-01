@@ -396,9 +396,7 @@ class BookmarkModel
 
     public function addHighlight($bookmarkHighlight)
     {
-        $now = time();
-
-//        $bookmarkHighlight['author'] = $bookmarkHighlight['author'] ?? 'trackr';
+        $bookmarkHighlight['author'] = $bookmarkHighlight['author'] ?: $_SESSION['userInfos']['username'];
 //        $bookmarkHighlight['source'] = $bookmarkHighlight['source'] ?? 'trackr';
         $highlight = trim($bookmarkHighlight['highlight']);
         $page = null;
@@ -413,8 +411,8 @@ class BookmarkModel
         $stm->bindParam(':blog_path', $bookmarkHighlight['blog_path'], \PDO::PARAM_STR);
         $stm->bindParam(':page', $page, \PDO::PARAM_INT);
         $stm->bindParam(':link', $bookmarkHighlight['id'], \PDO::PARAM_INT);
-        $stm->bindParam(':created', $now, \PDO::PARAM_INT);
-        $stm->bindParam(':updated', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':created', $bookmarkHighlight['created'], \PDO::PARAM_INT);
+        $stm->bindParam(':updated', $bookmarkHighlight['updated'], \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {

@@ -8,9 +8,11 @@ use App\enum\Sources;
 use App\exception\CustomException;
 use App\model\BookmarkModel;
 use App\model\TagModel;
+use App\util\ArrayUtil;
 use App\util\lang;
 use App\rabbitmq\AmqpJobPublisher;
 use App\util\TwitterUtil;
+use App\util\Typesense;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
@@ -150,7 +152,7 @@ class BookmarkController extends Controller
         $bookmarkDetails = $this->bookmarkModel->getBookmarkByUid($bookmarkUid);
         $bookmarkId = $bookmarkDetails['id'];
         $params = $request->getParsedBody();
-        $status = intval($params['status']);
+        $status = (int)$params['status'];
 
         $this->bookmarkModel->updateChildBookmark($bookmarkId, $params, $_SESSION['userInfos']['user_id']);
 
@@ -208,15 +210,33 @@ class BookmarkController extends Controller
     {
         $bookmarkUid = $args['uid'];
         $bookmarkDetail = $this->bookmarkModel->getBookmarkByUid($bookmarkUid);
-        $params = $request->getParsedBody();
+        $params = ArrayUtil::trimArrayElements($request->getParsedBody());
+        $typesenseClient = new Typesense('highlights');
+        $now = time();
 
-        if (!$params['highlight']) {
-            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight cannot be null!");
+        if (!isset($params['highlight']) || !$params['highlight']) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, lang\En::HIGHLIGHT_CANNOT_BE_NULL);
+        }
+
+        if (str_word_count($params['highlight']) < 2) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, lang\En::HIGHLIGHT_MUST_BE_LONGER);
+        }
+
+        $searchParameters = [
+            'q' => $params['highlight'],
+            'query_by' => 'highlight',
+            'filter_by' => "user_id:={$_SESSION['userInfos']['user_id']}",
+        ];
+
+        $highlightSearchResult = $typesenseClient->searchDocuments($searchParameters);
+
+        if ($highlightSearchResult['found']) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, lang\En::HIGHLIGHT_ADDED_BEFORE);
         }
 
         if (!isset($_SESSION['bookmarks']['highlights']['bookmarkID']) || $bookmarkDetail['id'] != $_SESSION['bookmarks']['highlights']['bookmarkID']) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST,
-                "Inconsistency! You're trying to add highlight for different bookmark!");
+                lang\En::BOOKMARK_INCONSISTENCY_FOR_ADDING_HIGHLIGHT);
         }
 
         $bookmarkDetail['highlight'] = $params['highlight'];
@@ -227,11 +247,30 @@ class BookmarkController extends Controller
             $bookmarkDetail['author'] = $username;
             $bookmarkDetail['source'] = 'Twitter';
         } else {
-            $bookmarkDetail['author'] = $bookmarkDetail['title'] ?? null;
+            $bookmarkDetail['author'] = $bookmarkDetail['title'] ?: null;
             $bookmarkDetail['source'] = 'Bookmark Highlight';
         }
 
+        $bookmarkDetail['created'] = $now;
+        $bookmarkDetail['updated'] = $now;
+
         $highlightId = $this->bookmarkModel->addHighlight($bookmarkDetail);
+
+        $typesenseClient = new Typesense('highlights');
+        $document = [
+            'id' => (string)$highlightId,
+            'highlight' => $bookmarkDetail['highlight'],
+            'is_deleted' => 0,
+            'author' => $bookmarkDetail['author'] ?: $_SESSION['userInfos']['username'],
+            'source' => $bookmarkDetail['source'] ?: '',
+            'created' => (int)$now,
+            'updated' => (int)$now,
+            'is_encrypted' => 0,
+            'is_secret' => 0,
+            'blog_path' => '',
+            'user_id' => (int)$_SESSION['userInfos']['user_id'],
+        ];
+        $typesenseClient->indexDocument($document);
 
         $this->tagModel->updateSourceTags($params['tags'], $highlightId, Sources::HIGHLIGHT->value);
 

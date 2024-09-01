@@ -15,5 +15,7 @@ class En
     const HIGHLIGHT_PARENT_NOT_FOUND = 'Parent highlight not found!';
     const HIGHLIGHT_DELETED_SUCCESSFULLY = 'Highlight deleted successfully!';
 
+    const BOOKMARK_INCONSISTENCY_FOR_ADDING_HIGHLIGHT = "Inconsistency! You're trying to add highlight for different bookmark!";
+
     const SUCCESS = 'Success!';
 }
