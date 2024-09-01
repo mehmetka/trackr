@@ -6,9 +6,17 @@ use ForceUTF8\Encoding;
 
 class EncodingUtil
 {
-    static function isLatin1($str)
+    /**
+     * Checks if the string contains only ASCII characters.
+     * If it does, it will return true, indicating that the string contains only characters within the ASCII range.
+     * Otherwise, it will return false.
+     *
+     * @param $str
+     * @return bool
+     */
+    static function isLatin1($str): bool
     {
-        return (preg_match("/^[\\x00-\\xFF]*$/u", $str) === 1);
+        return preg_match("/^[\\x00-\\xFF]*$/u", $str) === 1;
     }
 
     static function fixEncoding($str)
