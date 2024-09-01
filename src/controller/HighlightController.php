@@ -452,10 +452,14 @@ class HighlightController extends Controller
     {
         $params = $request->getParsedBody();
 
-        $results = $this->highlightModel->searchHighlightFulltext($params['searchParam']);
+        // OLD
+        // $results = $this->highlightModel->searchHighlightFulltext($params['searchParam']);
+
+        $searchParam = trim($params['searchParam']);
+        $highlights = $this->highlightModel->searchHighlightTypesense($searchParam);
 
         $resource = [
-            "highlights" => $results
+            "highlights" => $highlights
         ];
 
         return $this->response(StatusCode::HTTP_OK, $resource);
