@@ -6,6 +6,7 @@ use App\enum\Sources;
 use App\util\EncryptionUtil;
 use App\util\MarkdownUtil;
 use App\util\StringUtil;
+use App\util\Typesense;
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
 use Slim\Http\StatusCode;
@@ -262,12 +263,8 @@ class HighlightModel
 
     public function create($params)
     {
-        $now = time();
-
-        $params['author'] = $params['author'] ? trim($params['author']) : $_SESSION['userInfos']['username'];
+        $params['author'] = $params['author'] ?: $_SESSION['userInfos']['username'];
 //        $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
-        $params['page'] = $params['page'] ? trim($params['page']) : null;
-        $params['location'] = $params['location'] ? trim($params['location']) : null;
 
         $sql = 'INSERT INTO highlights (title, highlight, author, source, page, blog_path, book_id, is_encrypted, is_secret, created, updated, user_id)
                 VALUES(:title, :highlight, :author, :source, :page, :blog_path, :book_id, :is_encrypted, :is_secret, :created, :updated, :user_id)';
@@ -282,8 +279,8 @@ class HighlightModel
         $stm->bindParam(':book_id', $params['book_id'], \PDO::PARAM_INT);
         $stm->bindParam(':is_encrypted', $params['is_encrypted'], \PDO::PARAM_INT);
         $stm->bindParam(':is_secret', $params['is_secret'], \PDO::PARAM_INT);
-        $stm->bindParam(':created', $now, \PDO::PARAM_INT);
-        $stm->bindParam(':updated', $now, \PDO::PARAM_INT);
+        $stm->bindParam(':created', $params['created'], \PDO::PARAM_INT);
+        $stm->bindParam(':updated', $params['updated'], \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
@@ -315,13 +312,8 @@ class HighlightModel
 
     public function update($highlightID, $params)
     {
-        $update = time();
-
-        $params['author'] = $params['author'] ? trim($params['author']) : $_SESSION['userInfos']['username'];
+        $params['author'] = $params['author'] ?? $_SESSION['userInfos']['username'];
 //        $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
-        $params['page'] = $params['page'] ? trim($params['page']) : null;
-        $params['location'] = $params['location'] ? trim($params['location']) : null;
-
 
         $sql = 'UPDATE highlights
                 SET title = :title, highlight = :highlight, author = :author, source = :source, page = :page, location = :location, blog_path = :blog_path, is_secret = :is_secret, is_encrypted = :is_encrypted, updated = :updated
@@ -339,7 +331,7 @@ class HighlightModel
         $stm->bindParam(':blog_path', $params['blogPath'], \PDO::PARAM_STR);
         $stm->bindParam(':is_secret', $params['is_secret'], \PDO::PARAM_INT);
         $stm->bindParam(':is_encrypted', $params['is_encrypted'], \PDO::PARAM_INT);
-        $stm->bindParam(':updated', $update, \PDO::PARAM_INT);
+        $stm->bindParam(':updated', $params['updated'], \PDO::PARAM_INT);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
@@ -538,6 +530,37 @@ class HighlightModel
         return $list;
     }
 
+    public function searchHighlightTypesense($searchParam)
+    {
+        $highlights = [];
+        $typesenseClient = new Typesense('highlights');
+
+        $searchParameters = [
+            'q'          => $searchParam,  // Query string; using '*' for a match-all search
+            'query_by'   => 'highlight',
+            'filter_by'  => "user_id:={$_SESSION['userInfos']['user_id']} && is_deleted:=0",
+        ];
+        $results = $typesenseClient->searchDocuments($searchParameters);
+
+        foreach ($results['hits'] as $result) {
+            //$highlight = str_replace($searchParam, $result['highlight']['highlight']['snippet'], $result['document']['highlight']);
+            $row = [
+                'id' => $result['document']['id'],
+                'highlight' => $result['document']['highlight'],
+                'author' => $result['document']['author'],
+                'source' => $result['document']['source'],
+                'created' => $result['document']['created'],
+                'updated' => $result['document']['updated'],
+                'is_encrypted' => $result['document']['is_encrypted'],
+                'is_secret' => $result['document']['is_secret'],
+                'blog_path' => $result['document']['blog_path'],
+            ];
+            $highlights[] = $this->processHighlightRecord($row);
+        }
+
+        return $highlights;
+    }
+
     public function getHighlightAuthors()
     {
         $result = [];
@@ -669,7 +692,7 @@ class HighlightModel
 
         $sql = 'SELECT h.id
                 FROM highlights h
-                WHERE h.is_deleted = 0 AND h.user_id = :user_id AND h.created > :from AND h.created < :to';
+                WHERE h.is_deleted = 0 AND h.type = 0 AND h.user_id = :user_id AND h.created > :from AND h.created < :to';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
