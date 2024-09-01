@@ -154,7 +154,7 @@ class HighlightController extends Controller
     public function update(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $highlightID = $args['id'];
-        $params = $request->getParsedBody();
+        $params = ArrayUtil::trimArrayElements($request->getParsedBody());
         $highlightDetails = $this->highlightModel->getHighlightByID($highlightID);
 
         if (isset($_SESSION['highlights']['not_editable'][$highlightID])) {
@@ -194,7 +194,10 @@ class HighlightController extends Controller
 
     public function create(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $params = $request->getParsedBody();
+        $params = ArrayUtil::trimArrayElements($request->getParsedBody());
+        $typesenseClient = new Typesense('highlights');
+        $doIndex = false;
+        $now = time();
 
         if (!$params['highlight'] || !trim($params['highlight'])) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight cannot be null!");
@@ -242,7 +245,8 @@ class HighlightController extends Controller
     public function createSub(ServerRequestInterface $request, ResponseInterface $response, $args)
     {
         $resource = [];
-        $params = $request->getParsedBody();
+        $params = ArrayUtil::trimArrayElements($request->getParsedBody());
+        $typesenseClient = new Typesense('highlights');
         $highlightID = $args['id'];
 
         if (!$params['highlight'] || !trim($params['highlight'])) {
