@@ -8,6 +8,7 @@ use App\enum\Sources;
 use App\exception\CustomException;
 use App\model\BookmarkModel;
 use App\model\TagModel;
+use App\util\lang;
 use App\rabbitmq\AmqpJobPublisher;
 use App\util\TwitterUtil;
 use \Psr\Http\Message\ServerRequestInterface;
@@ -240,7 +241,7 @@ class BookmarkController extends Controller
         }
 
         $resource = [
-            "message" => "Successfully added highlight"
+            "message" => lang\En::HIGHLIGHT_SUCCESSFULLY_ADDED
         ];
 
         unset($_SESSION['highlights']['minMaxID']);
