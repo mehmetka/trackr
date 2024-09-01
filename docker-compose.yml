@@ -59,5 +59,19 @@ services:
     networks:
       - trackr
 
+  trackr-typesense:
+    image: typesense/typesense:27.0
+    container_name: trackr-typesense
+    restart: on-failure
+    volumes:
+      - typesense-data:/data
+    command: '--data-dir /data --api-key=${TYPESENSE_API_KEY} --enable-cors'
+    networks:
+      - trackr
+
+volumes:
+  typesense-data:
+    driver: local
+
 networks:
   trackr:
