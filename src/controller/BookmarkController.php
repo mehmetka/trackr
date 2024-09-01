@@ -9,8 +9,6 @@ use App\exception\CustomException;
 use App\model\BookmarkModel;
 use App\model\TagModel;
 use App\rabbitmq\AmqpJobPublisher;
-use App\util\HighlightUtil;
-use App\util\TagUtil;
 use App\util\TwitterUtil;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
