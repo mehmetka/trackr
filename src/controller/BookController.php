@@ -10,6 +10,7 @@ use App\model\BookModel;
 use App\model\TagModel;
 use App\rabbitmq\AmqpJobPublisher;
 use App\util\RequestUtil;
+use App\util\Typesense;
 use \Psr\Http\Message\ServerRequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 use Psr\Container\ContainerInterface;
@@ -539,14 +540,43 @@ class BookController extends Controller
 
     public function getLibraries(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $books = $this->bookModel->getLibraries();
+        $books = [];
+        $queryParams = $request->getQueryParams();
+        $typesenseClient = new Typesense('libraries');
+
+        // $books = $this->bookModel->getLibraries();
+
+        if (isset($queryParams['search']) && $queryParams['search']) {
+            $searchParameters = [
+                'q' => $queryParams['search'],
+                'query_by' => 'title'
+            ];
+
+            $searchResult = $typesenseClient->searchDocuments($searchParameters);
+        }
+
+        if (isset($queryParams['raw']) && $queryParams['raw']) {
+            echo "<pre>";
+            print_r($searchResult);
+            die;
+        }
+      
+        foreach ($searchResult['hits'] as $result) {
+            $books[] = [
+                'title' => $result['document']['title'] . " ({$result['document']['size']})",
+                'author' => $result['document']['library'],
+                'info_link' => $result['document']['url'],
+                'ebook' => true,
+                'page_count' => 'n/a',
+            ];
+        }
 
         $data = [
             'pageTitle' => 'Libraries | trackr',
             'books' => $books
         ];
 
-        return $this->view->render($response, 'books/libraries.mustache', $data);
+        return $this->view->render($response, 'books/all.mustache', $data);
     }
 
 }
