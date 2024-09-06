@@ -277,30 +277,6 @@ CREATE TABLE `images`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE `libraries`
-(
-    `id`       int(11) NOT NULL AUTO_INCREMENT,
-    `book`     varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-    `utf_book` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-    `size`     varchar(45) COLLATE utf8mb4_unicode_ci   DEFAULT NULL,
-    `library`  varchar(255) COLLATE utf8mb4_unicode_ci  DEFAULT NULL,
-    `created`  varchar(45) COLLATE utf8mb4_unicode_ci   DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    FULLTEXT KEY `utf_book` (`utf_book`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci;
-
-CREATE TABLE `library_links`
-(
-    `id`   int(11) NOT NULL AUTO_INCREMENT,
-    `name` varchar(45) COLLATE utf8mb4_unicode_ci   DEFAULT NULL,
-    `link` varchar(1000) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci;
-
 CREATE TABLE `log_versions`
 (
     `id`         int(11)                               NOT NULL AUTO_INCREMENT,
