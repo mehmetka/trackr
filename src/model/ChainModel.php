@@ -18,7 +18,7 @@ class ChainModel
         $this->dbConnection = $container->get('db');
     }
 
-    public function getChains()
+    public function getChains($status = 0)
     {
         $chains = [];
 
@@ -31,10 +31,11 @@ class ChainModel
                        created_at   AS chainCreatedAt,
                        user_id      AS userId
                 FROM chains
-                WHERE user_id = :user_id';
+                WHERE user_id = :user_id AND status = :status';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+        $stm->bindParam(':status', $status, \PDO::PARAM_INT);
 
         if (!$stm->execute()) {
             throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
