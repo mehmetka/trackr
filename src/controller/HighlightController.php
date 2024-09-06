@@ -236,7 +236,6 @@ class HighlightController extends Controller
     public function create(ServerRequestInterface $request, ResponseInterface $response)
     {
         $params = ArrayUtil::trimArrayElements($request->getParsedBody());
-        $typesenseClient = new Typesense('highlights');
         $doIndex = false;
         $now = time();
 
@@ -248,24 +247,7 @@ class HighlightController extends Controller
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, lang\En::HIGHLIGHT_MUST_BE_LONGER);
         }
 
-        $searchParameters = [
-            'q'          => $params['highlight'],
-            'query_by'   => 'highlight',
-            'filter_by'  => "user_id:={$_SESSION['userInfos']['user_id']}",
-        ];
-
-        $highlightSearchResult = $typesenseClient->searchDocuments($searchParameters);
-
-        if ($highlightSearchResult['found']) {
-//            foreach ($highlightSearchResult['hits'] as $hit) {
-//                $this->highlightModel->updateUpdatedFieldByHighlightId($hit['document']['id']);
-//                // TODO should be updated in typesense as well
-//            }
-            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, lang\En::HIGHLIGHT_ADDED_BEFORE);
-        }
-
         // OLD WAY
-        /*
         $highlightExist = $this->highlightModel->searchHighlight($params['highlight']);
 
         if ($highlightExist) {
@@ -274,7 +256,6 @@ class HighlightController extends Controller
             }
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, "Highlight added before!");
         }
-        */
 
         if (isset($params['is_encrypted']) && $params['is_encrypted'] === 'Yes') {
             $params['is_encrypted'] = 1;
@@ -342,22 +323,6 @@ class HighlightController extends Controller
 
         if (str_word_count($params['highlight']) < 2) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, lang\En::HIGHLIGHT_MUST_BE_LONGER);
-        }
-
-        $searchParameters = [
-            'q'          => $params['highlight'],
-            'query_by'   => 'highlight',
-            'filter_by'  => "user_id:={$_SESSION['userInfos']['user_id']}",
-        ];
-
-        $highlightSearchResult = $typesenseClient->searchDocuments($searchParameters);
-
-        if ($highlightSearchResult['found']) {
-//            foreach ($highlightSearchResult['hits'] as $hit) {
-//                $this->highlightModel->updateUpdatedFieldByHighlightId($hit['document']['id']);
-//                // TODO should be updated in typesense as well
-//            }
-            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, lang\En::HIGHLIGHT_ADDED_BEFORE);
         }
 
         $parentHighlightDetails = $this->highlightModel->getHighlightByID($highlightID);
