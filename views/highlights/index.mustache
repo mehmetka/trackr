@@ -25,7 +25,7 @@
         {{> navbar }}
 
         <input id="searchHighlights" class="nav form-control bg-transparent border-0 pl-4 text-muted" type="search"
-               placeholder="Search Highlights" aria-label="Search">
+               placeholder="Search Highlights" aria-label="Search" {{#searchParam}}value="{{searchParam}}"{{/searchParam}}>
 
     </nav>
     <main role="main" class="main-content">
@@ -207,18 +207,22 @@
                 var searchParam = $('#searchHighlights').val();
 
                 if (searchParam !== '') {
-                    var result = ajaxCall('POST', "/highlights/search", 'searchParam=' + searchParam, false, false)
+                    const baseUrl = window.location.origin + window.location.pathname; // Base URL without query params
+                    const newUrl = `${baseUrl}?search=${encodeURIComponent(searchParam)}`; // New URL with search param
+                    window.location.href = newUrl;
 
-                    if (result !== false) {
-                        $('.highlightCard').remove();
-                        $('.highlightCardBR').remove();
-
-                        var template = $('#search-results-template').html();
-                        Mustache.parse(template);
-                        var rendered = Mustache.render(template, result);
-                        $("#search-results").html(rendered);
-                        $(".lazy").Lazy();
-                    }
+                    // var result = ajaxCall('POST', "/highlights/search", 'searchParam=' + searchParam, false, false)
+                    //
+                    // if (result !== false) {
+                    //     $('.highlightCard').remove();
+                    //     $('.highlightCardBR').remove();
+                    //
+                    //     var template = $('#search-results-template').html();
+                    //     Mustache.parse(template);
+                    //     var rendered = Mustache.render(template, result);
+                    //     $("#search-results").html(rendered);
+                    //     $(".lazy").Lazy();
+                    // }
                 }
             }
         });

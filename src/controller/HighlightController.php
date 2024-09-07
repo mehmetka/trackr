@@ -35,17 +35,17 @@ class HighlightController extends Controller
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
         $queryString = $request->getQueryParams();
-        $tagQueryString = htmlspecialchars($queryString['tag'], ENT_QUOTES | ENT_HTML401, "UTF-8");
 
         $data = [
             'pageTitle' => 'Highlights | trackr',
-            'tag' => $tagQueryString,
             'activeHighlights' => 'active'
         ];
 
         if (isset($queryString['tag'])) {
+            $tagQueryString = htmlspecialchars($queryString['tag'], ENT_QUOTES | ENT_HTML401, "UTF-8");
             $highlights = $this->highlightModel->getHighlightsByTag($queryString['tag'], $_ENV['HIGHLIGHT_LIMIT']);
             $data['pageTitle'] = "Highlights #$tagQueryString | trackr";
+            $data['tag'] = $tagQueryString;
         } elseif (isset($queryString['author'])) {
             $highlights = $this->highlightModel->getHighlightsByGivenField('author', $queryString['author'],
                 $_ENV['HIGHLIGHT_LIMIT']);
@@ -69,6 +69,7 @@ class HighlightController extends Controller
         } elseif (isset($queryString['search'])) {
             $searchParam = trim($queryString['search']);
             $highlights = $this->highlightModel->searchHighlightTypesense($searchParam);
+            $data['searchParam'] = htmlspecialchars($searchParam, ENT_QUOTES | ENT_HTML401, "UTF-8");
         } else {
             $highlights = $this->highlightModel->getHighlights($_ENV['HIGHLIGHT_LIMIT']);
         }
