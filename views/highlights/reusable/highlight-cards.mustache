@@ -28,7 +28,15 @@
             {{{highlight}}}
 
             <footer class="blockquote-footer">
-                {{ultimate_source}} ~ {{created_at_formatted}}/{{updated_at_formatted}}
+
+                {{#activeLinkSource}}
+                    <a href="?{{queryField}}={{ultimate_source}}">{{ultimate_source}} ~ {{created_at_formatted}}/{{updated_at_formatted}}</a>
+                {{/activeLinkSource}}
+
+                {{^activeLinkSource}}
+                    {{ultimate_source}} ~ {{created_at_formatted}}/{{updated_at_formatted}}
+                {{/activeLinkSource}}
+
                 {{#is_secret}}
                     <i class="fe fe-lock fe-12"></i>
                 {{/is_secret}}

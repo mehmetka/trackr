@@ -114,18 +114,24 @@ class HighlightModel
 
         if (!$highlight['author'] && !$highlight['source']) {
             $source = 'Unknown';
+            $highlight['activeLinkSource'] = false;
         }
 
         if ($highlight['author'] && !$highlight['source']) {
             $source = $highlight['author'];
+            $highlight['queryField'] = 'author';
+            $highlight['activeLinkSource'] = true;
         }
 
         if (!$highlight['author'] && $highlight['source']) {
             $source = $highlight['source'];
+            $highlight['queryField'] = 'source';
+            $highlight['activeLinkSource'] = true;
         }
 
         if ($highlight['author'] && $highlight['source']) {
             $source = $highlight['author'] . ' - ' . $highlight['source'];
+            $highlight['activeLinkSource'] = false;
         }
 
         $highlight['ultimate_source'] = $source;
