@@ -112,6 +112,7 @@ class HighlightController extends Controller
         $versionDiffs = [];
 
         $versions = $this->highlightModel->getVersionsById($highlightID);
+        $versionCount = count($versions) + 1;
         $currentHighlight = $this->highlightModel->getHighlightByID($highlightID);
 
         $newString = $currentHighlight['highlight'];
@@ -124,9 +125,10 @@ class HighlightController extends Controller
             VersionDiffUtil::highlightsRendererOptions(),
         );
 
-        $versionDiffs[] = ['diff' => $latestDiff, 'created_at' => 'Latest'];
+        $versionDiffs[] = ['diff' => $latestDiff, 'created_at' => "#$versionCount Latest"];
 
         foreach ($versions as $version) {
+            $versionCount--;
             $new = $newString;
             $old = $version['old_highlight'];
             $sideBySideResult = DiffHelper::calculate(
@@ -137,7 +139,7 @@ class HighlightController extends Controller
                 VersionDiffUtil::highlightsRendererOptions(),
             );
 
-            $versionDiffs[] = ['diff' => $sideBySideResult, 'created_at' => $version['created_at']];
+            $versionDiffs[] = ['diff' => $sideBySideResult, 'created_at' => "#$versionCount {$version['created_at']}"];
             $newString = $version['old_highlight'];
         }
 
