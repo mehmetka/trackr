@@ -2,6 +2,7 @@
 
 namespace App\controller;
 
+use App\util\lang;
 use App\model\AuthModel;
 use App\exception\CustomException;
 use Psr\Container\ContainerInterface;
@@ -39,7 +40,7 @@ class AuthController extends Controller
         $this->authModel->login($params['username'], $params['password']);
 
         $resource['responseCode'] = StatusCode::HTTP_OK;
-        $resource['message'] = "Logged in successfully";
+        $resource['message'] = lang\En::AUTH_LOGGED_IN_SUCCESSFULLY;
 
         return $this->response($resource['responseCode'], $resource);
     }
@@ -49,25 +50,26 @@ class AuthController extends Controller
         $params = $request->getParsedBody();
         $userExist = $this->authModel->userCreatedBefore($params['username']);
 
-        if (!$params['username'] || !$params['password']) {
-            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Credentials cannot be null',
-                'Credentials cannot be null');
+        if (!$params['username']) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, lang\En::AUTH_USERNAME_CANNOT_BE_NULL);
+        }
+
+        if (!$params['password']) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, lang\En::AUTH_PASSWORD_CANNOT_BE_NULL);
         }
 
         if ($userExist) {
-            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'User created before!',
-                'User created before!');
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, lang\En::AUTH_USER_ALREADY_EXISTS);
         }
 
         if (trim($params['password']) != trim($params['passwordAgain'])) {
-            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, 'Passwords must be matched!',
-                'Passwords must be matched!');
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, lang\En::AUTH_PASSWORDS_NOT_MATCHED);
         }
 
         $this->authModel->register($params['username'], $params['password']);
 
         $resource['responseCode'] = StatusCode::HTTP_CREATED;
-        $resource['message'] = "Registered successfully";
+        $resource['message'] = lang\En::AUTH_USER_CREATED_SUCCESSFULLY;
 
         return $this->response($resource['responseCode'], $resource);
     }
