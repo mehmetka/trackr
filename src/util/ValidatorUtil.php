@@ -33,4 +33,9 @@ class ValidatorUtil
     {
         return filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => $min, 'max_range' => $max]]) !== false;
     }
+
+    public static function isInteger($value): bool
+    {
+        return filter_var($value, FILTER_VALIDATE_INT) !== false;
+    }
 }
