@@ -8,6 +8,7 @@ use App\model\TagModel;
 use App\util\ArrayUtil;
 use App\util\lang;
 use App\util\Typesense;
+use App\util\ValidatorUtil;
 use Jfcherng\Diff\DiffHelper;
 use Slim\Http\StatusCode;
 use App\util\EncryptionUtil;
@@ -55,6 +56,11 @@ class HighlightController extends Controller
                 $_ENV['HIGHLIGHT_LIMIT']);
             $data['pageTitle'] = "{$queryString['source']}'s Highlights | trackr";
         } elseif (isset($queryString['id'])) {
+
+            if (ValidatorUtil::isInteger($queryString['id'])) {
+                $data['pageTitle'] = "Highlights #{$queryString['id']} | trackr";
+            }
+
             $highlights = $this->highlightModel->getHighlightsByGivenField('id', $queryString['id'],
                 $_ENV['HIGHLIGHT_LIMIT']);
         } elseif (isset($queryString['bookUID'])) {
@@ -110,6 +116,10 @@ class HighlightController extends Controller
             'nextID' => $nextID,
             'previousID' => $previousID
         ];
+
+        if (ValidatorUtil::isInteger($highlightID)) {
+            $data['pageTitle'] = "Highlights #$highlightID Details | trackr";
+        }
 
         return $this->view->render($response, 'highlights/details.mustache', $data);
     }
