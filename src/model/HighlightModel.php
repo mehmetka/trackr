@@ -509,7 +509,7 @@ class HighlightModel
         return $list;
     }
 
-    public function searchHighlightFulltext($searchParam)
+    public function searchHighlightMySQL($searchParam)
     {
         $list = [];
         $searchParam = '"' . $searchParam . '"';

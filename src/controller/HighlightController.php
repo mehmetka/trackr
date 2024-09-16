@@ -429,7 +429,7 @@ class HighlightController extends Controller
         $params = $request->getParsedBody();
 
         // OLD
-        // $results = $this->highlightModel->searchHighlightFulltext($params['searchParam']);
+        // $results = $this->highlightModel->searchHighlightMySQL($params['searchParam']);
 
         $searchParam = trim($params['searchParam']);
         $highlights = $this->highlightModel->searchHighlightTypesense($searchParam);
