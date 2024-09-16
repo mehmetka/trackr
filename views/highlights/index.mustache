@@ -25,7 +25,8 @@
         {{> navbar }}
 
         <input id="searchHighlights" class="nav form-control bg-transparent border-0 pl-4 text-muted" type="search"
-               placeholder="Search Highlights" aria-label="Search" {{#searchParam}}value="{{searchParam}}"{{/searchParam}}>
+               placeholder="Search Highlights" aria-label="Search"
+               {{#searchParam}}value="{{searchParam}}"{{/searchParam}}>
 
     </nav>
     <main role="main" class="main-content">
@@ -139,12 +140,18 @@
 <script>
     $(document).ready(function () {
 
+        $(document).on('keydown', function (e) {
+            if (e.metaKey && e.keyCode === 13) {
+                saveHighlight();
+            }
+        });
+
         var unsavedChanges = false;
         $('.highlightToolTip').tooltip({
             trigger: 'manual' // Disable automatic trigger
         });
 
-        $('.highlightToolTip').on('mouseenter', function(){
+        $('.highlightToolTip').on('mouseenter', function () {
             var button = $(this);
             var highlightId = $(this).data('id');
 
@@ -176,7 +183,7 @@
         });
 
         // Hide tooltip on mouseleave
-        $('.highlightToolTip').on('mouseleave', function(){
+        $('.highlightToolTip').on('mouseleave', function () {
             $(this).tooltip('hide');
         });
 
@@ -229,39 +236,7 @@
 
         $('.enterButtonKeyPress').bind('keypress', function (e) {
             if (e.keyCode == 13) {
-
-                $.bootstrapPurr('running duplicate highlight control', {
-                    type: 'warning',
-                    delay: 1000
-                });
-
-                var highlight = simplemde.value();
-                var author = $('#author').val();
-                var source = $('#source').val();
-                var page = $('#page').val();
-                var tags = $('#tags').val();
-                var title = $('#title').val();
-                var is_encrypted = $('#is_encrypted').val();
-                var blogPath = $('#blogPath').val();
-                var book = $('#book').val();
-                var is_secret = $('#is_secret').val();
-
-                var data = "highlight=" + encodeURIComponent(highlight) +
-                        "&author=" + encodeURIComponent(author) +
-                        "&source=" + encodeURIComponent(source) +
-                        "&page=" + encodeURIComponent(page) +
-                        "&tags=" + encodeURIComponent(tags) +
-                        "&title=" + encodeURIComponent(title) +
-                        "&blogPath=" + encodeURIComponent(blogPath) +
-                        "&is_encrypted=" + encodeURIComponent(is_encrypted) +
-                        "&book=" + encodeURIComponent(book) +
-                        "&is_secret=" + encodeURIComponent(is_secret);
-               var result = ajaxCall('POST', "/highlights", data)
-
-                if (result !== false) {
-                    unsavedChanges = false;
-                    location.reload();
-                }
+                saveHighlight();
             }
         });
 
@@ -282,6 +257,41 @@
                 event.preventDefault();
             }
         });
+
+        var saveHighlight = function () {
+            $.bootstrapPurr('running duplicate highlight control', {
+                type: 'warning',
+                delay: 1000
+            });
+
+            var highlight = simplemde.value();
+            var author = $('#author').val();
+            var source = $('#source').val();
+            var page = $('#page').val();
+            var tags = $('#tags').val();
+            var title = $('#title').val();
+            var is_encrypted = $('#is_encrypted').val();
+            var blogPath = $('#blogPath').val();
+            var book = $('#book').val();
+            var is_secret = $('#is_secret').val();
+
+            var data = "highlight=" + encodeURIComponent(highlight) +
+                    "&author=" + encodeURIComponent(author) +
+                    "&source=" + encodeURIComponent(source) +
+                    "&page=" + encodeURIComponent(page) +
+                    "&tags=" + encodeURIComponent(tags) +
+                    "&title=" + encodeURIComponent(title) +
+                    "&blogPath=" + encodeURIComponent(blogPath) +
+                    "&is_encrypted=" + encodeURIComponent(is_encrypted) +
+                    "&book=" + encodeURIComponent(book) +
+                    "&is_secret=" + encodeURIComponent(is_secret);
+            var result = ajaxCall('POST', "/highlights", data)
+
+            if (result !== false) {
+                unsavedChanges = false;
+                location.reload();
+            }
+        }
 
     });
 </script>
