@@ -68,7 +68,15 @@ class HighlightController extends Controller
             $highlights = $this->highlightModel->getHighlightsByGivenField('is_secret', $isSecret);
         } elseif (isset($queryString['search'])) {
             $searchParam = trim($queryString['search']);
-            $highlights = $this->highlightModel->searchHighlightTypesense($searchParam);
+
+            if (isset($queryString['type']) && ValidatorUtil::validateIntegerByConstraints($queryString['type'], 0, 0)) {
+                $highlights = $this->highlightModel->searchHighlightTypesense($searchParam);
+            }
+
+            if (isset($queryString['type']) && ValidatorUtil::validateIntegerByConstraints($queryString['type'], 1, 1)) {
+                $highlights = $this->highlightModel->searchHighlightMySQL($searchParam);
+            }
+
             $data['searchParam'] = htmlspecialchars($searchParam, ENT_QUOTES | ENT_HTML401, "UTF-8");
         } else {
             $highlights = $this->highlightModel->getHighlights($_ENV['HIGHLIGHT_LIMIT']);

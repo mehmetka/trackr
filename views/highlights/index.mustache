@@ -208,7 +208,7 @@
 
                 if (searchParam !== '') {
                     const baseUrl = window.location.origin + window.location.pathname; // Base URL without query params
-                    const newUrl = `${baseUrl}?search=${encodeURIComponent(searchParam)}`; // New URL with search param
+                    const newUrl = `${baseUrl}?type=0&search=${encodeURIComponent(searchParam)}`; // New URL with search param
                     window.location.href = newUrl;
 
                     // var result = ajaxCall('POST', "/highlights/search", 'searchParam=' + searchParam, false, false)
