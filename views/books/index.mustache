@@ -53,7 +53,15 @@
                                 </div>
                                 <div class="card-body">
                                     <blockquote class="blockquote mb-0">
-                                        {{author}} - {{title}}
+
+                                        {{#history}}
+                                            <a href="#" class="btnReadingHistory" data-uid="{{bookUID}}" data-toggle="modal" data-target="#readingHistoryModal">{{author}} - {{title}}</a>
+                                        {{/history}}
+
+                                        {{^history}}
+                                            <p>{{author}} - {{title}}</p>
+                                        {{/history}}
+
                                         <footer>
                                             <br>
 
@@ -78,11 +86,6 @@
                                                         yesterday</label>
                                                 </div>
                                             {{/showReadYesterday}}
-
-                                            {{#history}}
-                                                <a class="btn btn-sm btn-info btnReadingHistory" data-uid="{{bookUID}}"
-                                                   data-toggle="modal" data-target="#readingHistoryModal">History</a>
-                                            {{/history}}
 
                                             {{#remove}}
                                                 <div>
