@@ -38,10 +38,12 @@ class BookController extends Controller
         }
 
         $pathId = $this->bookModel->getPathIdByUid($args['pathUID']);
+        $path = $this->bookModel->getPathByUid($args['pathUID']);
+        $pathId = $path['id'];
         $books = $this->bookModel->getBooksPathInside($pathId, $active);
 
         $data = [
-            'pageTitle' => "Chosen Path's Books | trackr",
+            'pageTitle' => $path['name'] . "'s Books | trackr",
             'books' => $books,
             'activeBookPaths' => 'active'
         ];

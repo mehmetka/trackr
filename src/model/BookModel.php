@@ -1106,6 +1106,32 @@ class BookModel
         return $path;
     }
 
+    public function getPathByUid($pathUid)
+    {
+        $sql = 'SELECT id, name, start, finish, status
+                FROM paths 
+                WHERE uid = :uid AND user_id = :user_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':uid', $pathUid, \PDO::PARAM_STR);
+        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        $path = [];
+
+        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+            $row['start'] = date('Y-m-d', $row['start']);
+            $row['finish'] = date('Y-m-d', $row['finish']);
+
+            $path = $row;
+        }
+
+        return $path;
+    }
+
     public function extendFinishDate($pathId, $extendedFinishDate)
     {
         $sql = 'UPDATE paths 
