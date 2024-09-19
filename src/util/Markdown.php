@@ -5,6 +5,7 @@ namespace App\util;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\CommonMark\Node\Inline\Link;
+use League\CommonMark\Extension\Mention\MentionExtension;
 use League\CommonMark\Extension\Table\Table;
 use League\CommonMark\Extension\TaskList\TaskListExtension;
 use League\CommonMark\Extension\Strikethrough\StrikethroughExtension;
@@ -20,6 +21,18 @@ class Markdown
     public function __construct()
     {
         $config = [
+            'mentions' => [
+                'highlight_id' => [
+                    'prefix'    => '#',
+                    'pattern'   => '\d+',
+                    'generator' => "/highlights?id=%d"
+                ],
+                'highlight_tag' => [
+                    'prefix' => '#',
+                    'pattern' => '\w+',
+                    'generator' => "/highlights?tag=%s"
+                ],
+            ],
             'table' => [
                 'wrap' => [
                     'enabled' => false,
@@ -51,6 +64,7 @@ class Markdown
         $environment->addExtension(new StrikethroughExtension());
         $environment->addExtension(new TableExtension());
         $environment->addExtension(new DefaultAttributesExtension());
+        $environment->addExtension(new MentionExtension());
 
         $this->client = new MarkdownConverter($environment);
     }

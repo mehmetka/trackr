@@ -138,26 +138,6 @@ class HighlightModel
         $highlight['ultimate_source'] = $source;
 
         $highlight['highlight'] = $markdownClient->convert($highlight['highlight']);
-        //$highlight['highlight'] = str_replace('<img src="', '<img class="lazy" data-src="', $highlight['highlight']);
-        $decimalHashtags = StringUtil::getDecimalHashtags($highlight['highlight']);
-
-        if ($decimalHashtags) {
-            foreach ($decimalHashtags as $id) {
-                $highlight['highlight'] = str_replace('#' . $id,
-                    "<a href='/highlights?id=$id' class='highlightToolTip' data-toggle='tooltip' data-id='$id' data-placement='top' title=''>#$id</a>",
-                    $highlight['highlight']);
-            }
-        }
-
-//        $alphaNumericHashtags = StringUtil::getAlphaNumericHashtags($highlight['highlight']);
-//
-//        if ($alphaNumericHashtags) {
-//            foreach ($alphaNumericHashtags as $tag) {
-//                $highlight['highlight'] = str_replace('#' . $tag, "<a href='/highlights?tag=$tag'>#$tag</a>",
-//                    $highlight['highlight']);
-//            }
-//        }
-
 
         $highlight['parent_highlight'] = $this->getParentHighlightBySubHighlightID($highlight['id']);
         $highlight['version_count'] = $this->getVersionsCountById($highlight['id']);
