@@ -143,7 +143,8 @@ class HighlightModel
 
         if ($decimalHashtags) {
             foreach ($decimalHashtags as $id) {
-                $highlight['highlight'] = str_replace('#' . $id, "<a href='/highlights?id=$id' class='highlightToolTip' data-toggle='tooltip' data-id='$id' data-placement='top' title=''>#$id</a>",
+                $highlight['highlight'] = str_replace('#' . $id,
+                    "<a href='/highlights?id=$id' class='highlightToolTip' data-toggle='tooltip' data-id='$id' data-placement='top' title=''>#$id</a>",
                     $highlight['highlight']);
             }
         }
@@ -544,9 +545,9 @@ class HighlightModel
         $typesenseClient = new Typesense('highlights');
 
         $searchParameters = [
-            'q'          => $searchParam,  // Query string; using '*' for a match-all search
-            'query_by'   => 'highlight',
-            'filter_by'  => "user_id:={$_SESSION['userInfos']['user_id']} && is_deleted:=0",
+            'q' => $searchParam,  // Query string; using '*' for a match-all search
+            'query_by' => 'highlight',
+            'filter_by' => "user_id:={$_SESSION['userInfos']['user_id']} && is_deleted:=0",
         ];
         $results = $typesenseClient->searchDocuments($searchParameters);
 
