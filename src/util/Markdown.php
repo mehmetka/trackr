@@ -40,8 +40,6 @@ class Markdown
                     'target' => '_blank',
                 ],
                 Image::class => [
-                    // https://github.com/simonvomeyser/commonmark-ext-lazy-image
-                    // bunun icin library yazmis ama sanki gerek yok gibi?
                     'loading' => 'lazy',
                 ],
             ],
