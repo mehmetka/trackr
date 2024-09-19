@@ -3,6 +3,7 @@
 namespace App\util;
 
 use League\CommonMark\Environment\Environment;
+use League\CommonMark\Extension\Autolink\AutolinkExtension;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\CommonMark\Node\Inline\Link;
 use League\CommonMark\Extension\Mention\MentionExtension;
@@ -65,6 +66,7 @@ class Markdown
         $environment->addExtension(new TableExtension());
         $environment->addExtension(new DefaultAttributesExtension());
         $environment->addExtension(new MentionExtension());
+        $environment->addExtension(new AutolinkExtension());
 
         $this->client = new MarkdownConverter($environment);
     }
