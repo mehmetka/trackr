@@ -281,9 +281,9 @@ class ChainModel
     public function processLinkRecord($link)
     {
         if ($link['linkValue']) {
-            $link['linkValueShowInLogsValue'] = '[x]';
+            $link['linkValueShowInLogsValue'] = '- [x]';
         } else {
-            $link['linkValueShowInLogsValue'] = '[]';
+            $link['linkValueShowInLogsValue'] = '- [ ]';
         }
 
         $link['linkCreatedAt'] = date('Y-m-d H:i:s', $link['linkCreatedAt']);

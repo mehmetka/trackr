@@ -8,6 +8,7 @@ use App\model\BookModel;
 use App\model\ChainModel;
 use App\model\HighlightModel;
 use App\model\LogModel;
+use App\util\Markdown;
 use App\util\VersionDiffUtil;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -35,6 +36,7 @@ class LogController extends Controller
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
     {
+        $markdownClient = new Markdown();
         $queryParams = $request->getQueryParams();
 
         if (isset($queryParams['limit'])) {
@@ -64,24 +66,55 @@ class LogController extends Controller
 
         $logs = $this->logModel->getLogs($limit);
         foreach ($logs as $key => $log) {
+            $additionalData = '';
             $from = strtotime($log['date']);
             $to = strtotime($log['date']) + 86400;
-            $logs[$key]['reading'] = $this->bookModel->getDailyReadingAmount($log['date']);
-            $logs[$key]['bookmarks'] = $this->bookmarkModel->getFinishedBookmarks($from, $to);
-            $logs[$key]['bookmarksExist'] = count($logs[$key]['bookmarks']);
-            $logs[$key]['highlights'] = $this->highlightModel->getHighlightsByDateRange($from, $to);
-            $logs[$key]['highlightsExist'] = count($logs[$key]['highlights']);
-            $logs[$key]['chainsExist'] = count($chains);
+            $reading = $this->bookModel->getDailyReadingAmount($log['date']);
 
-            foreach ($chains as $chain) {
-                $link = $this->chainModel->getLinkByChainIdAndDate($chain['chainId'], $log['date']);
+            $additionalData .= "\n";
 
-                if ($link) {
-                    $logs[$key]['chains'][] = "{$link['linkValueShowInLogsValue']} {$chain['chainName']}";
-                } else {
-                    $logs[$key]['chains'][] = "[] {$chain['chainName']}";
+            $bookmarks = $this->bookmarkModel->getFinishedBookmarks($from, $to);
+            if ($bookmarks) {
+                $additionalData .= "**Bookmarks**\n";
+                foreach ($bookmarks as $bookmark) {
+                    $additionalData .= "- [{$bookmark['bookmark']}]({$bookmark['title']})\n";
                 }
             }
+
+            $additionalData .= "\n";
+
+            $highlights = $this->highlightModel->getHighlightsByDateRange($from, $to);
+
+            if ($highlights) {
+                $additionalData .= "**Highlights**\n";
+                foreach ($highlights as $highlight) {
+                    $additionalData .= "- [#{$highlight['id']}](/highlights?id={$highlight['id']})\n";
+                }
+            }
+
+            $additionalData .= "\n";
+            $additionalData .= "**Chains**\n";
+
+            if ($reading) {
+                $additionalData .= "- [x] Reading: $reading\n";
+            } else {
+                $additionalData .= "- [ ] Reading: $reading\n";
+            }
+
+            if ($chains) {
+                foreach ($chains as $chain) {
+                    $link = $this->chainModel->getLinkByChainIdAndDate($chain['chainId'], $log['date']);
+
+                    if ($link) {
+                        $additionalData .= "{$link['linkValueShowInLogsValue']} {$chain['chainName']}";
+                    } else {
+                        $additionalData .= "- [ ] {$chain['chainName']}";
+                    }
+                }
+            }
+
+            $additionalData = $markdownClient->convert($additionalData);
+            $logs[$key]['additionalData'] = $additionalData;
         }
 
         $data['logs'] = $logs;

@@ -26,7 +26,9 @@
                     <div class="card mb-4">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">Today - {{today}} <span id="spanNotSavedCaution" class="text text-danger text-hide">Not Saved</span></h5>
+                                <h5 class="card-title">Today - {{today}} <span id="spanNotSavedCaution"
+                                                                               class="text text-danger text-hide">Not Saved</span>
+                                </h5>
                                 <textarea id="logTextArea" hidden>{{todaysLog}}</textarea>
 
                                 <div class="form-group">
@@ -37,62 +39,27 @@
                     </div>
 
 
-                    <div class="card mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                {{#logs}}
+                    {{#logs}}
+                        <div class="card mb-4">
+                            <div class="card">
+                                <div class="card-header">
                                     <h5 class="card-title">
-                                        {{#versionCount}}<a href="#" class="btnLogVersions" data-date="{{date}}" data-toggle="modal"
-                                                            data-target="#logVersionsModal"># {{date}}</a>{{/versionCount}}
+                                        {{#versionCount}}
+                                            <a href="#" class="btnLogVersions" data-date="{{date}}" data-toggle="modal"
+                                               data-target="#logVersionsModal"># {{date}}</a>{{/versionCount}}
                                         {{^versionCount}}# {{date}}{{/versionCount}}
                                     </h5>
+                                </div>
+                                <div class="card-body">
 
                                     {{{log}}}
-                                    <br>
 
-                                    {{#chainsExist}}
-                                        <strong>chains</strong><br>
-                                        <ul>
-                                            {{#chains}}
-                                                <li>{{.}}</li>
-                                            {{/chains}}
-                                        </ul>
-                                    {{/chainsExist}}
+                                    {{{additionalData}}}
 
-                                    {{#reading}}
-                                        [x]
-                                    {{/reading}}
-                                    {{^reading}}
-                                        []
-                                    {{/reading}}
-                                    <strong>reading:</strong> {{reading}}
-                                    <br><br>
-                                    {{#bookmarksExist}}
-                                        <strong>bookmarks</strong><br>
-                                        <ul>
-                                            {{#bookmarks}}
-                                                <li>
-                                                    <a href="{{bookmark}}" target="_blank">{{title}}</a><br>
-                                                </li>
-                                            {{/bookmarks}}
-                                        </ul>
-                                    {{/bookmarksExist}}
-
-                                    {{#highlightsExist}}
-                                        <strong>highlights</strong><br>
-                                        <ul>
-                                            {{#highlights}}
-                                                <li>
-                                                    <a href="/highlights?id={{id}}">#{{id}}</a><br>
-                                                </li>
-                                            {{/highlights}}
-                                        </ul>
-                                    {{/highlightsExist}}
-                                {{/logs}}
+                                </div>
                             </div>
                         </div>
-                    </div>
-
+                    {{/logs}}
 
                 </div> <!-- .col-12 -->
             </div> <!-- .row -->
@@ -123,7 +90,7 @@
             uploadUrl: '/images'
         });
 
-        $(document).keydown(function(event) {
+        $(document).keydown(function (event) {
             if ((event.metaKey || event.ctrlKey) && event.which === 83) {
                 event.preventDefault(); // Prevent default action (usually means saving the page)
                 var currentLog = simplemde.value();
