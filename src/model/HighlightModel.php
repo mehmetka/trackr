@@ -4,7 +4,7 @@ namespace App\model;
 
 use App\enum\Sources;
 use App\util\EncryptionUtil;
-use App\util\MarkdownUtil;
+use App\util\Markdown;
 use App\util\StringUtil;
 use App\util\Typesense;
 use Psr\Container\ContainerInterface;
@@ -105,6 +105,7 @@ class HighlightModel
 
     public function processHighlightRecord($highlight)
     {
+        $markdownClient = new Markdown();
         if ($highlight['is_encrypted']) {
             $highlight['highlight'] = EncryptionUtil::decrypt($highlight['highlight']);
             if ($highlight['highlight'] === null) {
@@ -136,8 +137,8 @@ class HighlightModel
 
         $highlight['ultimate_source'] = $source;
 
-        $highlight['highlight'] = MarkdownUtil::convertToHTML($highlight['highlight']);
-        $highlight['highlight'] = str_replace('<img src="', '<img class="lazy" data-src="', $highlight['highlight']);
+        $highlight['highlight'] = $markdownClient->convert($highlight['highlight']);
+        //$highlight['highlight'] = str_replace('<img src="', '<img class="lazy" data-src="', $highlight['highlight']);
         $decimalHashtags = StringUtil::getDecimalHashtags($highlight['highlight']);
 
         if ($decimalHashtags) {
@@ -212,6 +213,7 @@ class HighlightModel
 
     public function getSubHighlightsByHighlightID($highlightID)
     {
+        $markdownClient = new Markdown();
         $list = [];
 
         $sql = 'SELECT h.id, h.highlight, h.author, h.source, h.page, h.location, h.link, h.type, h.created, h.updated, h.is_encrypted, h.blog_path
@@ -232,7 +234,7 @@ class HighlightModel
                 $row['highlight'] = EncryptionUtil::decrypt($row['highlight']);
             }
 
-            $row['highlight'] = MarkdownUtil::convertToHTML($row['highlight']);
+            $row['highlight'] = $markdownClient->convert($row['highlight']);
             $tags = $this->tagModel->getTagsBySourceId($row['id'], Sources::HIGHLIGHT->value);
 
             if ($tags) {

@@ -2,7 +2,7 @@
 
 namespace App\model;
 
-use App\util\MarkdownUtil;
+use App\util\Markdown;
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
 use Slim\Http\StatusCode;
@@ -19,6 +19,7 @@ class LogModel
 
     public function getLogs($limit = 30)
     {
+        $markdownClient = new Markdown();
         $logs = [];
 
         $sql = 'SELECT *
@@ -35,7 +36,7 @@ class LogModel
         }
 
         while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['log'] = MarkdownUtil::convertToHTML($row['log']);
+            $row['log'] = $markdownClient->convert($row['log']);
             $row['versionCount'] = $this->getVersionCountByLogId($row['id']);
             $logs[] = $row;
         }
