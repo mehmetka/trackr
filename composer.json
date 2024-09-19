@@ -4,13 +4,13 @@
     "andrewslince/slim3-mustache-view": "^1.0",
     "monolog/monolog": "~1.0",
     "vlucas/phpdotenv": "^5.4",
-    "erusev/parsedown": "^1.7",
     "php-amqplib/php-amqplib": "^2.9.0",
     "neitanod/forceutf8": "~2.0",
     "defuse/php-encryption": "^2.3",
     "spekulatius/phpscraper": "^0.6.2",
     "jfcherng/php-diff": "^6.16",
-    "typesense/typesense-php": "^4.8"
+    "typesense/typesense-php": "^4.8",
+    "league/commonmark": "^2.5"
   },
   "autoload": {
     "psr-4": {
