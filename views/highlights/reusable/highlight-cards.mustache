@@ -1,7 +1,6 @@
 {{#highlights}}
     <div class="card highlightCard">
-        <div class="card-body">
-
+        <div class="card-header">
             {{#version_count}}
                 <a role="button" href="#" data-id="{{id}}" class="badge badge-warning float-right btnHighlightVersions"
                    data-toggle="modal" data-target="#highlightVersionsModal"><span
@@ -15,16 +14,20 @@
 
             <a role="button" href="/highlights/{{id}}/details" class="badge badge-primary float-right"><span
                     class="fe fe-edit fe-8"></span></a>
-            <a role="button" class="badge float-right addToFavorite" data-id="{{id}}"><span
+            <a role="button" class="badge float-right addToFavorite" data-id="{{id}}" data-toggle="tooltip" data-placement="top" title="Click to add to favorite"><span
                     class="fe fe-heart fe-8"></span></a>
 
+            {{#is_secret}}<i class="fe fe-lock fe-12" data-toggle="tooltip" data-placement="top" title="Secret Highlight"></i>{{/is_secret}}
+        </div>
+
+        <div class="card-body">
+
             {{#blog_path}}
-                <br>
                 <strong># {{blog_path}}</strong>
+                <br>
                 <br>
             {{/blog_path}}
 
-            <br>
             {{{highlight}}}
 
             <footer class="blockquote-footer">
@@ -37,16 +40,14 @@
                     {{ultimate_source}} ~ {{created_at_formatted}}/{{updated_at_formatted}}
                 {{/activeLinkSource}}
 
-                {{#is_secret}}
-                    <i class="fe fe-lock fe-12"></i>
-                {{/is_secret}}
-                {{#tags}}
-                    <br><br>
-                    <strong>{{{imploded_link_blank}}}</strong>
-                {{/tags}}
             </footer>
-
         </div>
+
+        {{#tags}}
+        <div class="card-footer small">
+                <strong>{{{imploded_link_blank}}}</strong>
+        </div>
+        {{/tags}}
     </div>
     <br class="highlightCardBR">
 {{/highlights}}
