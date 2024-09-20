@@ -3,8 +3,7 @@
         <div class="card-header">
             {{#version_count}}
                 <a role="button" href="#" data-id="{{id}}" class="badge badge-warning float-right btnHighlightVersions"
-                   data-toggle="modal" data-target="#highlightVersionsModal"><span
-                        class="fe fe-activity fe-8"></span></a>
+                   data-toggle="modal" data-target="#highlightVersionsModal"><span class="fe fe-activity fe-8"></span> {{version_count}}</a>
             {{/version_count}}
 
             {{#parent_highlight}}
@@ -17,16 +16,14 @@
             <a role="button" class="badge float-right addToFavorite" data-id="{{id}}" data-toggle="tooltip" data-placement="top" title="Click to add to favorite"><span
                     class="fe fe-heart fe-8"></span></a>
 
+            {{#blog_path}}
+                <strong># {{blog_path}}</strong>
+            {{/blog_path}}
+
             {{#is_secret}}<i class="fe fe-lock fe-12" data-toggle="tooltip" data-placement="top" title="Secret Highlight"></i>{{/is_secret}}
         </div>
 
         <div class="card-body">
-
-            {{#blog_path}}
-                <strong># {{blog_path}}</strong>
-                <br>
-                <br>
-            {{/blog_path}}
 
             {{{highlight}}}
 
