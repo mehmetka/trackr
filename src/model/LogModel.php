@@ -2,7 +2,7 @@
 
 namespace App\model;
 
-use App\util\Markdown;
+use App\util\markdown\Markdown;
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
 use Slim\Http\StatusCode;
