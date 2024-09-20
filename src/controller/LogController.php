@@ -8,7 +8,7 @@ use App\model\BookModel;
 use App\model\ChainModel;
 use App\model\HighlightModel;
 use App\model\LogModel;
-use App\util\Markdown;
+use App\util\markdown\Markdown;
 use App\util\VersionDiffUtil;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;

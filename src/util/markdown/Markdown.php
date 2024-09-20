@@ -1,6 +1,6 @@
 <?php
 
-namespace App\util;
+namespace App\util\markdown;
 
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\Autolink\AutolinkExtension;

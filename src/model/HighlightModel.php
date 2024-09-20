@@ -4,8 +4,7 @@ namespace App\model;
 
 use App\enum\Sources;
 use App\util\EncryptionUtil;
-use App\util\Markdown;
-use App\util\StringUtil;
+use App\util\markdown\Markdown;
 use App\util\Typesense;
 use Psr\Container\ContainerInterface;
 use App\exception\CustomException;
