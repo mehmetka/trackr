@@ -5,15 +5,15 @@ namespace App\util\markdown;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\Autolink\AutolinkExtension;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
-use League\CommonMark\Extension\CommonMark\Node\Inline\Link;
-use League\CommonMark\Extension\Mention\MentionExtension;
-use League\CommonMark\Extension\Table\Table;
-use League\CommonMark\Extension\TaskList\TaskListExtension;
-use League\CommonMark\Extension\Strikethrough\StrikethroughExtension;
-use League\CommonMark\Extension\Table\TableExtension;
-use League\CommonMark\MarkdownConverter;
-use League\CommonMark\Extension\DefaultAttributes\DefaultAttributesExtension;
 use League\CommonMark\Extension\CommonMark\Node\Inline\Image;
+use League\CommonMark\Extension\CommonMark\Node\Inline\Link;
+use League\CommonMark\Extension\DefaultAttributes\DefaultAttributesExtension;
+use League\CommonMark\Extension\Mention\MentionExtension;
+use League\CommonMark\Extension\Strikethrough\StrikethroughExtension;
+use League\CommonMark\Extension\Table\Table;
+use League\CommonMark\Extension\Table\TableExtension;
+use League\CommonMark\Extension\TaskList\TaskListExtension;
+use League\CommonMark\MarkdownConverter;
 
 class Markdown
 {
@@ -24,8 +24,8 @@ class Markdown
         $config = [
             'mentions' => [
                 'highlight_id' => [
-                    'prefix'    => '#',
-                    'pattern'   => '\d+',
+                    'prefix' => '#',
+                    'pattern' => '\d+',
                     'generator' => "/highlights?id=%d"
                 ],
                 'highlight_tag' => [
@@ -50,9 +50,6 @@ class Markdown
                 Table::class => [
                     'class' => 'table table-striped table-bordered',
                 ],
-                Link::class => [
-                    'target' => '_blank',
-                ],
                 Image::class => [
                     'loading' => 'lazy',
                 ],
@@ -67,6 +64,7 @@ class Markdown
         $environment->addExtension(new DefaultAttributesExtension());
         $environment->addExtension(new MentionExtension());
         $environment->addExtension(new AutolinkExtension());
+        $environment->addRenderer(Link::class, new CustomLinkRenderer());
 
         $this->client = new MarkdownConverter($environment);
     }
