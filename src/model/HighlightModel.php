@@ -749,4 +749,22 @@ class HighlightModel
 
         return $versionCount;
     }
+
+    public function updateHighlightAuthorByBookmarkId($bookmarkId, $title, $userId)
+    {
+        $sql = 'UPDATE highlights
+                SET author = :author 
+                WHERE link = :bookmarkId AND user_id = :user_id';
+
+        $stm = $this->dbConnection->prepare($sql);
+        $stm->bindParam(':bookmarkId', $bookmarkId, \PDO::PARAM_INT);
+        $stm->bindParam(':author', $title, \PDO::PARAM_STR);
+        $stm->bindParam(':user_id', $userId, \PDO::PARAM_INT);
+
+        if (!$stm->execute()) {
+            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
+        }
+
+        return true;
+    }
 }
