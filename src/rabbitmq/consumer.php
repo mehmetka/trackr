@@ -7,6 +7,7 @@ require __DIR__ . '/../../vendor/autoload.php';
 
 use Slim\App;
 use App\model\BookmarkModel;
+use App\model\HighlightModel;
 use App\model\BookModel;
 use App\util\EncodingUtil;
 use App\util\RequestUtil;
@@ -69,6 +70,7 @@ function process_message($message)
     $messageBody = unserialize($message->body);
     $container = $GLOBALS['container'];
     $bookmarkModel = new BookmarkModel($container);
+    $highlightModel = new HighlightModel($container);
 
     if ($messageBody['job_type'] === JobTypes::GET_PARENT_BOOKMARK_TITLE) {
 
@@ -185,7 +187,7 @@ function process_message($message)
                     }
 
                     if ($bookmarkDetails['title'] !== $newBookmarkDetails['title']) {
-                        $bookmarkModel->updateHighlightAuthor($bookmarkDetails['id'], $newBookmarkDetails['title'],
+                        $highlightModel->updateHighlightAuthorByBookmarkId($bookmarkDetails['id'], $newBookmarkDetails['title'],
                             $messageBody['user_id']);
                     }
 
