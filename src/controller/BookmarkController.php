@@ -213,7 +213,6 @@ class BookmarkController extends Controller
         $bookmarkUid = $args['uid'];
         $bookmarkDetail = $this->bookmarkModel->getBookmarkByUid($bookmarkUid);
         $params = ArrayUtil::trimArrayElements($request->getParsedBody());
-        $typesenseClient = new Typesense('highlights');
         $now = time();
         $bookmarkDetail['highlight'] = $params['highlight'];
         $bookmarkDetail['bookmark_id'] = $bookmarkDetail['id'];
@@ -229,15 +228,12 @@ class BookmarkController extends Controller
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, lang\En::HIGHLIGHT_MUST_BE_LONGER);
         }
 
-        $searchParameters = [
-            'q' => $params['highlight'],
-            'query_by' => 'highlight',
-            'filter_by' => "user_id:={$_SESSION['userInfos']['user_id']}",
-        ];
+        $highlightExist = $this->highlightModel->searchHighlight($params['highlight']);
 
-        $highlightSearchResult = $typesenseClient->searchDocuments($searchParameters);
-
-        if ($highlightSearchResult['found']) {
+        if ($highlightExist) {
+            foreach ($highlightExist as $highlight) {
+                $this->highlightModel->updateUpdatedFieldByHighlightId($highlight['id']);
+            }
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, lang\En::HIGHLIGHT_ADDED_BEFORE);
         }
 
