@@ -37,7 +37,6 @@ class BookController extends Controller
             $active = $queryParams['status'] === 'active';
         }
 
-        $pathId = $this->bookModel->getPathIdByUid($args['pathUID']);
         $path = $this->bookModel->getPathByUid($args['pathUID']);
         $pathId = $path['id'];
         $books = $this->bookModel->getBooksPathInside($pathId, $active);
