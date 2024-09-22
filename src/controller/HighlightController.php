@@ -335,7 +335,6 @@ class HighlightController extends Controller
     {
         $resource = [];
         $params = ArrayUtil::trimArrayElements($request->getParsedBody());
-        $typesenseClient = new Typesense('highlights');
         $highlightID = $args['id'];
         $doIndex = false;
         $now = time();
@@ -350,56 +349,52 @@ class HighlightController extends Controller
 
         $parentHighlightDetails = $this->highlightModel->getHighlightByID($highlightID);
 
-        if ($parentHighlightDetails) {
-            $params['link'] = null;
-
-            if (isset($params['is_encrypted']) && $params['is_encrypted'] === 'Yes') {
-                $params['is_encrypted'] = 1;
-                $params['highlight'] = EncryptionUtil::encrypt($params['highlight']);
-            } else {
-                $doIndex = true;
-                $params['is_encrypted'] = 0;
-            }
-
-            $params['updated'] = $now;
-            $params['created'] = $now;
-
-            $subHighlightID = $this->highlightModel->create($params);
-
-            if ($params['tags']) {
-                $this->tagModel->updateSourceTags($params['tags'], $subHighlightID, Sources::HIGHLIGHT->value);
-            }
-
-            $this->highlightModel->createSubHighlight($highlightID, $subHighlightID);
-            $_SESSION['badgeCounts']['highlightsCount'] += 1;
-
-            if ($doIndex) {
-                $typesenseClient = new Typesense('highlights');
-                $document = [
-                    'id' => (string)$subHighlightID,
-                    'highlight' => $params['highlight'],
-                    'is_deleted' => 0,
-                    'author' => $params['author'] ?: $_SESSION['userInfos']['username'],
-                    'source' => $params['source'] ?: '',
-                    'created' => (int)$now,
-                    'updated' => (int)$now,
-                    'is_encrypted' => 0,
-                    'is_secret' => (int)$params['is_secret'],
-                    'blog_path' => $params['blogPath'] ?? '',
-                    'user_id' => (int)$_SESSION['userInfos']['user_id'],
-                ];
-                $typesenseClient->indexDocument($document);
-            }
-
-            $resource['message'] = lang\En::HIGHLIGHT_SUB_SUCCESSFULLY_ADDED;
-
-            unset($_SESSION['highlights']['minMaxID']);
-            return $this->response(StatusCode::HTTP_OK, $resource);
+        if (!$parentHighlightDetails) {
+            throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, lang\En::HIGHLIGHT_PARENT_NOT_FOUND);
         }
 
-        $resource['message'] = lang\En::HIGHLIGHT_PARENT_NOT_FOUND;
+        if (isset($params['is_encrypted']) && $params['is_encrypted'] === 'Yes') {
+            $params['is_encrypted'] = 1;
+            $params['highlight'] = EncryptionUtil::encrypt($params['highlight']);
+        } else {
+            $doIndex = true;
+            $params['is_encrypted'] = 0;
+        }
 
-        return $this->response(StatusCode::HTTP_BAD_REQUEST, $resource);
+        $params['updated'] = $now;
+        $params['created'] = $now;
+
+        $subHighlightID = $this->highlightModel->create($params);
+
+        if ($params['tags']) {
+            $this->tagModel->updateSourceTags($params['tags'], $subHighlightID, Sources::HIGHLIGHT->value);
+        }
+
+        $this->highlightModel->createSubHighlight($highlightID, $subHighlightID);
+        $_SESSION['badgeCounts']['highlightsCount'] += 1;
+
+        if ($doIndex) {
+            $typesenseClient = new Typesense('highlights');
+            $document = [
+                'id' => (string)$subHighlightID,
+                'highlight' => $params['highlight'],
+                'is_deleted' => 0,
+                'author' => $params['author'] ?: $_SESSION['userInfos']['username'],
+                'source' => $params['source'] ?: '',
+                'created' => (int)$now,
+                'updated' => (int)$now,
+                'is_encrypted' => 0,
+                'is_secret' => (int)$params['is_secret'],
+                'blog_path' => $params['blogPath'] ?? '',
+                'user_id' => (int)$_SESSION['userInfos']['user_id'],
+            ];
+            $typesenseClient->indexDocument($document);
+        }
+
+        $resource['message'] = lang\En::HIGHLIGHT_SUB_SUCCESSFULLY_ADDED;
+
+        unset($_SESSION['highlights']['minMaxID']);
+        return $this->response(StatusCode::HTTP_OK, $resource);
     }
 
     public function delete(ServerRequestInterface $request, ResponseInterface $response, $args)
