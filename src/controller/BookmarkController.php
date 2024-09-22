@@ -7,6 +7,7 @@ use App\enum\JobTypes;
 use App\enum\Sources;
 use App\exception\CustomException;
 use App\model\BookmarkModel;
+use App\model\HighlightModel;
 use App\model\TagModel;
 use App\util\ArrayUtil;
 use App\util\lang;
@@ -22,12 +23,14 @@ class BookmarkController extends Controller
 {
     private $bookmarkModel;
     private $tagModel;
+    private $highlightModel;
 
     public function __construct(ContainerInterface $container)
     {
         parent::__construct($container);
         $this->bookmarkModel = new BookmarkModel($container);
         $this->tagModel = new TagModel($container);
+        $this->highlightModel = new HighlightModel($container);
     }
 
     public function index(ServerRequestInterface $request, ResponseInterface $response)
@@ -55,7 +58,7 @@ class BookmarkController extends Controller
         $bookmarkUid = $args['uid'];
         $bookmarkId = $this->bookmarkModel->getBookmarkIdByUid($bookmarkUid);
 //        $details = $this->bookmarkModel->getChildBookmarkById($bookmarkId, $_SESSION['userInfos']['user_id']);
-        $highlights = $this->bookmarkModel->getHighlights($bookmarkId);
+        $highlights = $this->highlightModel->getHighlightsByGivenField('link',$bookmarkId);
         $tags = $this->tagModel->getTagsBySourceId($bookmarkId, Sources::BOOKMARK->value);
 
 //        if ($details['keyword'] && !in_array($details['keyword'], $tags['tags'])) {
@@ -160,8 +163,7 @@ class BookmarkController extends Controller
 
         if ($params['title'] !== $bookmarkDetails['title']) {
             $this->bookmarkModel->updateIsTitleEditedStatus($bookmarkId, BookmarkModel::TITLE_EDITED);
-            $this->bookmarkModel->updateHighlightAuthor($bookmarkId, $params['title'],
-                $_SESSION['userInfos']['user_id']);
+            $this->highlightModel->updateHighlightAuthorByBookmarkId($bookmarkId, $params['title'], $_SESSION['userInfos']['user_id']);
         }
 
         if ($status !== $bookmarkDetails['status']) {
@@ -213,6 +215,11 @@ class BookmarkController extends Controller
         $params = ArrayUtil::trimArrayElements($request->getParsedBody());
         $typesenseClient = new Typesense('highlights');
         $now = time();
+        $bookmarkDetail['highlight'] = $params['highlight'];
+        $bookmarkDetail['bookmark_id'] = $bookmarkDetail['id'];
+        $bookmarkDetail['blogPath'] = 'general/uncategorized';
+        $bookmarkDetail['created'] = $now;
+        $bookmarkDetail['updated'] = $now;
 
         if (!isset($params['highlight']) || !$params['highlight']) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, lang\En::HIGHLIGHT_CANNOT_BE_NULL);
@@ -239,9 +246,6 @@ class BookmarkController extends Controller
                 lang\En::BOOKMARK_INCONSISTENCY_FOR_ADDING_HIGHLIGHT);
         }
 
-        $bookmarkDetail['highlight'] = $params['highlight'];
-        $bookmarkDetail['blog_path'] = 'general/uncategorized';
-
         if (TwitterUtil::isTwitterUrl($bookmarkDetail['bookmark'])) {
             $username = TwitterUtil::getUsernameFromUrl($bookmarkDetail['bookmark']);
             $bookmarkDetail['author'] = $username;
@@ -251,10 +255,9 @@ class BookmarkController extends Controller
             $bookmarkDetail['source'] = 'Bookmark Highlight';
         }
 
-        $bookmarkDetail['created'] = $now;
-        $bookmarkDetail['updated'] = $now;
+        unset($bookmarkDetail['title']);
 
-        $highlightId = $this->bookmarkModel->addHighlight($bookmarkDetail);
+        $highlightId = $this->highlightModel->create($bookmarkDetail);
 
         $typesenseClient = new Typesense('highlights');
         $document = [
@@ -278,6 +281,8 @@ class BookmarkController extends Controller
             $this->bookmarkModel->updateStartedDate($bookmarkDetail['id'], time());
             $this->bookmarkModel->updateBookmarkStatus($bookmarkDetail['id'], BookmarkStatus::STARTED->value);
         }
+
+        $_SESSION['badgeCounts']['highlightsCount'] += 1;
 
         $resource = [
             "message" => lang\En::HIGHLIGHT_SUCCESSFULLY_ADDED
