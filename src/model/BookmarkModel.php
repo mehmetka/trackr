@@ -133,32 +133,6 @@ class BookmarkModel
         return $bookmarks;
     }
 
-    public function getHighlights($bookmarkId)
-    {
-        $list = [];
-
-        $sql = 'SELECT * 
-                FROM highlights
-                WHERE link = :link AND user_id = :user_id';
-
-
-        $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':link', $bookmarkId, \PDO::PARAM_INT);
-        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
-
-        if (!$stm->execute()) {
-            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
-        }
-
-        while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-            $row['highlight'] = str_replace("\n", '<br>', $row['highlight']);
-
-            $list[] = $row;
-        }
-
-        return $list;
-    }
-
     public function getParentBookmarkByBookmark($bookmark)
     {
         $list = [];
@@ -392,53 +366,6 @@ class BookmarkModel
         }
 
         return $this->dbConnection->lastInsertId();
-    }
-
-    public function addHighlight($bookmarkHighlight)
-    {
-        $bookmarkHighlight['author'] = $bookmarkHighlight['author'] ?: $_SESSION['userInfos']['username'];
-//        $bookmarkHighlight['source'] = $bookmarkHighlight['source'] ?? 'trackr';
-        $highlight = trim($bookmarkHighlight['highlight']);
-        $page = null;
-
-        $sql = 'INSERT INTO highlights (highlight, author, source, blog_path, page, link, created, updated, user_id)
-                VALUES(:highlight, :author, :source, :blog_path, :page, :link, :created, :updated, :user_id)';
-
-        $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':highlight', $highlight, \PDO::PARAM_STR);
-        $stm->bindParam(':author', $bookmarkHighlight['author'], \PDO::PARAM_STR);
-        $stm->bindParam(':source', $bookmarkHighlight['source'], \PDO::PARAM_STR);
-        $stm->bindParam(':blog_path', $bookmarkHighlight['blog_path'], \PDO::PARAM_STR);
-        $stm->bindParam(':page', $page, \PDO::PARAM_INT);
-        $stm->bindParam(':link', $bookmarkHighlight['id'], \PDO::PARAM_INT);
-        $stm->bindParam(':created', $bookmarkHighlight['created'], \PDO::PARAM_INT);
-        $stm->bindParam(':updated', $bookmarkHighlight['updated'], \PDO::PARAM_INT);
-        $stm->bindParam(':user_id', $_SESSION['userInfos']['user_id'], \PDO::PARAM_INT);
-
-        if (!$stm->execute()) {
-            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
-        }
-
-        $_SESSION['badgeCounts']['highlightsCount'] += 1;
-        return $this->dbConnection->lastInsertId();
-    }
-
-    public function updateHighlightAuthor($bookmarkId, $title, $userId)
-    {
-        $sql = 'UPDATE highlights 
-                SET author = :author 
-                WHERE link = :bookmarkId AND user_id = :user_id';
-
-        $stm = $this->dbConnection->prepare($sql);
-        $stm->bindParam(':bookmarkId', $bookmarkId, \PDO::PARAM_INT);
-        $stm->bindParam(':author', $title, \PDO::PARAM_STR);
-        $stm->bindParam(':user_id', $userId, \PDO::PARAM_INT);
-
-        if (!$stm->execute()) {
-            throw CustomException::dbError(StatusCode::HTTP_SERVICE_UNAVAILABLE, json_encode($stm->errorInfo()));
-        }
-
-        return true;
     }
 
     public function updateParentBookmarkTitleByID($id, $title)
