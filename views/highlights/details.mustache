@@ -7,7 +7,6 @@
 </head>
 
 <body class="vertical dark">
-{{> include}}
 <nav class="topnav navbar navbar-light">
     {{> navbar }}
 </nav>
@@ -185,6 +184,7 @@
     </main> <!-- main -->
 </div> <!-- .wrapper -->
 
+{{> include}}
 {{> menu }}
 
 <script src="/js/simplemde.min.js"></script>
@@ -195,22 +195,20 @@
 
         var unsavedChanges = false;
 
-        if ($('#highlight').length) { // TODO WTF?
-            var simplemdeHighlight = new SimpleMDE({
-                element: $("#highlight")[0],
-                toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
-                insertTexts: {"image": ["[", "](/img/)"]},
-            });
+        var simplemdeHighlight = new SimpleMDE({
+            element: $("#highlight")[0],
+            toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
+            insertTexts: {"image": ["![", "](/img/)"]},
+        });
 
-            inlineAttachment.editors.codemirror4.attach(simplemdeHighlight.codemirror, {
-                uploadUrl: '/images'
-            });
-        }
+        inlineAttachment.editors.codemirror4.attach(simplemdeHighlight.codemirror, {
+            uploadUrl: '/images'
+        });
 
         var simplemdeComment = new SimpleMDE({
             element: $("#comment")[0],
             toolbar: ["bold", "italic", "strikethrough", "heading", "code", "quote", "unordered-list", "ordered-list", "clean-block", "link", "image", "table", "horizontal-rule", "preview"],
-            insertTexts: {"image": ["[", "](/img/)"]},
+            insertTexts: {"image": ["![", "](/img/)"]},
         });
 
         inlineAttachment.editors.codemirror4.attach(simplemdeComment.codemirror, {
