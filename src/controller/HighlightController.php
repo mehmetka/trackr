@@ -45,6 +45,8 @@ class HighlightController extends Controller
         if (isset($queryString['tag'])) {
             $tagQueryString = htmlspecialchars($queryString['tag'], ENT_QUOTES | ENT_HTML401, "UTF-8");
             $highlights = $this->highlightModel->getHighlightsByTag($queryString['tag'], $_ENV['HIGHLIGHT_LIMIT']);
+            $typesenseResult = $this->highlightModel->searchHighlightTypesense('#' . $queryString['tag']);
+            $highlights = array_merge($highlights, $typesenseResult);
             $data['pageTitle'] = "Highlights #$tagQueryString | trackr";
             $data['tag'] = $tagQueryString;
         } elseif (isset($queryString['author'])) {
