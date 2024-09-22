@@ -32,11 +32,7 @@
                         </div>
                     </div>
 
-                    <ul>
-                        {{#highlights}}
-                            <li>{{{highlight}}} <a href="/highlights/{{id}}/details">Go to highlight</a></li>
-                        {{/highlights}}
-                    </ul>
+                    {{> highlight-cards }}
 
                 </div> <!-- .col-12 -->
             </div> <!-- .row -->
@@ -45,6 +41,8 @@
 </div> <!-- .wrapper -->
 
 {{> menu }}
+{{> highlight-versions }}
+
 <script src="/js/simplemde.min.js"></script>
 <script src="/js/codemirror-4.inline-attachment.min.js"></script>
 
