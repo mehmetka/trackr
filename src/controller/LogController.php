@@ -77,7 +77,7 @@ class LogController extends Controller
             if ($bookmarks) {
                 $additionalData .= "**Bookmarks**\n";
                 foreach ($bookmarks as $bookmark) {
-                    $additionalData .= "- [{$bookmark['bookmark']}]({$bookmark['title']})\n";
+                    $additionalData .= "- [{$bookmark['title']}]({$bookmark['bookmark']})\n";
                 }
             }
 
