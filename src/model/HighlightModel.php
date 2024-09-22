@@ -51,7 +51,7 @@ class HighlightModel
 
     public function getHighlightsByGivenField($field, $param, $limit = null)
     {
-        $limit = $limit ? $limit : 500;
+        $limit = $limit ?: 500;
         $list = [];
 
         $sql = "SELECT h.id, h.highlight, h.author, h.source, h.created, h.updated, h.is_encrypted, h.is_secret, h.blog_path
@@ -252,10 +252,17 @@ class HighlightModel
     public function create($params)
     {
         $params['author'] = $params['author'] ?: $_SESSION['userInfos']['username'];
-//        $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
 
-        $sql = 'INSERT INTO highlights (title, highlight, author, source, page, blog_path, book_id, is_encrypted, is_secret, created, updated, user_id)
-                VALUES(:title, :highlight, :author, :source, :page, :blog_path, :book_id, :is_encrypted, :is_secret, :created, :updated, :user_id)';
+        if (!$params['page']) {
+            unset($params['page']);
+        }
+
+        if (!$params['book_id']) {
+            unset($params['book_id']);
+        }
+
+        $sql = 'INSERT INTO highlights (title, highlight, author, source, page, link, blog_path, book_id, is_encrypted, is_secret, created, updated, user_id)
+                VALUES(:title, :highlight, :author, :source, :page, :link, :blog_path, :book_id, :is_encrypted, :is_secret, :created, :updated, :user_id)';
 
         $stm = $this->dbConnection->prepare($sql);
         $stm->bindParam(':title', $params['title'], \PDO::PARAM_STR);
@@ -263,6 +270,7 @@ class HighlightModel
         $stm->bindParam(':author', $params['author'], \PDO::PARAM_STR);
         $stm->bindParam(':source', $params['source'], \PDO::PARAM_STR);
         $stm->bindParam(':page', $params['page'], \PDO::PARAM_INT);
+        $stm->bindParam(':link', $params['bookmark_id'], \PDO::PARAM_INT);
         $stm->bindParam(':blog_path', $params['blogPath'], \PDO::PARAM_STR);
         $stm->bindParam(':book_id', $params['book_id'], \PDO::PARAM_INT);
         $stm->bindParam(':is_encrypted', $params['is_encrypted'], \PDO::PARAM_INT);
@@ -301,7 +309,14 @@ class HighlightModel
     public function update($highlightID, $params)
     {
         $params['author'] = $params['author'] ?? $_SESSION['userInfos']['username'];
-//        $params['source'] = $params['source'] ? trim($params['source']) : 'trackr';
+
+        if (!$params['page']) {
+            unset($params['page']);
+        }
+
+        if (!$params['book_id']) {
+            unset($params['book_id']);
+        }
 
         $sql = 'UPDATE highlights
                 SET title = :title, highlight = :highlight, author = :author, source = :source, page = :page, location = :location, blog_path = :blog_path, is_secret = :is_secret, is_encrypted = :is_encrypted, updated = :updated
