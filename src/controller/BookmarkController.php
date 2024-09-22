@@ -214,11 +214,13 @@ class BookmarkController extends Controller
         $bookmarkDetail = $this->bookmarkModel->getBookmarkByUid($bookmarkUid);
         $params = ArrayUtil::trimArrayElements($request->getParsedBody());
         $now = time();
-        $bookmarkDetail['highlight'] = $params['highlight'];
-        $bookmarkDetail['bookmark_id'] = $bookmarkDetail['id'];
-        $bookmarkDetail['blogPath'] = 'general/uncategorized';
-        $bookmarkDetail['created'] = $now;
-        $bookmarkDetail['updated'] = $now;
+        $highlightDetails['highlight'] = $params['highlight'];
+        $highlightDetails['bookmark_id'] = $bookmarkDetail['id'];
+        $highlightDetails['blogPath'] = 'general/uncategorized';
+        $highlightDetails['created'] = $now;
+        $highlightDetails['updated'] = $now;
+        $highlightDetails['is_secret'] = 1;
+        $highlightDetails['is_encrypted'] = 1;
 
         if (!isset($params['highlight']) || !$params['highlight']) {
             throw CustomException::clientError(StatusCode::HTTP_BAD_REQUEST, lang\En::HIGHLIGHT_CANNOT_BE_NULL);
@@ -244,16 +246,14 @@ class BookmarkController extends Controller
 
         if (TwitterUtil::isTwitterUrl($bookmarkDetail['bookmark'])) {
             $username = TwitterUtil::getUsernameFromUrl($bookmarkDetail['bookmark']);
-            $bookmarkDetail['author'] = $username;
-            $bookmarkDetail['source'] = 'Twitter';
+            $highlightDetails['author'] = $username;
+            $highlightDetails['source'] = 'Twitter';
         } else {
-            $bookmarkDetail['author'] = $bookmarkDetail['title'] ?: null;
-            $bookmarkDetail['source'] = 'Bookmark Highlight';
+            $highlightDetails['author'] = $bookmarkDetail['title'] ?: null;
+            $highlightDetails['source'] = 'Bookmark Highlight';
         }
 
-        unset($bookmarkDetail['title']);
-
-        $highlightId = $this->highlightModel->create($bookmarkDetail);
+        $highlightId = $this->highlightModel->create($highlightDetails);
 
         $typesenseClient = new Typesense('highlights');
         $document = [
