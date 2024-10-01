@@ -30,11 +30,11 @@
             <footer class="blockquote-footer">
 
                 {{#activeLinkSource}}
-                    <a href="?{{queryField}}={{ultimate_source}}">{{ultimate_source}} ~ {{created_at_formatted}}/{{updated_at_formatted}}</a>
+                    <a href="?{{queryField}}={{ultimate_source}}">{{ultimate_source}} ~ {{ultimate_timestamp}}</a>
                 {{/activeLinkSource}}
 
                 {{^activeLinkSource}}
-                    {{ultimate_source}} ~ {{created_at_formatted}}/{{updated_at_formatted}}
+                    {{ultimate_source}} ~ {{ultimate_timestamp}}
                 {{/activeLinkSource}}
 
             </footer>

@@ -140,6 +140,13 @@ class HighlightModel
 
         $highlight['parent_highlight'] = $this->getParentHighlightBySubHighlightID($highlight['id']);
         $highlight['version_count'] = $this->getVersionsCountById($highlight['id']);
+
+        if ($highlight['created'] === $highlight['updated']) {
+            $highlight['ultimate_timestamp'] = date('Y-m-d H:i:s', $highlight['created']);
+        } else {
+            $highlight['ultimate_timestamp'] = date('Y-m-d H:i:s', $highlight['created']) . ' / ' . date('Y-m-d H:i:s', $highlight['updated']);
+        }
+
         $highlight['created_at_formatted'] = date('Y-m-d H:i:s', $highlight['created']);
         $highlight['updated_at_formatted'] = date('Y-m-d H:i:s', $highlight['updated']);
         $tags = $this->tagModel->getTagsBySourceId($highlight['id'], Sources::HIGHLIGHT->value);
